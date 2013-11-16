@@ -41,6 +41,16 @@ public class Command implements Serializable {
 		this.message = message;
 	}
 	
+	public Command (CommandType commandType, int[] source, 
+			int[] destination, Item item, String message) {
+		
+		this.commandType = commandType;
+		this.source = source;
+		this.dest = destination;
+		this.item = item;
+		this.message = message;
+	}
+	
 	public CommandType getCommandType() { return this.commandType; }
 	public int[] getSource() { return this.source; }
 	public int[] getDest() { return this.dest; }
