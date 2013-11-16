@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Scanner;
 
 import shared.Command.CommandType;
+import shared.Game.WinCondition;
 
 public class PlayConsoleGame {
 
@@ -14,8 +15,7 @@ public class PlayConsoleGame {
 		ArrayList<Unit> list1 = new ArrayList<Unit>();
 		ArrayList<Unit> list2 = new ArrayList<Unit>();
 		
-		Unit alice = new Unit("Alice");
-		list1.add(alice);
+		list1.add(new Unit("Alice"));
 		list1.add(new Unit("Bob"));
 		list1.add(new Unit("Charlie"));
 		list1.add(new Unit("David"));
@@ -27,16 +27,16 @@ public class PlayConsoleGame {
 		list2.add(new Unit("Will"));
 		list2.add(new Unit("Van"));
 		
-		Game game = new Game(list1,list2);
+		Game game = new Game(list1,list2,WinCondition.Deathmatch);
 		
 		Scanner input = new Scanner( System.in );
 		int[] src = new int[2];
 		int[] dest = new int[2];
 		
-		while(true) {
+		while(!game.checkWinCondition()) {
 			System.out.println(game.toString());
 			
-			//System.out.println(game.lineOfSightGrid(alice.getLocation()));
+			//System.out.println(game.lineOfSightGrid(list1.get(0).getLocation()));
 			System.out.print("Select action: ");
 			String action = input.next();
 			
@@ -65,6 +65,10 @@ public class PlayConsoleGame {
 			}
 			
 			System.out.println(game.executeCommand(c));
+			
+			if(game.checkWinCondition()) {
+				System.out.println("You won!");
+			}
 		}
 
 	}

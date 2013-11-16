@@ -35,5 +35,13 @@ public class GameSquare {
 	public boolean hasOccupant() {
 		return occupant != null;
 	}
+
+	public int getRow() {
+		return rowLocation;
+	}
+	
+	public int getCol() {
+		return colLocation;
+	}
 	
 }

@@ -13,12 +13,13 @@ public class Game implements Serializable {
 	GameSquare[][] board;
 	ArrayList<Unit> unitListRed = new ArrayList<Unit>();
 	ArrayList<Unit> unitListBlue = new ArrayList<Unit>();
+	WinCondition victoryCondition;
 	Server server;
 	
 	int currentPlayer;
 	
 	
-	public Game(ArrayList<Unit> redUnits, ArrayList<Unit> blueUnits) {
+	public Game(ArrayList<Unit> redUnits, ArrayList<Unit> blueUnits, WinCondition condition) {
 		
 		char[][] fieldArray = {
 				{'R','R','R','X',' ',' ',' ',' ',' ',' ',' ',' '},
@@ -55,6 +56,7 @@ public class Game implements Serializable {
 		
 		unitListRed = redUnits;
 		unitListBlue = blueUnits;
+		victoryCondition = condition;
 		
 	}
 	
@@ -71,6 +73,8 @@ public class Game implements Serializable {
 			break;
 		case EndTurn:
 			executed = doEndTurnCommand(com);
+			break;
+		default:
 			break;
 		}
 		
@@ -96,16 +100,12 @@ public class Game implements Serializable {
 			return false;
 		}
 		
-		if( performer == null || !performer.isMovable() || atDest != null) {
+		if( performer == null || atDest != null) {
 			return false;
 		}
 		
-		double apCost = Math.sqrt(Math.pow(srcCoords[0]-destCoords[0], 2)+Math.pow(srcCoords[1]-destCoords[1], 2));
-		System.out.println(apCost);
-		if(performer.getActionPoints() >= apCost && lineOfSightExists(srcSquare,destSquare)) {
-			destSquare.setOccupant(performer);
-			srcSquare.setOccupant(null);
-			performer.consumeActionPoints(apCost);
+		if(performer.canMoveTo(destSquare) && lineOfSightExists(srcSquare,destSquare)) {
+			performer.moveTo(destSquare);
 			return true;
 		} else {
 			return false;
@@ -133,7 +133,7 @@ public class Game implements Serializable {
 		
 		if(!(performer instanceof Unit) || receiver == null) return false;
 		
-		if(lineOfSightExists(srcSquare, destSquare)) {
+		if(lineOfSightExists(srcSquare, destSquare) && performer.isInRange(receiver) && performer.getActionPoints() > 0) {
 			performer.attack(receiver);
 			return true;
 		}
@@ -149,7 +149,30 @@ public class Game implements Serializable {
 			unitListBlue.get(i).restoreActionPoints();
 		}
 		currentPlayer = currentPlayer == 0 ? 1 : 0;
+		checkWinCondition();
 		return true;
+	}
+
+	public boolean checkWinCondition() {
+		switch(victoryCondition) {
+		case Deathmatch:
+			
+			boolean allDead = true;
+			for(Unit u : unitListRed) {
+				if(!u.isDead()) allDead = false;
+			}
+			if(allDead) return true;
+			
+			allDead = true;
+			for(Unit u : unitListBlue) {
+				if(!u.isDead()) allDead = false;
+			}
+			return allDead;
+			
+		default:
+			return false;
+		}
+		
 	}
 
 	public boolean isLegalPlay(Command com, int whoseTurn, int playerNumber) {
@@ -254,6 +277,12 @@ public class Game implements Serializable {
 	    }
 
 	    return result;
+	}
+	
+	public enum WinCondition {
+		Deathmatch,
+		CTF,
+		Demolition;
 	}
 	
 }
