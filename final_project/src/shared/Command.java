@@ -64,6 +64,7 @@ public class Command implements Serializable {
 		Message,
 		Move,
 		NewAI,
+		StartGame,
 		NewGame,
 		GiveItem,
 		UseItem,

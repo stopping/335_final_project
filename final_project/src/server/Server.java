@@ -10,6 +10,7 @@ import java.util.HashMap;
 
 import shared.Command;
 import shared.Game;
+import shared.Game.WinCondition;
 import shared.Unit;
 
 /**
@@ -169,11 +170,11 @@ public class Server implements Runnable {
 			case StartGame:
 				if (currentPlayers.size() == 2)
 					game = new Game(database.getUnits(currentPlayers.get(0)),
-							database.getUnits(currentPlayers.get(1)));
+							database.getUnits(currentPlayers.get(1)), WinCondition.CTF);
 				
 				else {
 					ArrayList<Unit> aiUnits = setNewUserUnits();
-					game = new Game(database.getUnits(currentPlayers.get(0)), aiUnits);
+					game = new Game(database.getUnits(currentPlayers.get(0)), aiUnits, WinCondition.CTF);
 				}
 				sendNewGame();
 				break;
