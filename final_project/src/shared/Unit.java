@@ -4,6 +4,7 @@ public class Unit extends Occupant {
 	
 	private int strength;
 	private double actionPoints;
+	private double maxActionPoints;
 	private int speed;
 	
 	public Unit(String newName) {
@@ -12,7 +13,8 @@ public class Unit extends Occupant {
 		defense = 0;
 		hitPoints = 10;
 		movable = true;
-		actionPoints = 5;
+		maxActionPoints = 5;
+		actionPoints = maxActionPoints;
 		speed = 1;
 	}
 	
@@ -31,4 +33,10 @@ public class Unit extends Occupant {
 	public double getActionPoints() {
 		return actionPoints;
 	}
+	
+	public void restoreActionPoints() {
+		actionPoints = maxActionPoints;
+	}
+
+
 }

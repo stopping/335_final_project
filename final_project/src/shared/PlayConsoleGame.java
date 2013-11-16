@@ -39,17 +39,30 @@ public class PlayConsoleGame {
 			//System.out.println(game.lineOfSightGrid(alice.getLocation()));
 			System.out.print("Select action: ");
 			String action = input.next();
-			System.out.print("Select source: ");
-			src[0] = input.nextInt();
-			src[1] = input.nextInt();
-			System.out.print("Select destination: ");
-			dest[0] = input.nextInt();
-			dest[1] = input.nextInt();
 			
 			Command c = null;
 			
-			if(action.equalsIgnoreCase("m")) c = new Command(CommandType.Move, src, dest, null, null);
-			if(action.equalsIgnoreCase("a")) c = new Command(CommandType.Attack, src, dest, null, null);
+			if(action.equalsIgnoreCase("m")) {
+				System.out.print("Select source: ");
+				src[0] = input.nextInt();
+				src[1] = input.nextInt();
+				System.out.print("Select destination: ");
+				dest[0] = input.nextInt();
+				dest[1] = input.nextInt();
+				c = new Command(CommandType.Move, src, dest, null, null);
+			}
+			if(action.equalsIgnoreCase("a")) {
+				System.out.print("Select source: ");
+				src[0] = input.nextInt();
+				src[1] = input.nextInt();
+				System.out.print("Select destination: ");
+				dest[0] = input.nextInt();
+				dest[1] = input.nextInt();
+				c = new Command(CommandType.Attack, src, dest, null, null);
+			}
+			if(action.equalsIgnoreCase("e")) {
+				c = new Command(CommandType.EndTurn, null, null, null, null);
+			}
 			
 			System.out.println(game.executeCommand(c));
 		}

@@ -15,6 +15,8 @@ public class Game implements Serializable {
 	ArrayList<Unit> unitListBlue = new ArrayList<Unit>();
 	Server server;
 	
+	int currentPlayer;
+	
 	
 	public Game(ArrayList<Unit> redUnits, ArrayList<Unit> blueUnits) {
 		
@@ -49,6 +51,11 @@ public class Game implements Serializable {
 			}
 		}
 		
+		currentPlayer = 0;
+		
+		unitListRed = redUnits;
+		unitListBlue = blueUnits;
+		
 	}
 	
 	public boolean executeCommand( Command com ) {
@@ -62,7 +69,9 @@ public class Game implements Serializable {
 		case Attack:
 			executed = doAttackCommand(com);
 			break;
-		
+		case EndTurn:
+			executed = doEndTurnCommand(com);
+			break;
 		}
 		
 		return executed;
@@ -77,6 +86,15 @@ public class Game implements Serializable {
 		GameSquare destSquare = board[destCoords[0]][destCoords[1]];
 		Unit toMove = (Unit) srcSquare.getOccupant();
 		Occupant atDest = destSquare.getOccupant();
+		
+		if( currentPlayer == 0 && !unitListRed.contains(toMove) ) {
+			System.out.println("Red does not own this unit!");
+			return false;
+		}
+		if( currentPlayer == 1 && !unitListBlue.contains(toMove) ) {
+			System.out.println("Blue does not own this unit!");
+			return false;
+		}
 		
 		if( toMove == null || !toMove.isMovable() || atDest != null) {
 			return false;
@@ -107,6 +125,17 @@ public class Game implements Serializable {
 		if(!(performer instanceof Unit) || receiver == null) return false;
 		((Unit) performer).attack(receiver);
 		
+		return true;
+	}
+	
+	public boolean doEndTurnCommand( Command com ) {
+		for(int i = 0; i < unitListRed.size(); i++) {
+			unitListRed.get(i).restoreActionPoints();
+		}
+		for(int i = 0; i < unitListBlue.size(); i++) {
+			unitListBlue.get(i).restoreActionPoints();
+		}
+		currentPlayer = currentPlayer == 0 ? 1 : 0;
 		return true;
 	}
 

@@ -11,6 +11,7 @@ public abstract class Occupant {
 	public void setLocation( GameSquare g ) { location = g; }
 	public GameSquare getLocation() { return location; }
 	public boolean isMovable() { return movable; }
+	protected String getName() { return name; }
 	
 	public String toString() {
 		if(name == null) return " ";
@@ -25,6 +26,10 @@ public abstract class Occupant {
 			location.setOccupant(null);
 			location = null;
 		}
+	}
+	
+	protected boolean equals( Unit otherUnit ) {
+		return name.equals(otherUnit.getName());
 	}
 	
 }
