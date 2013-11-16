@@ -84,28 +84,28 @@ public class Game implements Serializable {
 		int destCoords[] = com.getDest();
 		GameSquare srcSquare = board[srcCoords[0]][srcCoords[1]];
 		GameSquare destSquare = board[destCoords[0]][destCoords[1]];
-		Unit toMove = (Unit) srcSquare.getOccupant();
+		Unit performer = (Unit) srcSquare.getOccupant();
 		Occupant atDest = destSquare.getOccupant();
 		
-		if( currentPlayer == 0 && !unitListRed.contains(toMove) ) {
+		if( currentPlayer == 0 && !unitListRed.contains(performer) ) {
 			System.out.println("Red does not own this unit!");
 			return false;
 		}
-		if( currentPlayer == 1 && !unitListBlue.contains(toMove) ) {
+		if( currentPlayer == 1 && !unitListBlue.contains(performer) ) {
 			System.out.println("Blue does not own this unit!");
 			return false;
 		}
 		
-		if( toMove == null || !toMove.isMovable() || atDest != null) {
+		if( performer == null || !performer.isMovable() || atDest != null) {
 			return false;
 		}
 		
 		double apCost = Math.sqrt(Math.pow(srcCoords[0]-destCoords[0], 2)+Math.pow(srcCoords[1]-destCoords[1], 2));
 		System.out.println(apCost);
-		if(toMove.getActionPoints() >= apCost && lineOfSightExists(srcSquare,destSquare)) {
-			destSquare.setOccupant(toMove);
+		if(performer.getActionPoints() >= apCost && lineOfSightExists(srcSquare,destSquare)) {
+			destSquare.setOccupant(performer);
 			srcSquare.setOccupant(null);
-			toMove.consumeActionPoints(apCost);
+			performer.consumeActionPoints(apCost);
 			return true;
 		} else {
 			return false;
@@ -119,13 +119,26 @@ public class Game implements Serializable {
 		int destCoords[] = com.getDest();
 		GameSquare srcSquare = board[srcCoords[0]][srcCoords[1]];
 		GameSquare destSquare = board[destCoords[0]][destCoords[1]];
-		Occupant performer = srcSquare.getOccupant();
+		Unit performer = (Unit) srcSquare.getOccupant();
 		Occupant receiver = destSquare.getOccupant();
 		
-		if(!(performer instanceof Unit) || receiver == null) return false;
-		((Unit) performer).attack(receiver);
+		if( currentPlayer == 0 && !unitListRed.contains(performer) ) {
+			System.out.println("Red does not own this unit!");
+			return false;
+		}
+		if( currentPlayer == 1 && !unitListBlue.contains(performer) ) {
+			System.out.println("Blue does not own this unit!");
+			return false;
+		}
 		
-		return true;
+		if(!(performer instanceof Unit) || receiver == null) return false;
+		
+		if(lineOfSightExists(srcSquare, destSquare)) {
+			performer.attack(receiver);
+			return true;
+		}
+		
+		return false;
 	}
 	
 	public boolean doEndTurnCommand( Command com ) {
