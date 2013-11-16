@@ -16,37 +16,39 @@ public class Game implements Serializable {
 	Server server;
 	
 	
-	public Game(int rows, int cols, ArrayList<Unit> redUnits, ArrayList<Unit> blueUnits) {
+	public Game(ArrayList<Unit> redUnits, ArrayList<Unit> blueUnits) {
 		
-		char[][] obstacleArray = {
-				{' ',' ','X','X','X','X','X','X',' ',' '},
-				{' ',' ','X',' ',' ',' ',' ','X',' ',' '},
-				{' ',' ',' ',' ',' ',' ',' ','X',' ',' '},
-				{' ',' ','X',' ',' ',' ',' ','X',' ',' '},
-				{' ',' ','X',' ',' ',' ',' ','X',' ',' '},
-				{' ',' ','X','X',' ','X','X','X',' ',' '},
-				{' ',' ','X',' ',' ',' ',' ','X',' ',' '},
-				{' ',' ','X',' ',' ',' ',' ','X',' ',' '},
-				{' ',' ','X','X','X','X','X','X',' ',' '},
-				{' ',' ',' ',' ',' ',' ',' ',' ',' ',' '} };
+		char[][] fieldArray = {
+				{'R','R','R','X',' ',' ',' ',' ',' ',' ',' ',' '},
+				{' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' '},
+				{' ','R','R','X',' ',' ','X','X','X','X',' ',' '},
+				{' ','X','X','X',' ',' ',' ',' ',' ','X',' ',' '},
+				{' ',' ','X',' ',' ',' ',' ',' ',' ','X',' ',' '},
+				{' ',' ','X',' ',' ',' ',' ',' ',' ','X',' ',' '},
+				{'X',' ','X',' ',' ',' ',' ',' ',' ',' ',' ',' '},
+				{' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' '},
+				{' ',' ','X',' ',' ',' ',' ',' ','X','X',' ','X'},
+				{' ',' ','X','X',' ','X','X','X','X','B',' ','B'},
+				{' ',' ',' ',' ',' ',' ',' ',' ','X','B',' ','B'},
+				{' ',' ',' ',' ',' ','X',' ',' ',' ',' ',' ','B'} };
+		
+		int rows = fieldArray.length;
+		int cols = fieldArray[0].length;
 		
 		board = new GameSquare[rows][cols];
+		
+		int redCount = 0;
+		int blueCount = 0;
+		
 		for(int r = 0; r < rows; r++) {
 			for(int c = 0; c < cols; c++) {
 				board[r][c] = new GameSquare( Terrain.Grass, r, c );
-				if(obstacleArray[r][c] == 'X') board[r][c].setOccupant(new Obstacle());
+				if(fieldArray[r][c] == 'X') board[r][c].setOccupant(new Obstacle());
+				if(fieldArray[r][c] == 'R') board[r][c].setOccupant(redUnits.get(redCount++));
+				if(fieldArray[r][c] == 'B') board[r][c].setOccupant(blueUnits.get(blueCount++));
 			}
 		}
 		
-		for(int i = 0; i < redUnits.size(); i++) {
-			board[i][0].setOccupant(redUnits.get(i));
-		}
-		
-		for(int i = 0; i < blueUnits.size(); i++) {
-			int rowStart = board.length-1;
-			int col = board[0].length-1;
-			board[rowStart-i][col].setOccupant(blueUnits.get(i));
-		}
 	}
 	
 	public boolean executeCommand( Command com ) {
@@ -73,19 +75,23 @@ public class Game implements Serializable {
 		int destCoords[] = com.getDest();
 		GameSquare srcSquare = board[srcCoords[0]][srcCoords[1]];
 		GameSquare destSquare = board[destCoords[0]][destCoords[1]];
-		Occupant toMove = srcSquare.getOccupant();
+		Unit toMove = (Unit) srcSquare.getOccupant();
 		Occupant atDest = destSquare.getOccupant();
-		
-		System.out.println(toMove == null);
 		
 		if( toMove == null || !toMove.isMovable() || atDest != null) {
 			return false;
 		}
 		
-		destSquare.setOccupant(toMove);
-		srcSquare.setOccupant(null);
-		
-		return true;
+		double apCost = Math.sqrt(Math.pow(srcCoords[0]-destCoords[0], 2)+Math.pow(srcCoords[1]-destCoords[1], 2));
+		System.out.println(apCost);
+		if(toMove.getActionPoints() >= apCost && lineOfSightExists(srcSquare,destSquare)) {
+			destSquare.setOccupant(toMove);
+			srcSquare.setOccupant(null);
+			toMove.consumeActionPoints(apCost);
+			return true;
+		} else {
+			return false;
+		}
 		
 	}
 	

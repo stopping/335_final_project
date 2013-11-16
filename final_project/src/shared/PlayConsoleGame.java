@@ -16,7 +16,6 @@ public class PlayConsoleGame {
 		
 		Unit alice = new Unit("Alice");
 		list1.add(alice);
-		/*
 		list1.add(new Unit("Bob"));
 		list1.add(new Unit("Charlie"));
 		list1.add(new Unit("David"));
@@ -27,9 +26,8 @@ public class PlayConsoleGame {
 		list2.add(new Unit("Xavier"));
 		list2.add(new Unit("Will"));
 		list2.add(new Unit("Van"));
-		*/
 		
-		Game game = new Game(10,10,list1,list2);
+		Game game = new Game(list1,list2);
 		
 		Scanner input = new Scanner( System.in );
 		int[] src = new int[2];
@@ -38,7 +36,7 @@ public class PlayConsoleGame {
 		while(true) {
 			System.out.println(game.toString());
 			
-			System.out.println(game.lineOfSightGrid(alice.getLocation()));
+			//System.out.println(game.lineOfSightGrid(alice.getLocation()));
 			System.out.print("Select action: ");
 			String action = input.next();
 			System.out.print("Select source: ");
