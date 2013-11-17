@@ -3,6 +3,7 @@ package shared;
 import java.util.ArrayList;
 import java.util.List;
 
+@SuppressWarnings("serial")
 public class Unit extends Occupant {
 	
 	private double strength;
@@ -123,8 +124,8 @@ public class Unit extends Occupant {
 		int srcCol = location.getCol();
 		int destCol = destSquare.getCol();
 		double apCost = Math.sqrt(Math.pow(srcRow-destRow, 2)+Math.pow(srcCol-destCol, 2));
-		
-		return apCost/speed >= actionPoints;
+
+		return apCost/speed <= actionPoints;
 	}
 
 	public boolean giveItem( Item i, Unit receiver ) {

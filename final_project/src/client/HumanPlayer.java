@@ -20,34 +20,9 @@ public class HumanPlayer implements Player {
 	
 	@Override
 	public void parseAndExecuteCommand(Command com) {
-		
-		switch(com.getCommandType()) {
-		
-			case Attack:
-				//game.attack(com);
-				break;
-				
-			case Message:
-				break;
-			
-			case Move:
-				//game.move(com);
-				break;
-				
-			case GiveItem:
-				//game.giveItem(com);
-				break;
-				
-			case UseItem:
-				//game.useItem(com);
-				break;
-				
-			default:
-				break;
-		}
+		System.out.println(game.executeCommand(com));
 	}
 
-	@Override
 	public void update() {
 		System.out.println(game.toString());
 	}

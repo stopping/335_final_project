@@ -7,7 +7,7 @@ import shared.Command.CommandType;
 
 public class TextView {
 
-	private Scanner keyboard; 
+	private Scanner input; 
 	private HumanPlayer humanPlayer;
 	private String controls;
 	
@@ -16,24 +16,28 @@ public class TextView {
 	}
 	
 	public TextView() {
-		controls = "'m' to move \n'a' to attack'\n";
+		controls = "'m' -- move \n'a' -- attack'\n'e' -- end turn";
 		humanPlayer = new HumanPlayer();
-		keyboard = new Scanner(System.in);
+		input = new Scanner(System.in);
 		runGame();
 	}
 	
 	private void sendCommand(String key) {
+		
+		int[] src = new int[2];
+		int[] dest = new int[2];
+		
 		switch (key) {
 			case "q":
 				humanPlayer.sendCommand(new Command(CommandType.Quit,
 						0, 0, 0, 0, null, null));
+				input.close();
 				System.exit(0);
 				break;
 				
 			case "ai":
 				humanPlayer.sendCommand(new Command(CommandType.NewAI,
 						0, 0, 0, 0, null, null));
-
 				break;
 				
 			case "start":
@@ -41,7 +45,32 @@ public class TextView {
 						0, 0, 0, 0, null, null));
 				break;
 				
-
+			case "e":
+				humanPlayer.sendCommand(new Command(CommandType.EndTurn,
+						null, null, null, null));
+				break;
+				
+			case "m":
+				System.out.print("Select source: ");
+				src[0] = input.nextInt();
+				src[1] = input.nextInt();
+				System.out.print("Select destination: ");
+				dest[0] = input.nextInt();
+				dest[1] = input.nextInt();
+				humanPlayer.sendCommand(new Command(CommandType.Move, 
+						src, dest, null, null));
+				break;
+				
+			case "a":
+				System.out.print("Select source: ");
+				src[0] = input.nextInt();
+				src[1] = input.nextInt();
+				System.out.print("Select destination: ");
+				dest[0] = input.nextInt();
+				dest[1] = input.nextInt();
+				humanPlayer.sendCommand(new Command(CommandType.Attack, 
+						src, dest, null, null));
+				break;
 		}
 	}
 	
@@ -49,26 +78,28 @@ public class TextView {
 		String key = "";
 		
 		// login 
-		System.out.println("Login:");
-		key = keyboard.next();
+		System.out.print("Login: ");
+		key = input.next();
 		humanPlayer.sendCommand(new Command (CommandType.Login, 
 						0, 0, 0, 0, null, key));
 		
 		// create new AI
-		System.out.println("Enter 'AI' to play against computer.");
-		key = keyboard.next();
+		System.out.print("Enter 'AI' to play against computer: ");
+		key = input.next();
 		sendCommand(key);
 		
 		// start the game
-		System.out.println("Enter 'START' to begin the game.");
-		key = keyboard.next();
+		System.out.print("Enter 'START' to begin the game: ");
+		key = input.next();
 		sendCommand(key);
 		
+		System.out.println("\n" + controls);
+		
 		// loop and send commands
-		while (keyboard.hasNext()) {
-			System.out.println(controls);
-			key = keyboard.next();
+		while (input.hasNext()) {
+			key = input.next();
 			sendCommand(key);			
+			System.out.println(controls);
 		}
 	}
 

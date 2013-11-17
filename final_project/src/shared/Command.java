@@ -59,6 +59,7 @@ public class Command implements Serializable {
 	
 	public enum CommandType {
 		Attack,
+		AITurn,
 		EndTurn,
 		Login,
 		Message,

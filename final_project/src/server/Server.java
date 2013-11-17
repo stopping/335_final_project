@@ -6,9 +6,9 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Deque;
-import java.util.HashMap;
-
+import java.util.LinkedList;
 import shared.Command;
+import shared.Command.CommandType;
 import shared.Game;
 import shared.Game.WinCondition;
 import shared.Unit;
@@ -16,20 +16,17 @@ import shared.Unit;
 /**
  * Class:	Server
  * Purpose:	Wait for new clients and start in new threads. Send
- * 				Commands to all clients when game state changes.
- * @author  Kyle Criddle
+ * 				Commands to all clients when player ends turn.
  */
 public class Server implements Runnable {
 	
 	public static final int PORT_NUMBER = 4009;
 	private static ArrayList<ClientHandler> clients;
-	private Deque<Command> playerCommands;			// command queue
-	private int numPlayers;  									// total number of players including AI
-	private int whoseTurn; 										// reference to the index of clients whose turn it is
-	private Game game;											// Server's reference to the Game
+	private Deque<Command> playerCommands;					
+	private Game game;											
 	private UserDatabase database;
-	private ArrayList<String> currentPlayers;
-	private ComputerPlayer computerPlayer;
+	private ArrayList<ArrayList<Unit>> currentPlayers;
+	private boolean isAIGame;
 	
 	public static void main(String[] args) {
 		Server server = new Server();
@@ -40,16 +37,16 @@ public class Server implements Runnable {
 	
 	private Server() {
 		clients = new ArrayList<ClientHandler>();
-		whoseTurn = 0;
 		database = new UserDatabase();
-		currentPlayers = new ArrayList<String>();
+		currentPlayers = new ArrayList<ArrayList<Unit>>();
+		playerCommands = new LinkedList<Command>();
 	}
 
 	@Override
 	public void run() {
 		Socket clientHandle = null;
 		ServerSocket sockServer = null;
-		int numPlayers = 0;
+	   int numPlayers = 0;
 		
 		try {
 			sockServer = new ServerSocket(PORT_NUMBER);
@@ -63,6 +60,7 @@ public class Server implements Runnable {
 
 				clients.add(newClient);
 				numPlayers++;
+				System.out.println("new player connected");
 				newThread.start();		
 			}
 			
@@ -71,14 +69,7 @@ public class Server implements Runnable {
 		}
 	}
 	
-	private void newComputerPlayer() {
-		ComputerPlayer cp = new ComputerPlayer();
-		Thread t = new Thread(cp);
-		t.start();
-		numPlayers++;
-
-	}
-	
+	// TODO: make a process for creating a new army for human player and AI
 	private ArrayList<Unit> setNewUserUnits() {
 		ArrayList<Unit> units = new ArrayList<Unit>();
 		units.add(new Unit("Zander"));
@@ -89,23 +80,29 @@ public class Server implements Runnable {
 		return units;
 	}
 	
-	// send all clients the current user's commands
+	// send all clients the current user's commands in FIFO
+	// if playing the AI, passes him his turn
 	private void updateClients() {
 		
 		while (!playerCommands.isEmpty()) {
 			for (ClientHandler client : clients) {
-				if (client.playerNumber != whoseTurn)
+				if (game.isCurrentPlayer(client.playerNumber)) {
+					System.out.println("sending command: " + 
+							playerCommands.peekFirst().getCommandType() +
+							" to player " + client.playerNumber);
 					client.sendCommand(playerCommands.removeFirst());
+				}
 			}
 		}
 		
-		whoseTurn = (whoseTurn < numPlayers) ? whoseTurn++ : 0;
+		if (isAIGame && game.isCurrentPlayer(1)) 
+			clients.get(1).sendCommand(new Command(CommandType.AITurn,
+					0, 0, 0, 0, null, null));
 	}
 	
 	// send the clients the starting game
 	private void sendNewGame() {
 		for (ClientHandler client : clients) {
-			if (client.playerNumber != whoseTurn)
 				client.sendGame();
 		}		
 	}
@@ -114,7 +111,6 @@ public class Server implements Runnable {
 	 * Class:	ClientHandler
 	 * Purpose:	Handle input from a single client
 	 * @param   Socket clientSock:	Socket connection to the client
-	 * @author  Kyle Criddle
 	 */
 	private class ClientHandler implements Runnable {
 
@@ -125,7 +121,7 @@ public class Server implements Runnable {
 		public ClientHandler(Socket clientSock, int clientNum) {
 			
 			playerNumber = clientNum;
-			
+		
 			try {
 				output = new ObjectOutputStream(clientSock.getOutputStream());
 				input = new ObjectInputStream(clientSock.getInputStream());
@@ -137,31 +133,29 @@ public class Server implements Runnable {
 		
 		private void parseCommand(Command com) {
 			
+			System.out.println("player " + 
+					playerNumber + " Commanded " + com.getCommandType());
+			
 			switch (com.getCommandType()) {
 
 			case EndTurn:
-				if (whoseTurn == playerNumber)
+				if (game.isCurrentPlayer(playerNumber))		
+					sendCommand(com);
+					game.executeCommand(com);
 					updateClients();
 				break;
 				
-			case Login:
-				// TODO: check if there are games already running and 
-				// determine if a new game should be started
-				
+			case Login:				
 				String name = com.getMessage();
-				if (database.hasUser(name)) {
-					database.getUnits(name);
-					currentPlayers.add(name);
-				}
-				else {
+				if (!database.hasUser(name) && !name.equals("ComputerPlayer")) 
 					database.addUser(name, setNewUserUnits());
-				}
-				
+				currentPlayers.add(database.getUnits(name));
 				break;
 				
 			case NewAI:
-				new ComputerPlayerHandler();
-				currentPlayers.add("ComputerPlayer");
+				currentPlayers.add(setNewUserUnits());
+				new ComputerPlayer();
+				isAIGame = true;
 				break;
 				
 			case NewGame:
@@ -169,25 +163,23 @@ public class Server implements Runnable {
 				
 			case StartGame:
 				if (currentPlayers.size() == 2)
-					game = new Game(database.getUnits(currentPlayers.get(0)),
-							database.getUnits(currentPlayers.get(1)), WinCondition.CTF);
-				
-				else {
-					ArrayList<Unit> aiUnits = setNewUserUnits();
-					game = new Game(database.getUnits(currentPlayers.get(0)), aiUnits, WinCondition.CTF);
-				}
+					game = new Game(currentPlayers.get(0), currentPlayers.get(1),
+							WinCondition.CTF);
 				sendNewGame();
 				break;
 				
 			case Quit:
 				clients.remove(playerNumber);
-				numPlayers--;
+				// TODO: game.playerForfeit(playerNumer);
 				break;
 
 			default:
-				playerCommands.add(com);
-				sendCommand(com);
-				break;
+				if (game.isCurrentPlayer(playerNumber)) {	
+					playerCommands.add(com);
+					sendCommand(com);
+					game.executeCommand(com);
+					break;
+				}
 			}
 		}
 
@@ -212,9 +204,6 @@ public class Server implements Runnable {
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-			
-			if (computerPlayer != null) 
-				computerPlayer.setGame(game);
 		}
 		
 		private void sendCommand(Command c) {
@@ -225,16 +214,6 @@ public class Server implements Runnable {
 			}
 		}
 	
-	}
-	
-	private class ComputerPlayerHandler implements Runnable {
-
-		@Override
-		public void run() {
-			// TODO Auto-generated method stub
-			
-		}
-		
 	}
 	
 

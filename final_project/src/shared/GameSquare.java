@@ -1,6 +1,9 @@
 package shared;
 
-public class GameSquare {
+import java.io.Serializable;
+
+@SuppressWarnings("serial")
+public class GameSquare implements Serializable {
 	
 	Terrain terrain;
 	Occupant occupant;

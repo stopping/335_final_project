@@ -1,6 +1,9 @@
 package shared;
 
-public abstract class Occupant {
+import java.io.Serializable;
+
+@SuppressWarnings("serial")
+public abstract class Occupant implements Serializable {
 	
 	protected String name;
 	protected GameSquare location;

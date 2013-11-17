@@ -22,14 +22,6 @@ public interface Player {
 	
 	
 	/**
-	 * The Player's visual representation of the game is
-	 * updated in this method.
-	 * 
-	 */
-	public abstract void update();
-	
-	
-	/**
 	 * Player receives a new game when they join.
 	 * Should only be called once.
 	 * 

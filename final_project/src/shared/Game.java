@@ -175,9 +175,8 @@ public class Game implements Serializable {
 		
 	}
 
-	public boolean isLegalPlay(Command com, int whoseTurn, int playerNumber) {
-		// TODO Auto-generated method stub
-		return false;
+	public boolean isCurrentPlayer(int player) {
+		return currentPlayer == player ? true : false;
 	}
 	
 	@Override
