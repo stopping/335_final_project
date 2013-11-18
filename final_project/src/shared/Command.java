@@ -69,6 +69,7 @@ public class Command implements Serializable {
 		NewGame,
 		GiveItem,
 		UseItem,
+		Password,
 		Quit
 	}
 }

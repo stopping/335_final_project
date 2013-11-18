@@ -4,20 +4,23 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.ConnectException;
 import java.net.Socket;
+import java.util.ArrayList;
 
 import client.Player;
 import shared.Command;
 import shared.Game;
+import shared.Unit;
 
 public class ComputerPlayer implements Player, Runnable {
 
 	private ObjectOutputStream output;
 	private ObjectInputStream input;
 	private Game game;
+	private ArrayList<Unit> myUnits;
 
-	public ComputerPlayer() {
+	public ComputerPlayer(ArrayList<Unit> aiNewUnits) {
 		Socket sock = null;
-
+		myUnits = aiNewUnits;
 		try {
 			sock = new Socket("localhost", 4009);				
 			this.output = new ObjectOutputStream(sock.getOutputStream());
@@ -29,15 +32,14 @@ public class ComputerPlayer implements Player, Runnable {
 	}
 
 	@Override
-	public void parseAndExecuteCommand(Command c) {
+	public void parseAndExecuteCommand(Command c) {	
 		// TODO Auto-generated method stub
-		
 	}
+
 
 	@Override
 	public void setGame(Game g) {
 		// TODO Auto-generated method stub
-		
 	}
 
 	@Override

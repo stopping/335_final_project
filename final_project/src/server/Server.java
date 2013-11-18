@@ -80,6 +80,16 @@ public class Server implements Runnable {
 		return units;
 	}
 	
+	private ArrayList<Unit> generateAIUnits() {
+		ArrayList<Unit> units = new ArrayList<Unit>();
+		units.add(new Unit("Zander"));
+		units.add(new Unit("Yvonne"));
+		units.add(new Unit("Xavier"));
+		units.add(new Unit("Will"));
+		units.add(new Unit("Van"));
+		return units;
+	}
+	
 	// send all clients the current user's commands in FIFO
 	// if playing the AI, passes him his turn
 	private void updateClients() {
@@ -147,14 +157,15 @@ public class Server implements Runnable {
 				
 			case Login:				
 				String name = com.getMessage();
-				if (!database.hasUser(name) && !name.equals("ComputerPlayer")) 
+				if (!database.hasUser(name)) 
 					database.addUser(name, setNewUserUnits());
 				currentPlayers.add(database.getUnits(name));
 				break;
 				
 			case NewAI:
-				currentPlayers.add(setNewUserUnits());
-				new ComputerPlayer();
+				ArrayList<Unit> computerPlayerArmy = generateAIUnits();
+				currentPlayers.add(computerPlayerArmy);
+				new ComputerPlayer(computerPlayerArmy);
 				isAIGame = true;
 				break;
 				
