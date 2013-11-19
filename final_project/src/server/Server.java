@@ -21,12 +21,9 @@ import shared.Unit;
 public class Server implements Runnable {
 	
 	public static final int PORT_NUMBER = 4009;
-	private static ArrayList<ClientHandler> clients;
-	private Deque<Command> playerCommands;					
-	private Game game;											
+	private static ArrayList<ClientHandler> clients;						
 	private UserDatabase database;
-	private ArrayList<ArrayList<Unit>> currentPlayers;
-	private boolean isAIGame;
+	private int numPlayers;
 	
 	public static void main(String[] args) {
 		Server server = new Server();
@@ -38,15 +35,13 @@ public class Server implements Runnable {
 	private Server() {
 		clients = new ArrayList<ClientHandler>();
 		database = new UserDatabase();
-		currentPlayers = new ArrayList<ArrayList<Unit>>();
-		playerCommands = new LinkedList<Command>();
 	}
 
 	@Override
 	public void run() {
 		Socket clientHandle = null;
 		ServerSocket sockServer = null;
-	   int numPlayers = 0;
+	   numPlayers = 0;
 		
 		try {
 			sockServer = new ServerSocket(PORT_NUMBER);
@@ -67,6 +62,10 @@ public class Server implements Runnable {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+	
+	private void setOpponent(String player, int opponentNum) {
+		clients.get(opponentNum).setOpponentName(player);
 	}
 	
 	// TODO: make a process for creating a new army for human player and AI
@@ -90,31 +89,28 @@ public class Server implements Runnable {
 		return units;
 	}
 	
-	// send all clients the current user's commands in FIFO
-	// if playing the AI, passes him his turn
-	private void updateClients() {
+	// send the clients the current user's commands in FIFO if playing the AI, passes him his turn
+	private void updateClients( int playerNumber, Deque<Command> playerCommands, boolean isAIGame) {
 		
+		int playerToSendCommandsTo = playerNumber % 2 == 0 ? playerNumber+1 : playerNumber-1;
+		ClientHandler client = clients.get(playerToSendCommandsTo);
+
 		while (!playerCommands.isEmpty()) {
-			for (ClientHandler client : clients) {
-				if (game.isCurrentPlayer(client.playerNumber)) {
-					System.out.println("sending command: " + 
-							playerCommands.peekFirst().getCommandType() +
-							" to player " + client.playerNumber);
-					client.sendCommand(playerCommands.removeFirst());
-				}
-			}
+			System.out.println("sending command: " + 
+					playerCommands.peekFirst().getCommandType() +
+					" to player " + client.playerNumber);
+			client.sendCommand(playerCommands.removeFirst());
 		}
 		
-		if (isAIGame && game.isCurrentPlayer(1)) 
-			clients.get(1).sendCommand(new Command(CommandType.AITurn,
+		if (isAIGame && playerToSendCommandsTo % 2 != 0) 
+			clients.get(playerToSendCommandsTo).sendCommand(new Command(CommandType.AITurn,
 					0, 0, 0, 0, null, null));
 	}
 	
 	// send the clients the starting game
-	private void sendNewGame() {
-		for (ClientHandler client : clients) {
-				client.sendGame();
-		}		
+	private void sendNewGame(int player, int opponent, Game g) {	
+		clients.get(player).sendGame(g);
+		clients.get(opponent).sendGame(g);
 	}
 	
 	/**
@@ -127,11 +123,18 @@ public class Server implements Runnable {
 		private ObjectInputStream input;
 		private ObjectOutputStream output;
 		private int playerNumber;
+		private int AINumber;
+		private String opponentName;
+		private String playerName;
+		private Game game;	
+		private boolean isAIGame;
+		private Deque<Command> playerCommands;		
+		private WinCondition condition;
 		
 		public ClientHandler(Socket clientSock, int clientNum) {
 			
 			playerNumber = clientNum;
-		
+			playerCommands = new LinkedList<Command>();
 			try {
 				output = new ObjectOutputStream(clientSock.getOutputStream());
 				input = new ObjectInputStream(clientSock.getInputStream());
@@ -152,40 +155,67 @@ public class Server implements Runnable {
 				if (game.isCurrentPlayer(playerNumber))		
 					sendCommand(com);
 					game.executeCommand(com);
-					updateClients();
+					updateClients(playerNumber, playerCommands, isAIGame);
 				break;
 				
 			case Login:				
 				String name = com.getMessage();
 				if (!database.hasUser(name)) 
-					database.addUser(name, setNewUserUnits());
-				currentPlayers.add(database.getUnits(name));
+					database.addUser(name, setNewUserUnits(), playerNumber);
+				else
+					database.getUser(name).resetPlayerNumber(playerNumber);
+				database.getUser(name).setLoggedOn(true);
+				playerName = name;
 				break;
 				
 			case NewAI:
-				ArrayList<Unit> computerPlayerArmy = generateAIUnits();
-				currentPlayers.add(computerPlayerArmy);
-				new ComputerPlayer(computerPlayerArmy);
+				AINumber = numPlayers;
+				new ComputerPlayer(generateAIUnits());
 				isAIGame = true;
 				break;
+				
+			case Ready:
+				boolean status = com.getMessage().equals("t") ? true : false;
+				database.getUser(playerName).setIsReady(status);
 				
 			case NewGame:
 				break;
 				
+			case JoinGame:
+				setOpponent(com.getMessage(), playerNumber);
+				opponentName = com.getMessage();
+				break;
+				
+			case SetWinCondition:
+				this.condition = WinCondition.valueOf(com.getMessage());
+				break;
+				
 			case StartGame:
-				if (currentPlayers.size() == 2)
-					game = new Game(currentPlayers.get(0), currentPlayers.get(1),
-							WinCondition.CTF);
-				sendNewGame();
+				
+				if (isAIGame) {
+					game = new Game(database.getUnits(playerName),
+							generateAIUnits(), condition);
+					sendNewGame(playerNumber, AINumber, game);
+				}
+				
+				else if (database.getUser(playerName).isReady() &&
+						database.getUser(opponentName).isReady()) {
+					
+					game = new Game(database.getUnits(playerName),
+							database.getUnits(opponentName), condition);
+					sendNewGame(playerNumber, 
+							database.getUser(opponentName).getPlayerNumber(), game);
+				}
+				
 				break;
 				
 			case Quit:
-				clients.remove(playerNumber);
+				//clients.remove(playerNumber);
 				// TODO: game.playerForfeit(playerNumer);
 				break;
 
 			default:
-				if (game.isCurrentPlayer(playerNumber)) {	
+				if (game.isCurrentPlayer(playerNumber % 2)) {	
 					playerCommands.add(com);
 					sendCommand(com);
 					game.executeCommand(com);
@@ -209,9 +239,9 @@ public class Server implements Runnable {
 			}
 		}
 		
-		private void sendGame() {
+		private void sendGame(Game g) {
 			try {
-				output.writeObject(game);
+				output.writeObject(g);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -223,6 +253,10 @@ public class Server implements Runnable {
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
+		}
+		
+		private void setOpponentName(String opponent) {
+			this.opponentName = opponent;
 		}
 	
 	}

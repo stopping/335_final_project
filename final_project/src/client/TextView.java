@@ -50,6 +50,11 @@ public class TextView {
 						null, null, null, null));
 				break;
 				
+			case "n":
+				humanPlayer.sendCommand(new Command(CommandType.NewGame,
+						null, null, null, null));
+				break;
+				
 			case "m":
 				System.out.print("Select source: ");
 				src[0] = input.nextInt();
@@ -83,10 +88,22 @@ public class TextView {
 		humanPlayer.sendCommand(new Command (CommandType.Login, 
 						0, 0, 0, 0, null, key));
 		
+		// new game or join game
+		System.out.print("Enter 'n' for new game: ");
+		key = input.next();
+		sendCommand(key);
+		
 		// create new AI
 		System.out.print("Enter 'AI' to play against computer: ");
 		key = input.next();
 		sendCommand(key);
+		
+		// choose win condition
+		System.out.print("Choose Victory Condition\n'Deathmatch'\n" +
+				"'CTF'\n'Demolition'\n: ");
+		key = input.next();
+		humanPlayer.sendCommand(new Command(CommandType.SetWinCondition, 
+				0,0,0,0, null, key));
 		
 		// start the game
 		System.out.print("Enter 'START' to begin the game: ");

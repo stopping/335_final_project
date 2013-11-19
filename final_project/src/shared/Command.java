@@ -60,16 +60,20 @@ public class Command implements Serializable {
 	public enum CommandType {
 		Attack,
 		AITurn,
+		AIJoin,
 		EndTurn,
 		Login,
 		Message,
 		Move,
 		NewAI,
+		JoinGame,
 		StartGame,
 		NewGame,
 		GiveItem,
 		UseItem,
 		Password,
+		SetWinCondition,
+		Ready,
 		Quit
 	}
 }

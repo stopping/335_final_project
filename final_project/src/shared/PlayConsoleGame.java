@@ -36,7 +36,7 @@ public class PlayConsoleGame {
 		while(!game.checkWinCondition()) {
 			System.out.println(game.toString());
 			
-			//System.out.println(game.lineOfSightGrid(list1.get(0).getLocation()));
+			System.out.println(game.lineOfSightGrid(list1.get(0).getLocation()));
 			System.out.print("Select action: ");
 			String action = input.next();
 			
