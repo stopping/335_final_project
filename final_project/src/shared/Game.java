@@ -275,10 +275,10 @@ public class Game implements Serializable {
 	            y += ystep;
 	            error -= deltax;
 	        } else if (2 * error == deltax) {
-	        	if(x != x1) {
-			        if (steep) result.add(new Point(y, x+1));
-			        else result.add(new Point(x+1, y));
-	        	}
+//	        	if(x != x1) {
+//			        if (steep) result.add(new Point(y, x+1));
+//			        else result.add(new Point(x+1, y));
+//	        	}
 	            y += ystep;
 	            error -= deltax;
 	        }
