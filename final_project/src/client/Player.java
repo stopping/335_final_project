@@ -1,6 +1,6 @@
 package client;
 
-import shared.Command;
+import commands.*;
 import shared.Game;
 
 /**
@@ -18,7 +18,7 @@ public interface Player {
 	 * @param c		The Command to be executed. 
 	 * 				Precondition: command has been validated by server.
 	 */
-	public abstract void parseAndExecuteCommand(Command com);
+	public abstract void parseAndExecuteCommand(GameCommand com);
 	
 	
 	/**

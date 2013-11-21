@@ -2,8 +2,9 @@ package client;
 
 import java.util.Scanner;
 
-import shared.Command;
-import shared.Command.CommandType;
+import commands.*;
+import commands.ClientServerCommand.ClientServerCommandType;
+
 
 public class TextView {
 
@@ -16,7 +17,7 @@ public class TextView {
 	}
 	
 	public TextView() {
-		controls = "'m' -- move \n'a' -- attack'\n'e' -- end turn";
+		controls = "'m' -- move \n'a' -- attack''\n'i' -- give item\n'e' -- end turn";
 		humanPlayer = new HumanPlayer();
 		input = new Scanner(System.in);
 		runGame();
@@ -28,31 +29,35 @@ public class TextView {
 		int[] dest = new int[2];
 		
 		switch (key) {
-			case "q":
-				humanPlayer.sendCommand(new Command(CommandType.Quit,
-						0, 0, 0, 0, null, null));
+			case "f":
+				humanPlayer.sendCommand(new ClientServerCommand(
+						ClientServerCommandType.PlayerForfeit, null));
 				input.close();
 				System.exit(0);
 				break;
 				
 			case "ai":
-				humanPlayer.sendCommand(new Command(CommandType.NewAI,
-						0, 0, 0, 0, null, null));
-				break;
-				
-			case "start":
-				humanPlayer.sendCommand(new Command(CommandType.StartGame,
-						0, 0, 0, 0, null, null));
+				humanPlayer.sendCommand(new ClientServerCommand(
+						ClientServerCommandType.NewComputerPlayer, null));
 				break;
 				
 			case "e":
-				humanPlayer.sendCommand(new Command(CommandType.EndTurn,
-						null, null, null, null));
+				humanPlayer.sendCommand(new EndTurnCommand());
 				break;
 				
+			case "i":
+				System.out.print("Select source: ");
+				src[0] = input.nextInt();
+				src[1] = input.nextInt();
+				System.out.print("Select destination: ");
+				dest[0] = input.nextInt();
+				dest[1] = input.nextInt();
+				System.out.print("Select item: ");
+				// TODO: how to access the game here?
+				//humanPlayer.sendCommand(new GiveItemCommand(src, dest));
+				
 			case "n":
-				humanPlayer.sendCommand(new Command(CommandType.NewGame,
-						null, null, null, null));
+					// This will probably just change things client side
 				break;
 				
 			case "m":
@@ -62,8 +67,7 @@ public class TextView {
 				System.out.print("Select destination: ");
 				dest[0] = input.nextInt();
 				dest[1] = input.nextInt();
-				humanPlayer.sendCommand(new Command(CommandType.Move, 
-						src, dest, null, null));
+				humanPlayer.sendCommand(new MoveCommand(src, dest));
 				break;
 				
 			case "a":
@@ -73,20 +77,22 @@ public class TextView {
 				System.out.print("Select destination: ");
 				dest[0] = input.nextInt();
 				dest[1] = input.nextInt();
-				humanPlayer.sendCommand(new Command(CommandType.Attack, 
-						src, dest, null, null));
+				humanPlayer.sendCommand(new AttackCommand(src, dest));
 				break;
 		}
 	}
 	
 	private void runGame() {
+		String args[] = new String[4];
 		String key = "";
 		
 		// login 
-		System.out.print("Login: ");
-		key = input.next();
-		humanPlayer.sendCommand(new Command (CommandType.Login, 
-						0, 0, 0, 0, null, key));
+		System.out.print("Login ID: ");
+		args[0] = input.next();
+		System.out.print("Password: ");
+		args[1] = input.next();
+		humanPlayer.sendCommand(new ClientServerCommand(
+				ClientServerCommandType.Login, args));
 		
 		// new game or join game
 		System.out.print("Enter 'n' for new game: ");
@@ -99,17 +105,15 @@ public class TextView {
 		sendCommand(key);
 		
 		// choose win condition
-		System.out.print("Choose Victory Condition\n'Deathmatch'\n" +
-				"'CTF'\n'Demolition'\n: ");
-		key = input.next();
-		humanPlayer.sendCommand(new Command(CommandType.SetWinCondition, 
-				0,0,0,0, null, key));
+		System.out.print("Choose Victory Condition\n'Deathmatch'\n'CTF'\n'Demolition'\n: ");
+		args[0] = input.next();
 		
 		// start the game
 		System.out.print("Enter 'START' to begin the game: ");
 		key = input.next();
-		sendCommand(key);
-		
+		humanPlayer.sendCommand(new ClientServerCommand(
+				ClientServerCommandType.StartGame, args));
+
 		System.out.println("\n" + controls);
 		
 		// loop and send commands

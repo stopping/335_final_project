@@ -5,6 +5,8 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import commands.*;
+
 import server.Server;
 import shared.GameSquare.Terrain;
 
@@ -12,8 +14,8 @@ import shared.GameSquare.Terrain;
 public class Game implements Serializable {
 	
 	GameSquare[][] board;
-	List<Unit> unitListRed = new ArrayList<Unit>();
-	List<Unit> unitListBlue = new ArrayList<Unit>();
+	ArrayList<Unit> unitListRed = new ArrayList<Unit>();
+	ArrayList<Unit> unitListBlue = new ArrayList<Unit>();
 	WinCondition victoryCondition;
 	Server server;
 	
@@ -65,37 +67,27 @@ public class Game implements Serializable {
 		return board;
 	}
 	
-	public boolean executeCommand( Command com ) {
+	public boolean executeCommand( GameCommand com ) {
 		boolean executed = false;
 		if(com == null) return false;
 		
-		switch(com.getCommandType()) {
-		case Move: 
-			executed = doMoveCommand(com);
-			break;
-		case Attack:
-			executed = doAttackCommand(com);
-			break;
-		case EndTurn:
+		if (com instanceof MoveCommand) {
+			executed = doMoveCommand((MoveCommand)com);
+			
+		} else if (com instanceof AttackCommand) {
+			executed = doAttackCommand((AttackCommand)com);
+			
+		}	else if (com instanceof EndTurnCommand) {
 			executed = doEndTurnCommand(com);
-			break;
-		default:
-			break;
+		
+		}	else if (com instanceof GiveItemCommand) {
+			executed = doGiveItemCommand((GiveItemCommand)com);
 		}
-		
+
 		return executed;
-		
 	}
 	
-	public boolean doMoveCommand( Command com ) {
-		
-		int srcCoords[] = com.getSource();
-		int destCoords[] = com.getDest();
-		GameSquare srcSquare = board[srcCoords[0]][srcCoords[1]];
-		GameSquare destSquare = board[destCoords[0]][destCoords[1]];
-		Unit performer = (Unit) srcSquare.getOccupant();
-		Occupant atDest = destSquare.getOccupant();
-		
+	public boolean isTurn(Unit performer) {
 		if( currentPlayer == 0 && !unitListRed.contains(performer) ) {
 			System.out.println("Red does not own this unit!");
 			return false;
@@ -104,6 +96,20 @@ public class Game implements Serializable {
 			System.out.println("Blue does not own this unit!");
 			return false;
 		}
+		return true;
+	}
+	
+	public boolean doMoveCommand( MoveCommand com ) {
+		
+		int srcCoords[] = com.getSource();
+		int destCoords[] = com.getDest();
+		GameSquare srcSquare = board[srcCoords[0]][srcCoords[1]];
+		GameSquare destSquare = board[destCoords[0]][destCoords[1]];
+		Unit performer = (Unit) srcSquare.getOccupant();
+		Occupant atDest = destSquare.getOccupant();
+		
+		if(!isTurn(performer))
+			return false;
 		
 		if( performer == null || atDest != null) {
 			return false;
@@ -118,7 +124,7 @@ public class Game implements Serializable {
 		
 	}
 	
-	public boolean doAttackCommand( Command com ) {
+	public boolean doAttackCommand( AttackCommand com ) {
 		
 		int srcCoords[] = com.getSource();
 		int destCoords[] = com.getDest();
@@ -127,14 +133,8 @@ public class Game implements Serializable {
 		Unit performer = (Unit) srcSquare.getOccupant();
 		Occupant receiver = destSquare.getOccupant();
 		
-		if( currentPlayer == 0 && !unitListRed.contains(performer) ) {
-			System.out.println("Red does not own this unit!");
+		if(!isTurn(performer))
 			return false;
-		}
-		if( currentPlayer == 1 && !unitListBlue.contains(performer) ) {
-			System.out.println("Blue does not own this unit!");
-			return false;
-		}
 		
 		if(!(performer instanceof Unit) || receiver == null) return false;
 		
@@ -146,7 +146,27 @@ public class Game implements Serializable {
 		return false;
 	}
 	
-	public boolean doEndTurnCommand( Command com ) {
+	public boolean doGiveItemCommand(GiveItemCommand com) {
+		int srcCoords[] = com.getSource();
+		int destCoords[] = com.getDest();
+		GameSquare srcSquare = board[srcCoords[0]][srcCoords[1]];
+		GameSquare destSquare = board[destCoords[0]][destCoords[1]];
+		Unit performer = (Unit) srcSquare.getOccupant();
+		Occupant receiver = destSquare.getOccupant();
+		Item item = com.getItem();
+		
+		if(!isTurn(performer))
+			return false;
+		
+		if(lineOfSightExists(srcSquare, destSquare) && performer.isInRange(receiver) 
+				&& performer.getActionPoints() > 0) {
+			return performer.giveItem(item, (Unit)receiver);
+		}
+		
+		return true;
+	}
+	
+	public boolean doEndTurnCommand( GameCommand com ) {
 		for(int i = 0; i < unitListRed.size(); i++) {
 			unitListRed.get(i).restoreActionPoints();
 		}
@@ -275,10 +295,10 @@ public class Game implements Serializable {
 	            y += ystep;
 	            error -= deltax;
 	        } else if (2 * error == deltax) {
-//	        	if(x != x1) {
-//			        if (steep) result.add(new Point(y, x+1));
-//			        else result.add(new Point(x+1, y));
-//	        	}
+	        	if(x != x1) {
+			        if (steep) result.add(new Point(y, x+1));
+			        else result.add(new Point(x+1, y));
+	        	}
 	            y += ystep;
 	            error -= deltax;
 	        }
@@ -292,7 +312,7 @@ public class Game implements Serializable {
 		CTF,
 		Demolition;
 	}
-
+	
 	public List<Unit> getRedUnitList() {
 		return unitListRed;
 	}

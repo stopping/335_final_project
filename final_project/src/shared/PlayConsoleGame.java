@@ -3,7 +3,7 @@ package shared;
 import java.util.ArrayList;
 import java.util.Scanner;
 
-import shared.Command.CommandType;
+import commands.*;
 import shared.Game.WinCondition;
 
 public class PlayConsoleGame {
@@ -40,7 +40,7 @@ public class PlayConsoleGame {
 			System.out.print("Select action: ");
 			String action = input.next();
 			
-			Command c = null;
+			GameCommand c = null;
 			
 			if(action.equalsIgnoreCase("m")) {
 				System.out.print("Select source: ");
@@ -49,7 +49,7 @@ public class PlayConsoleGame {
 				System.out.print("Select destination: ");
 				dest[0] = input.nextInt();
 				dest[1] = input.nextInt();
-				c = new Command(CommandType.Move, src, dest, null, null);
+				c = new MoveCommand(src, dest);
 			}
 			if(action.equalsIgnoreCase("a")) {
 				System.out.print("Select source: ");
@@ -58,10 +58,10 @@ public class PlayConsoleGame {
 				System.out.print("Select destination: ");
 				dest[0] = input.nextInt();
 				dest[1] = input.nextInt();
-				c = new Command(CommandType.Attack, src, dest, null, null);
+				c = new AttackCommand(src,dest);
 			}
 			if(action.equalsIgnoreCase("e")) {
-				c = new Command(CommandType.EndTurn, null, null, null, null);
+				c = new EndTurnCommand();
 			}
 			
 			System.out.println(game.executeCommand(c));

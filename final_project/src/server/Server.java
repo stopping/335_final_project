@@ -7,11 +7,13 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.LinkedList;
-import shared.Command;
-import shared.Command.CommandType;
+
+import commands.*;
+import commands.ClientServerCommand.ClientServerCommandType;
 import shared.Game;
 import shared.Game.WinCondition;
 import shared.Unit;
+
 
 /**
  * Class:	Server
@@ -64,8 +66,9 @@ public class Server implements Runnable {
 		}
 	}
 	
-	private void setOpponent(String player, int opponentNum) {
-		clients.get(opponentNum).setOpponentName(player);
+	private void setOpponent(String playerToSetOpponentOf, String opponentName) {
+		int playerNum = database.getUser(playerToSetOpponentOf).getPlayerNumber();
+		clients.get(playerNum).setOpponentName(opponentName);
 	}
 	
 	// TODO: make a process for creating a new army for human player and AI
@@ -97,14 +100,14 @@ public class Server implements Runnable {
 
 		while (!playerCommands.isEmpty()) {
 			System.out.println("sending command: " + 
-					playerCommands.peekFirst().getCommandType() +
+					playerCommands.peekFirst() +
 					" to player " + client.playerNumber);
 			client.sendCommand(playerCommands.removeFirst());
 		}
 		
 		if (isAIGame && playerToSendCommandsTo % 2 != 0) 
-			clients.get(playerToSendCommandsTo).sendCommand(new Command(CommandType.AITurn,
-					0, 0, 0, 0, null, null));
+			clients.get(playerToSendCommandsTo).sendCommand(
+					new ClientServerCommand(ClientServerCommandType.NewComputerPlayer, null));
 	}
 	
 	// send the clients the starting game
@@ -144,54 +147,43 @@ public class Server implements Runnable {
 			}
 		}
 		
-		private void parseCommand(Command com) {
+		private void resolveClientServerCommand(ClientServerCommand com) {
 			
-			System.out.println("player " + 
-					playerNumber + " Commanded " + com.getCommandType());
+			switch (com.getType()) {
 			
-			switch (com.getCommandType()) {
-
-			case EndTurn:
-				if (game.isCurrentPlayer(playerNumber))		
-					sendCommand(com);
-					game.executeCommand(com);
-					updateClients(playerNumber, playerCommands, isAIGame);
+			case JoinGame:
+				String playerJoining = com.getData().get(0);
+				setOpponent(playerJoining, playerName);
+				opponentName = playerJoining;
 				break;
 				
-			case Login:				
-				String name = com.getMessage();
+			case Login:
+				String name =com.getData().get(0);
 				if (!database.hasUser(name)) 
 					database.addUser(name, setNewUserUnits(), playerNumber);
-				else
+				else {
+					// TODO: check the password against database
 					database.getUser(name).resetPlayerNumber(playerNumber);
+				}
 				database.getUser(name).setLoggedOn(true);
 				playerName = name;
 				break;
 				
-			case NewAI:
+			case NewComputerPlayer:
 				AINumber = numPlayers;
 				new ComputerPlayer(generateAIUnits());
 				isAIGame = true;
 				break;
 				
+			case PlayerForfeit:
+				break;
+				
 			case Ready:
-				boolean status = com.getMessage().equals("t") ? true : false;
-				database.getUser(playerName).setIsReady(status);
-				
-			case NewGame:
-				break;
-				
-			case JoinGame:
-				setOpponent(com.getMessage(), playerNumber);
-				opponentName = com.getMessage();
-				break;
-				
-			case SetWinCondition:
-				this.condition = WinCondition.valueOf(com.getMessage());
+				database.getUser(playerName).setIsReady(true);
 				break;
 				
 			case StartGame:
-				
+				this.condition = WinCondition.valueOf(com.getData().get(0));
 				if (isAIGame) {
 					game = new Game(database.getUnits(playerName),
 							generateAIUnits(), condition);
@@ -206,21 +198,27 @@ public class Server implements Runnable {
 					sendNewGame(playerNumber, 
 							database.getUser(opponentName).getPlayerNumber(), game);
 				}
-				
 				break;
 				
-			case Quit:
-				//clients.remove(playerNumber);
-				// TODO: game.playerForfeit(playerNumer);
-				break;
-
 			default:
-				if (game.isCurrentPlayer(playerNumber % 2)) {	
+				break;
+			
+			}
+		}
+		
+		private void resolveGameCommand(Command com) {
+			
+			if (game.isCurrentPlayer(playerNumber % 2 )) {
+
+				if (com instanceof EndTurnCommand) {
+					sendCommand(com);
+					updateClients(playerNumber, playerCommands, isAIGame);
+					
+				} else  {
 					playerCommands.add(com);
 					sendCommand(com);
-					game.executeCommand(com);
-					break;
 				}
+				game.executeCommand((GameCommand)com);
 			}
 		}
 
@@ -228,11 +226,17 @@ public class Server implements Runnable {
 		public void run() {
 			
 			try {					
-				while(true) {
-							
+				while(true) {	
 					Command com = (Command) input.readObject();
-					if (com != null)
-						parseCommand(com);
+					
+					if (com != null) {
+						if (com instanceof ClientServerCommand) {
+							resolveClientServerCommand((ClientServerCommand)com);
+							
+						} else if (com instanceof GameCommand) {
+							resolveGameCommand(com);
+						}
+					}
 				}			
 			} catch (Exception e) {
 				e.printStackTrace();

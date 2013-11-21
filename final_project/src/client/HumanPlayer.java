@@ -1,6 +1,7 @@
 package client;
 
-import shared.Command;
+import commands.*;
+
 import shared.Game;
 
 public class HumanPlayer implements Player {
@@ -19,7 +20,7 @@ public class HumanPlayer implements Player {
 	}
 	
 	@Override
-	public void parseAndExecuteCommand(Command com) {
+	public void parseAndExecuteCommand(GameCommand com) {
 		System.out.println(game.executeCommand(com));
 	}
 

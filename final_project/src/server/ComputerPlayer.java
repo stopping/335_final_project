@@ -2,12 +2,11 @@ package server;
 
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.net.ConnectException;
 import java.net.Socket;
 import java.util.ArrayList;
 
+import commands.*;
 import client.Player;
-import shared.Command;
 import shared.Game;
 import shared.Unit;
 
@@ -32,7 +31,7 @@ public class ComputerPlayer implements Player, Runnable {
 	}
 
 	@Override
-	public void parseAndExecuteCommand(Command c) {	
+	public void parseAndExecuteCommand(GameCommand c) {	
 		// TODO Auto-generated method stub
 	}
 
@@ -57,7 +56,7 @@ public class ComputerPlayer implements Player, Runnable {
 			
 			while (true) {
 				Command com = (Command) input.readObject();
-				parseAndExecuteCommand(com);
+				parseAndExecuteCommand((GameCommand)com);
 			}
 
 		} catch (Exception e) {

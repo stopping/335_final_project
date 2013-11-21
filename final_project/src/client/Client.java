@@ -5,7 +5,8 @@ import java.io.ObjectOutputStream;
 import java.net.ConnectException;
 import java.net.Socket;
 
-import shared.Command;
+import commands.*;
+
 import shared.Game;
 
 /**
@@ -42,8 +43,15 @@ public class Client implements Runnable {
 			
 			while (true) {
 				Command com = (Command) input.readObject();
-				player.parseAndExecuteCommand(com);
-				player.update();
+				
+				if (com instanceof ClientServerCommand) {
+					// do things
+				}
+				
+				else if (com instanceof GameCommand) {
+					player.parseAndExecuteCommand((GameCommand)com);
+					player.update();
+				}
 			}
 
 		} catch (ConnectException ce) {

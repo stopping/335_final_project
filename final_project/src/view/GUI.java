@@ -22,12 +22,11 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 
-import shared.Command;
+import commands.*;
 import shared.Game;
 import shared.GameSquare;
 import shared.Obstacle;
 import shared.Unit;
-import shared.Command.CommandType;
 import shared.Game.WinCondition;
 
 public class GUI {
@@ -100,7 +99,7 @@ public class GUI {
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				Command c = new Command(CommandType.EndTurn, null, null, null, null);
+				GameCommand c = new EndTurnCommand();
 				game.executeCommand(c);
 			}
 			
@@ -146,9 +145,9 @@ public class GUI {
 					int[] src = {leftClickRow,leftClickCol};
 					int[] dest = {rightClickRow,rightClickCol};
 					
-					Command c;
-					if(game.getBoard()[rightClickRow][rightClickCol].hasOccupant()) c = new Command(CommandType.Attack, src, dest, null, null);
-					else c = new Command(CommandType.Move, src, dest, null, null);
+					GameCommand c;
+					if(game.getBoard()[rightClickRow][rightClickCol].hasOccupant()) c = new AttackCommand(src,dest);
+					else c = new MoveCommand(src,dest);
 					
 					System.out.println(game.executeCommand(c));
 					selected = false;
