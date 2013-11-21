@@ -9,20 +9,27 @@ public class UserDatabase {
 
 	private HashMap<String, UserAccount> database;
 	
+	// A hashmap containing the user name and her password
+	private HashMap<String, String> loginAndPassword;
+	
 	public UserDatabase() {
 		database = new HashMap<String, UserAccount>();
+		loginAndPassword = new HashMap<String, String>();
 	}
 	
-	public void addUser(String name, ArrayList<Unit> units, int playerNumber) {
+	public void addUser(String name, String password, ArrayList<Unit> units, int playerNumber) {
 		database.put(name, new UserAccount(units, playerNumber));
+		loginAndPassword.put(name, password);
 	}
 	
 	public ArrayList<Unit> getUnits(String name) {
 		return database.get(name).getUnits();
 	}
 	
-	public boolean hasUser(String name) {
-		return database.containsKey(name);
+
+	
+	public boolean isValidUser(String name, String password) {
+		return (loginAndPassword.containsKey(name) && loginAndPassword.get(name).equals(password));
 	}
 	
 	public UserAccount getUser(String name) {

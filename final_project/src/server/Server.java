@@ -159,8 +159,9 @@ public class Server implements Runnable {
 				
 			case Login:
 				String name =com.getData().get(0);
-				if (!database.hasUser(name)) 
-					database.addUser(name, setNewUserUnits(), playerNumber);
+				String password = com.getData().get(1);
+				if (!database.isValidUser(name, password)) 
+					database.addUser(name, password, setNewUserUnits(), playerNumber);
 				else {
 					// TODO: check the password against database
 					database.getUser(name).resetPlayerNumber(playerNumber);
