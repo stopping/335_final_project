@@ -6,6 +6,7 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
+import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.geom.Rectangle2D;
@@ -15,22 +16,33 @@ import java.util.ArrayList;
 import java.util.Random;
 
 import javax.imageio.ImageIO;
+import javax.swing.AbstractAction;
+import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.JTextArea;
 
+import shared.Command;
 import shared.Game;
 import shared.GameSquare;
+import shared.Obstacle;
 import shared.Unit;
+import shared.Command.CommandType;
 import shared.Game.WinCondition;
 
 public class GUI {
 	
 	private Game game;
+	boolean selected = false;
 	
 	JFrame mainFrame = new JFrame();
 	JPanel mainPanel = new JPanel();
-	GamePanel gamePanel = new GamePanel();
+	BoardPanel boardPanel = new BoardPanel();
+	JPanel gamePanel = new JPanel();
 	JPanel shopPanel = new JPanel();
+	JTextArea gameInfo = new JTextArea();
+	
+	JButton endTurnButton = new JButton("End Turn");
 	
 	int leftClickRow;
 	int leftClickCol;
@@ -64,16 +76,35 @@ public class GUI {
 			e.printStackTrace();
 		}
 		
+		gameInfo.setPreferredSize(new Dimension(384,100));
+		gameInfo.setEditable(false);
+
+		boardPanel.setPreferredSize(new Dimension(384,384));
+		boardPanel.addMouseListener(new gameMouseListener());
+		boardPanel.setBackground(Color.cyan);
+		
+		gamePanel.setPreferredSize(new Dimension(400,550));
+		gamePanel.add(boardPanel);
+		gamePanel.add(gameInfo);
+		gamePanel.add(endTurnButton);
+		
 		mainPanel.add(gamePanel);
-		gamePanel.setPreferredSize(new Dimension(384,384));
-		gamePanel.addMouseListener(new gameMouseListener());
-		gamePanel.setBackground(Color.cyan);
 		
 		mainFrame.setResizable(false);
 		mainFrame.add(mainPanel);
 		mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		mainFrame.setSize(800,600);
 		mainFrame.setVisible(true);
+		
+		endTurnButton.addActionListener(new AbstractAction() {
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				Command c = new Command(CommandType.EndTurn, null, null, null, null);
+				game.executeCommand(c);
+			}
+			
+		});
 		
 	}
 	
@@ -106,14 +137,26 @@ public class GUI {
 			if(arg0.getButton() == MouseEvent.BUTTON1) {
 				leftClickRow = arg0.getPoint().y / 32;
 				leftClickCol = arg0.getPoint().x / 32;
+				selected = true;
+				gameInfo.setText(game.getBoard()[leftClickRow][leftClickCol].getOccupant().toString());
 			} else if(arg0.getButton() == MouseEvent.BUTTON3) {
 				rightClickRow = arg0.getPoint().y / 32;
 				rightClickCol = arg0.getPoint().x / 32;
+				if(selected) {
+					int[] src = {leftClickRow,leftClickCol};
+					int[] dest = {rightClickRow,rightClickCol};
+					
+					Command c;
+					if(game.getBoard()[rightClickRow][rightClickCol].hasOccupant()) c = new Command(CommandType.Attack, src, dest, null, null);
+					else c = new Command(CommandType.Move, src, dest, null, null);
+					
+					System.out.println(game.executeCommand(c));
+					selected = false;
+				}
 			}
 			
-			gamePanel.repaint();
-			System.out.println(arg0.getPoint().toString());
-			
+			boardPanel.repaint();
+
 		}
 
 		@Override
@@ -124,7 +167,7 @@ public class GUI {
 		
 	}
 	
-	private class GamePanel extends JPanel {
+	private class BoardPanel extends JPanel {
 		
 		@Override
 		public void paintComponent(Graphics g) {
@@ -134,23 +177,42 @@ public class GUI {
 			
 			int size = 32;
 			
-			Random rng = new Random();
-			
 			for(int r = 0; r < map.length; r++) {
 				for(int c = 0; c < map[0].length; c++) {
 					int upper = r*size;
 					int left = c*size;
 					Rectangle2D square = new Rectangle2D.Double( left, upper, size, size );
 					g2.draw(square);
-					g2.setColor( ( r + c ) % 2 == 0 ? Color.black : Color.white );
-					if(leftClickRow == r && leftClickCol == c ) g2.setColor(Color.yellow);
-					if(rightClickRow == r && rightClickCol == c ) g2.setColor(Color.orange);
+					g2.setColor( map[r][c].getOccupant() instanceof Obstacle ? Color.black : Color.gray );
+					if(leftClickRow == r && leftClickCol == c && selected ) g2.setColor(Color.yellow);
 					g2.fill(square);
 					
-					int num1 = rng.nextInt(5)*size;
-					int num2 = rng.nextInt(2)*size;
-					g2.drawImage(sprites, left, upper, left+size, upper+size, num2, num1, num2+size, num1+size, null);
+					GameSquare srcSquare = game.getGameSquareAt(leftClickRow,leftClickCol);
+					GameSquare destSquare = game.getGameSquareAt(r, c);
+					
+					
+					if( (srcSquare.getOccupant() instanceof Unit) && game.lineOfSightExists(srcSquare, destSquare) && selected &&
+							Math.pow((r-leftClickRow),2) + Math.pow((c-leftClickCol), 2) <= Math.pow(((Unit)srcSquare.getOccupant()).getActionPoints(), 2)) {
+						square = new Rectangle2D.Double( left+6, upper+6, size-13, size-13 );
+						g2.setColor( Color.white );
+						g2.draw(square);
+						g2.fill(square);
+					}
 				}
+			}
+			
+			for(Unit u : game.getBlueUnitList()) {
+				if(u.isDead()) continue;
+				int upper = u.getLocation().getRow()*size;
+				int left = u.getLocation().getCol()*size;
+				g2.drawImage(sprites, left, upper, left+size, upper+size, 0, 0, size, size, null);
+			}
+			
+			for(Unit u : game.getRedUnitList()) {
+				if(u.isDead()) continue;
+				int upper = u.getLocation().getRow()*size;
+				int left = u.getLocation().getCol()*size;
+				g2.drawImage(sprites, left, upper, left+size, upper+size, 32, 0, 32+size, size, null);
 			}
 		}
 	}

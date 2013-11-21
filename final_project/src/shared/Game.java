@@ -3,6 +3,7 @@ package shared;
 import java.awt.Point;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.List;
 
 import server.Server;
 import shared.GameSquare.Terrain;
@@ -11,8 +12,8 @@ import shared.GameSquare.Terrain;
 public class Game implements Serializable {
 	
 	GameSquare[][] board;
-	ArrayList<Unit> unitListRed = new ArrayList<Unit>();
-	ArrayList<Unit> unitListBlue = new ArrayList<Unit>();
+	List<Unit> unitListRed = new ArrayList<Unit>();
+	List<Unit> unitListBlue = new ArrayList<Unit>();
 	WinCondition victoryCondition;
 	Server server;
 	
@@ -221,6 +222,10 @@ public class Game implements Serializable {
 		return true;
 	}
 	
+	public GameSquare getGameSquareAt( int row, int col ) {
+		return board[row][col];
+	}
+	
 	
 	/**
 	 * Returns a list of grid tile locations which represent a line connecting
@@ -286,6 +291,14 @@ public class Game implements Serializable {
 		Deathmatch,
 		CTF,
 		Demolition;
+	}
+
+	public List<Unit> getRedUnitList() {
+		return unitListRed;
+	}
+	
+	public List<Unit> getBlueUnitList() {
+		return unitListBlue;
 	}
 	
 }

@@ -51,6 +51,8 @@ public abstract class Occupant implements Serializable {
 	protected boolean equals( Occupant otherOccupant ) {
 		return name.equals(otherOccupant.getName());
 	}
+
+
 	
 	
 	

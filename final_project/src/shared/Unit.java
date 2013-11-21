@@ -140,5 +140,13 @@ public class Unit extends Occupant {
 	private boolean inventoryHasRoom() {
 		return itemList.size() < 3;
 	}
+	
+	@Override
+	public String toString() {
+		return "Name: " + name + "\n" +
+				"HP: " + (int) hitPoints + "/" + (int) maxHitPoints + "\n" +
+				"AP: " + (int) actionPoints + "/" + (int) maxActionPoints + "\n";
+				
+	}
 
 }
