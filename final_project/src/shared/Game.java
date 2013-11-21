@@ -60,6 +60,10 @@ public class Game implements Serializable {
 		
 	}
 	
+	public GameSquare[][] getBoard() {
+		return board;
+	}
+	
 	public boolean executeCommand( Command com ) {
 		boolean executed = false;
 		if(com == null) return false;
