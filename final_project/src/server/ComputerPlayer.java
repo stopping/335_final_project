@@ -1,5 +1,6 @@
 package server;
 
+import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
@@ -21,6 +22,7 @@ public class ComputerPlayer implements Player, Runnable {
 	private Game game;
 
 	public ComputerPlayer() {
+		System.out.println("Computer player created");
 		Socket sock = null;
 		try {
 			sock = new Socket("localhost", 4009);				
@@ -42,28 +44,26 @@ public class ComputerPlayer implements Player, Runnable {
 		int sourceRow = source[0];
 		int sourceCol = source[1];
 		
-		if (sourceRow == 0)
-			res[0] = sourceRow++;
-		if (sourceRow == 11)
-			res[0] = sourceRow--;
-		if (sourceCol == 0)
-			res[1] = sourceCol ++;
-		if (sourceCol == 11)
-			res[1] = sourceCol++;
-		
 		Random r = new Random();
-		int rand = r.nextInt(3);
+		int rand = r.nextInt(4);
 		
 		switch (rand) {
 		case 0:
-			res[0] = sourceRow--;
+			res[0] = sourceRow == 0 ? 0 : sourceRow-1 ;
+			res[1] = sourceCol;
 			break;
 		case 1:
-			res[1] = sourceRow++;
+			res[0] = sourceRow == 11 ? 11 : sourceRow+1 ;
+			res[1] = sourceCol;
+			break;
 		case 2:
-			res[0] = sourceCol--;
-		case 3: 
-			res[0] = sourceCol++;
+			res[0] = sourceRow;
+			res[1] = sourceCol == 0 ? 0 : sourceCol-1;
+			break;
+		case 3:
+			res[0] = sourceRow;
+			res[1] = sourceCol == 11 ? 11 : sourceCol+1;
+			break;
 		}
 		
 		return res;
@@ -89,16 +89,19 @@ public class ComputerPlayer implements Player, Runnable {
 
 
 	private void doComputerTurn() {
+		System.out.println("Beginning computer turn");
 		List<Unit> computerUnits = game.getBlueUnitList();
 
 		for (Unit u : computerUnits) {	
-			while (u.getActionPoints() > 1) {
+			if( u.getLocation() == null ) continue;
+			for(int i = 0; i < 3; i++) {
+			//while (u.getActionPoints() > 1) {
 				
 				int source[] = new int[2];
 				GameSquare g = u.getLocation();
 				source[0] = g.getRow();
 				source[1] = g.getCol();
-				int dest[] = getAdjacentCoords(source);
+				int[] dest = getAdjacentCoords(source);
 				
 				//int attackCoords[] = getAttackableCoords(source);
 //				if (attackCoords != null) {
@@ -106,10 +109,25 @@ public class ComputerPlayer implements Player, Runnable {
 //					//game.attack(source, attackCoords);
 //				}
 //				else {
-					sendCommand(new MoveCommand(source, dest));
+					
+					if(u.canMoveTo(game.getGameSquareAt(dest[0], dest[1]))) {
+						MoveCommand c = new MoveCommand(source, dest);
+						sendCommand(c);
+						
+						try {
+							c = (MoveCommand) input.readObject();
+							parseAndExecuteCommand(c);
+						} catch (ClassNotFoundException | IOException e) {
+							e.printStackTrace();
+						}
+					}
+
 //				}
 			}
 		}
+		
+		sendCommand(new EndTurnCommand());
+		System.out.println("Ending computer turn");
 		
 	}
 	
@@ -130,22 +148,31 @@ public class ComputerPlayer implements Player, Runnable {
 
 	@Override
 	public void run() {
+		
+		boolean isAiTurn = false;
 
 		try {
+			System.out.println("Starting...");
 			Game g = (Game) input.readObject();
 			setGame(g);
+			System.out.println("Game received");
 			
 			while (true) {
+
 				Command com = (Command) input.readObject();
+				System.out.println("Command Received");
 				if (com instanceof ClientServerCommand) {
 					if (((ClientServerCommand)com).getType() == ClientServerCommandType.ComputerTurn) {
+						isAiTurn = true;
 						doComputerTurn();
+						isAiTurn = false;
 					}
 				}
 				
-				else if (com instanceof GameCommand) {
+				else if (com instanceof GameCommand && !isAiTurn) {
 					parseAndExecuteCommand((GameCommand)com);
 				}
+
 			}
 
 		} catch (Exception e) {

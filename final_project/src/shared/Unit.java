@@ -127,6 +127,9 @@ public class Unit extends Occupant {
 	}
 
 	public boolean canMoveTo(GameSquare destSquare) {
+		
+		if(destSquare.hasOccupant()) return false;
+		
 		int srcRow = location.getRow();
 		int destRow = destSquare.getRow();
 		int srcCol = location.getCol();

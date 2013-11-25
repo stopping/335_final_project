@@ -277,7 +277,7 @@ public class Game implements Serializable {
 		for(int i = 0; i < unitListBlue.size(); i++) {
 			unitListBlue.get(i).restoreActionPoints();
 		}
-		currentPlayer %= currentPlayer + 1;
+		currentPlayer = (currentPlayer + 1) % 2;
 		checkWinCondition();
 		return true;
 	}

@@ -107,7 +107,7 @@ public class Server implements Runnable {
 		
 		if (isAIGame && playerToSendCommandsTo % 2 != 0) 
 			clients.get(playerToSendCommandsTo).sendCommand(
-					new ClientServerCommand(ClientServerCommandType.NewComputerPlayer, null));
+					new ClientServerCommand(ClientServerCommandType.ComputerTurn, null));
 	}
 	
 	// send the clients the starting game
@@ -171,7 +171,9 @@ public class Server implements Runnable {
 				
 			case NewComputerPlayer:
 				AINumber = numPlayers;
-				new ComputerPlayer();
+				ComputerPlayer p = new ComputerPlayer();
+				Thread t = new Thread(p);
+				t.start();
 				isAIGame = true;
 				break;
 				
@@ -212,6 +214,7 @@ public class Server implements Runnable {
 
 				if (com instanceof EndTurnCommand) {
 					sendCommand(com);
+					playerCommands.add(com);
 					updateClients(playerNumber, playerCommands, isAIGame);
 					
 				} else  {
@@ -245,6 +248,7 @@ public class Server implements Runnable {
 		
 		private void sendGame(Game g) {
 			try {
+				this.game = g;
 				output.writeObject(g);
 			} catch (Exception e) {
 				e.printStackTrace();

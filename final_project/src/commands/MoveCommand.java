@@ -13,4 +13,8 @@ public class MoveCommand extends GameCommand {
 	public boolean executeOn(Game g) {
 		return g.moveUnit(source,dest);
 	}
+	
+	public String toString() {
+		return "" + source[0] + " " + source[1] + " " + dest[0] + " " + dest[1];
+	}
 }
