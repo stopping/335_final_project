@@ -6,16 +6,17 @@ import shared.Item;
 @SuppressWarnings("serial")
 public class UseItemCommand extends GameCommand {
 
-	private Item item;
+	private int itemIndex;
 	
-	public UseItemCommand(int[] source, int[] dest, Item item) {
+	public UseItemCommand(int[] source, int[] dest, int i) {
 		this.source = source;
 		this.dest = dest;
-		this.item = item;
+		this.itemIndex = i;
 	}
 	
-	public void execute(Game g) {
-		g.useItem(source, dest, item);
+	@Override
+	public boolean executeOn(Game g) {
+		return g.useItem(source, dest, itemIndex);
 	}
 	
 	

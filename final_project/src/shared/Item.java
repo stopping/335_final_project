@@ -1,8 +1,10 @@
 package shared;
 
+import java.io.Serializable;
+
 import unit.Unit;
 
-public class Item {
+public class Item implements Serializable {
 
 	
 
@@ -10,14 +12,14 @@ public class Item {
 	protected Attribute attribute;
 	protected double modifier;
 	protected int cost;
-	protected Unit unit;
+	protected Unit owner;
 	
 	public Item (String newName, Attribute newAttribute, double newModifier, int newCost, Unit newUnit ) {
 		name = newName;
 		attribute = newAttribute;
 		modifier = newModifier;
 		cost = newCost;
-		unit = newUnit;
+		owner = newUnit;
 	}
 	
 	public Attribute getAttribute() {
@@ -37,7 +39,7 @@ public class Item {
 	}
 	
 	public void setOwner(Unit newUnit) {
-		unit = newUnit;
+		owner = newUnit;
 	}
 	
 	public int getResaleValue() {
@@ -47,7 +49,11 @@ public class Item {
 	/**
 	 * This method may exist solely to be overwritten by items inheriting this class 
 	 */
-	public void execute() {
+	public void use() {
 		
+	}
+	
+	public String toString() {
+		return name;
 	}
 }

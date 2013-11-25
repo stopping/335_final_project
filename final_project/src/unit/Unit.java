@@ -7,6 +7,7 @@ import java.util.List;
 import shared.Attribute;
 import shared.Game;
 import shared.GameSquare;
+import shared.HealthItem;
 import shared.Item;
 import shared.Occupant;
 
@@ -39,6 +40,7 @@ public class Unit extends Occupant {
 		itemList = new ArrayList<Item>();
 		abilityCoolDown = 3;
 		abilityCoolDownToGo = 3;
+		addItem(new HealthItem("Stimpack",5.0,1,this));
 	}
 	
 	public void setGame(Game g) {
@@ -154,8 +156,8 @@ public class Unit extends Occupant {
 	}
 	
 	public boolean useItem(Item i) {
-		i.execute();
-		removeItem(i);
+		i.use();
+		System.out.println("Item Used");
 		return true;
 	}
 	
@@ -239,6 +241,10 @@ public class Unit extends Occupant {
 				"HP: " + (int) hitPoints + "/" + (int) maxHitPoints + "\n" +
 				"AP: " + (int) actionPoints + "/" + (int) maxActionPoints + "\n";
 				
+	}
+	
+	public List<Item> getItemList() {
+		return itemList;
 	}
 
 }

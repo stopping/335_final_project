@@ -243,13 +243,18 @@ public class Game implements Serializable {
 	public boolean moveUnit(int[] source, int[] dest) {
 		GameSquare srcSquare = board[source[0]][source[1]];
 		GameSquare destSquare = board[dest[0]][dest[1]];
-		Unit performer = (Unit) srcSquare.getOccupant();
-		Occupant atDest = destSquare.getOccupant();
 		
-		if(!isTurn(performer) || !(performer instanceof Unit))
+		Unit performer;
+		
+		if(srcSquare.getOccupant() instanceof Unit) 
+			performer = (Unit) srcSquare.getOccupant();
+		else
 			return false;
 		
-		if( performer == null || atDest != null) {
+		if(!isTurn(performer))
+			return false;
+		
+		if( performer == null || destSquare.hasOccupant() ) {
 			return false;
 		}
 		// unit's move method now performs the requisite checks
@@ -260,8 +265,14 @@ public class Game implements Serializable {
 	public boolean attack(int[] source, int[] dest) {
 		GameSquare srcSquare = board[source[0]][source[1]];
 		GameSquare destSquare = board[dest[0]][dest[1]];
-		Unit performer = (Unit) srcSquare.getOccupant();
+		
+		Unit performer;
 		Occupant receiver = destSquare.getOccupant();
+		
+		if(srcSquare.getOccupant() instanceof Unit) 
+			performer = (Unit) srcSquare.getOccupant();
+		else
+			return false;
 		
 		if(!isTurn(performer)) { return false; }
 		
@@ -298,17 +309,19 @@ public class Game implements Serializable {
 
 	}
 	
-	public boolean useItem(int[] source, int[] dest, Item item) {
+	public boolean useItem(int[] source, int[] dest, int itemIndex) {
 		GameSquare srcSquare = board[source[0]][source[1]];
 		GameSquare destSquare = board[dest[0]][dest[1]];
 		Unit performer = (Unit) srcSquare.getOccupant();
 		Occupant receiver = destSquare.getOccupant();
+		Item toUse = performer.getItemList().get(itemIndex);
 		//If it's not your turn you can't do anything
-		if(!isTurn(performer))
+		if(!isTurn(performer)) {
 			return false;
+		}
 		//otherwise try to give the item. giveItem() returns true if successful otherwise false.
 		else
-			return performer.useItem(item);
+			return performer.useItem(toUse);
 
 	}
 	

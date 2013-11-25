@@ -13,20 +13,27 @@ import java.awt.geom.Rectangle2D;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
+import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
+import javax.swing.ListModel;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 
 import client.HumanPlayer;
 import commands.*;
 import commands.ClientServerCommand.ClientServerCommandType;
 import shared.Game;
 import shared.GameSquare;
+import shared.Item;
 import shared.Obstacle;
 import shared.Game.WinCondition;
 import shared.Occupant;
@@ -35,6 +42,7 @@ import unit.Unit;
 public class GUI extends HumanPlayer {
 	
 	boolean selected = false;
+	DefaultListModel<Item> itemListModel = new DefaultListModel<Item>();
 	
 	JFrame mainFrame = new JFrame();
 	JPanel mainPanel = new JPanel();
@@ -42,8 +50,10 @@ public class GUI extends HumanPlayer {
 	JPanel gamePanel = new JPanel();
 	JPanel shopPanel = new JPanel();
 	JTextArea gameInfo = new JTextArea();
+	JList<Item> itemList = new JList<Item>(itemListModel);
 	
 	JButton endTurnButton = new JButton("End Turn");
+	JButton useItemButton = new JButton("Use Item");
 	
 	int leftClickRow;
 	int leftClickCol;
@@ -85,24 +95,28 @@ public class GUI extends HumanPlayer {
 			e.printStackTrace();
 		}
 		
-		gameInfo.setPreferredSize(new Dimension(384,100));
+		gameInfo.setPreferredSize(new Dimension(384, 100));
 		gameInfo.setEditable(false);
 
-		boardPanel.setPreferredSize(new Dimension(384,384));
+		boardPanel.setPreferredSize(new Dimension(384, 384));
 		boardPanel.addMouseListener(new gameMouseListener());
 		boardPanel.setBackground(Color.cyan);
 		
-		gamePanel.setPreferredSize(new Dimension(400,550));
+		itemList.setPreferredSize(new Dimension(384, 80));
+		
+		gamePanel.setPreferredSize(new Dimension(400, 700));
 		gamePanel.add(boardPanel);
 		gamePanel.add(gameInfo);
 		gamePanel.add(endTurnButton);
+		gamePanel.add(itemList);
+		gamePanel.add(useItemButton);
 		
 		mainPanel.add(gamePanel);
 		
 		mainFrame.setResizable(false);
 		mainFrame.add(mainPanel);
 		mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		mainFrame.setSize(800,600);
+		mainFrame.setSize(800,800);
 		mainFrame.setVisible(true);
 		
 		endTurnButton.addActionListener(new AbstractAction() {
@@ -110,6 +124,21 @@ public class GUI extends HumanPlayer {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				sendCommand(new EndTurnCommand());
+			}
+			
+		});
+		
+		useItemButton.addActionListener(new AbstractAction() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				int index = itemList.getSelectedIndex();
+				if(index >= 0) {
+					int[] src = {leftClickRow,leftClickCol};
+					UseItemCommand c = new UseItemCommand(src,src,index);
+					sendCommand(c);
+					itemListModel.removeElementAt(index);
+				}
 			}
 			
 		});
@@ -145,9 +174,6 @@ public class GUI extends HumanPlayer {
 				leftClickRow = arg0.getPoint().y / 32;
 				leftClickCol = arg0.getPoint().x / 32;
 				selected = true;
-				GameSquare gs = game.getBoard()[leftClickRow][leftClickCol];
-				if(gs.hasOccupant()) gameInfo.setText(gs.getOccupant().toString());
-				else gameInfo.setText("Empty");
 			} else if(arg0.getButton() == MouseEvent.BUTTON3) {
 				rightClickRow = arg0.getPoint().y / 32;
 				rightClickCol = arg0.getPoint().x / 32;
@@ -166,7 +192,7 @@ public class GUI extends HumanPlayer {
 				}
 			}
 			
-			boardPanel.repaint();
+			update();
 
 		}
 
@@ -178,6 +204,20 @@ public class GUI extends HumanPlayer {
 	}
 	
 	public void update() {
+		GameSquare gs = game.getBoard()[leftClickRow][leftClickCol];
+		if(gs.hasOccupant()) {
+			Occupant o = gs.getOccupant();
+			gameInfo.setText(o.toString());
+			itemListModel.removeAllElements();
+			if(o instanceof Unit) {
+				List<Item> list = ((Unit) o).getItemList();
+				for(Item i : list) {
+					itemListModel.addElement(i);
+				}
+			}
+			
+		}
+		else gameInfo.setText("Empty");
 		boardPanel.repaint();
 	}
 	
