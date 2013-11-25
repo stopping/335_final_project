@@ -22,16 +22,17 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 
+import client.HumanPlayer;
 import commands.*;
+import commands.ClientServerCommand.ClientServerCommandType;
 import shared.Game;
 import shared.GameSquare;
 import shared.Obstacle;
 import shared.Game.WinCondition;
 import unit.Unit;
 
-public class GUI {
+public class GUI extends HumanPlayer {
 	
-	private Game game;
 	boolean selected = false;
 	
 	JFrame mainFrame = new JFrame();
@@ -51,6 +52,12 @@ public class GUI {
 	Image sprites;
 	
 	public GUI() {
+		
+		super();
+		
+		sendCommand(new ClientServerCommand(ClientServerCommandType.Login, new String[] {"Username","password"}));
+		sendCommand(new ClientServerCommand(ClientServerCommandType.NewComputerPlayer, null));
+		sendCommand(new ClientServerCommand(ClientServerCommandType.StartGame, new String[] {"CTF"}));
 		
 		ArrayList<Unit> list1 = new ArrayList<Unit>();
 		ArrayList<Unit> list2 = new ArrayList<Unit>();
@@ -99,8 +106,7 @@ public class GUI {
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				GameCommand c = new EndTurnCommand();
-				game.executeCommand(c);
+				sendCommand(new EndTurnCommand());
 			}
 			
 		});
@@ -149,7 +155,9 @@ public class GUI {
 					if(game.getBoard()[rightClickRow][rightClickCol].hasOccupant()) c = new AttackCommand(src,dest);
 					else c = new MoveCommand(src,dest);
 					
-					System.out.println(game.executeCommand(c));
+					//System.out.println(game.executeCommand(c));
+					sendCommand(c);
+					//parseAndExecuteCommand(c);
 					selected = false;
 				}
 			}
@@ -164,6 +172,10 @@ public class GUI {
 			
 		}
 		
+	}
+	
+	public void update() {
+		boardPanel.repaint();
 	}
 	
 	private class BoardPanel extends JPanel {

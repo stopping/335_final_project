@@ -242,33 +242,25 @@ public class Game implements Serializable {
 		if( performer == null || atDest != null) {
 			return false;
 		}
-		//These checks are now performed inside of Unit
-		if(performer.canMoveTo(destSquare) && lineOfSightExists(srcSquare,destSquare)) {
-			performer.moveTo(destSquare);
-			return true;
-		} else {
-			return false;
-		}
+		// unit's move method now performs the requisite checks
+		return performer.moveTo(destSquare);
+
 	}
-//
-//	public boolean attack(int[] source, int[] dest) {
-//		GameSquare srcSquare = board[source[0]][source[1]];
-//		GameSquare destSquare = board[dest[0]][dest[1]];
-//		Unit performer = (Unit) srcSquare.getOccupant();
-//		Occupant receiver = destSquare.getOccupant();
-//		
-//		if(!isTurn(performer))
-//			return false;
-//		
-//		if(!(performer instanceof Unit) || receiver == null) return false;
-//		//These checks are now performed inside of Unit
-//		if(lineOfSightExists(srcSquare, destSquare) && performer.isInRange(receiver) && performer.getActionPoints() > 0) {
-//			performer.attack(receiver);
-//			return true;
-//		}
-//		
-//		return false;
-//	}
+
+	public boolean attack(int[] source, int[] dest) {
+		GameSquare srcSquare = board[source[0]][source[1]];
+		GameSquare destSquare = board[dest[0]][dest[1]];
+		Unit performer = (Unit) srcSquare.getOccupant();
+		Occupant receiver = destSquare.getOccupant();
+		
+		if(!isTurn(performer)) { return false; }
+		
+		if(!(performer instanceof Unit) || receiver == null) { return false; }
+		// attack returns true if attack was successful false if otherwise
+		// important to note that the unit's attack method now perform the requisite checks
+		return performer.attack(receiver);
+
+	}
 
 	public boolean endTurn() {
 		for(int i = 0; i < unitListRed.size(); i++) {
@@ -282,21 +274,18 @@ public class Game implements Serializable {
 		return true;
 	}
 	
-//	public boolean giveItem(int[] source, int[] dest, Item item) {
-//		GameSquare srcSquare = board[source[0]][source[1]];
-//		GameSquare destSquare = board[dest[0]][dest[1]];
-//		Unit performer = (Unit) srcSquare.getOccupant();
-//		Occupant receiver = destSquare.getOccupant();
-//		
-//		if(!isTurn(performer))
-//			return false;
-//		
-//		if(lineOfSightExists(srcSquare, destSquare) && performer.isInRange(receiver) 
-//				&& performer.getActionPoints() > 0) {
-//			return performer.giveItem(item, (Unit)receiver);
-//		}
-//		
-//		return true;
-//	}
+	public boolean giveItem(int[] source, int[] dest, Item item) {
+		GameSquare srcSquare = board[source[0]][source[1]];
+		GameSquare destSquare = board[dest[0]][dest[1]];
+		Unit performer = (Unit) srcSquare.getOccupant();
+		Occupant receiver = destSquare.getOccupant();
+		//If it's not your turn you can't do anything
+		if(!isTurn(performer))
+			return false;
+		//otherwise try to give the item. giveItem() returns true if successful otherwise false.
+		else
+			return performer.giveItem(item, (Unit)receiver);
+
+	}
 	
 }

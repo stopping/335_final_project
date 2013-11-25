@@ -163,7 +163,6 @@ public class Server implements Runnable {
 				if (!database.isValidUser(name, password)) 
 					database.addUser(name, password, setNewUserUnits(), playerNumber);
 				else {
-					// TODO: check the password against database
 					database.getUser(name).resetPlayerNumber(playerNumber);
 				}
 				database.getUser(name).setLoggedOn(true);
@@ -172,7 +171,7 @@ public class Server implements Runnable {
 				
 			case NewComputerPlayer:
 				AINumber = numPlayers;
-				new ComputerPlayer(generateAIUnits());
+				new ComputerPlayer();
 				isAIGame = true;
 				break;
 				
