@@ -3,7 +3,7 @@ package server;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import shared.Unit;
+import unit.Unit;
 
 public class UserDatabase {
 

@@ -5,6 +5,7 @@ import java.util.Scanner;
 
 import commands.*;
 import shared.Game.WinCondition;
+import unit.Unit;
 
 public class PlayConsoleGame {
 

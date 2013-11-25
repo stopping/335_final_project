@@ -12,7 +12,7 @@ import commands.*;
 import commands.ClientServerCommand.ClientServerCommandType;
 import shared.Game;
 import shared.Game.WinCondition;
-import shared.Unit;
+import unit.Unit;
 
 
 /**

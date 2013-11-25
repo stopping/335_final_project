@@ -12,8 +12,9 @@ import commands.*;
 import commands.ClientServerCommand.ClientServerCommandType;
 import client.Player;
 import shared.Game;
+
+import unit.Unit;
 import shared.GameSquare;
-import shared.Unit;
 
 public class ComputerPlayer implements Player, Runnable {
 
