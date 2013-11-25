@@ -6,8 +6,8 @@ import shared.Game;
 
 public class HumanPlayer implements Player {
 
-	private Game game;
-	private Client client;
+	protected Game game;
+	protected Client client;
 	
 	public static void main(String args[]) {
 		new HumanPlayer();
