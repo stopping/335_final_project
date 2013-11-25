@@ -1,5 +1,7 @@
 package commands;
 
+import shared.Game;
+
 @SuppressWarnings("serial")
 public abstract class GameCommand extends Command { 
 	
@@ -8,4 +10,8 @@ public abstract class GameCommand extends Command {
 	
 	public int[] getSource() { return this.source; }
 	public int[] getDest() { return this.dest; }
+	
+	public boolean executeOn( Game g ) {
+		return false;
+	}
 }

@@ -68,23 +68,11 @@ public class Game implements Serializable {
 	}
 	
 	public boolean executeCommand( GameCommand com ) {
-		boolean executed = false;
+		
 		if(com == null) return false;
 		
-		if (com instanceof MoveCommand) {
-			executed = doMoveCommand((MoveCommand)com);
-			
-		} else if (com instanceof AttackCommand) {
-			executed = doAttackCommand((AttackCommand)com);
-			
-		}	else if (com instanceof EndTurnCommand) {
-			executed = doEndTurnCommand(com);
+		return com.executeOn(this);
 		
-		}	else if (com instanceof GiveItemCommand) {
-			executed = doGiveItemCommand((GiveItemCommand)com);
-		}
-
-		return executed;
 	}
 	
 	public boolean isTurn(Unit performer) {
@@ -96,85 +84,6 @@ public class Game implements Serializable {
 			System.out.println("Blue does not own this unit!");
 			return false;
 		}
-		return true;
-	}
-	
-	public boolean doMoveCommand( MoveCommand com ) {
-		
-		int srcCoords[] = com.getSource();
-		int destCoords[] = com.getDest();
-		GameSquare srcSquare = board[srcCoords[0]][srcCoords[1]];
-		GameSquare destSquare = board[destCoords[0]][destCoords[1]];
-		Unit performer = (Unit) srcSquare.getOccupant();
-		Occupant atDest = destSquare.getOccupant();
-		
-		if(!isTurn(performer))
-			return false;
-		
-		if( performer == null || atDest != null) {
-			return false;
-		}
-		
-		if(performer.canMoveTo(destSquare) && lineOfSightExists(srcSquare,destSquare)) {
-			performer.moveTo(destSquare);
-			return true;
-		} else {
-			return false;
-		}
-		
-	}
-	
-	public boolean doAttackCommand( AttackCommand com ) {
-		
-		int srcCoords[] = com.getSource();
-		int destCoords[] = com.getDest();
-		GameSquare srcSquare = board[srcCoords[0]][srcCoords[1]];
-		GameSquare destSquare = board[destCoords[0]][destCoords[1]];
-		Unit performer = (Unit) srcSquare.getOccupant();
-		Occupant receiver = destSquare.getOccupant();
-		
-		if(!isTurn(performer))
-			return false;
-		
-		if(!(performer instanceof Unit) || receiver == null) return false;
-		
-		if(lineOfSightExists(srcSquare, destSquare) && performer.isInRange(receiver) && performer.getActionPoints() > 0) {
-			performer.attack(receiver);
-			return true;
-		}
-		
-		return false;
-	}
-	
-	public boolean doGiveItemCommand(GiveItemCommand com) {
-		int srcCoords[] = com.getSource();
-		int destCoords[] = com.getDest();
-		GameSquare srcSquare = board[srcCoords[0]][srcCoords[1]];
-		GameSquare destSquare = board[destCoords[0]][destCoords[1]];
-		Unit performer = (Unit) srcSquare.getOccupant();
-		Occupant receiver = destSquare.getOccupant();
-		Item item = com.getItem();
-		
-		if(!isTurn(performer))
-			return false;
-		
-		if(lineOfSightExists(srcSquare, destSquare) && performer.isInRange(receiver) 
-				&& performer.getActionPoints() > 0) {
-			return performer.giveItem(item, (Unit)receiver);
-		}
-		
-		return true;
-	}
-	
-	public boolean doEndTurnCommand( GameCommand com ) {
-		for(int i = 0; i < unitListRed.size(); i++) {
-			unitListRed.get(i).restoreActionPoints();
-		}
-		for(int i = 0; i < unitListBlue.size(); i++) {
-			unitListBlue.get(i).restoreActionPoints();
-		}
-		currentPlayer = currentPlayer == 0 ? 1 : 0;
-		checkWinCondition();
 		return true;
 	}
 
@@ -319,6 +228,75 @@ public class Game implements Serializable {
 	
 	public List<Unit> getBlueUnitList() {
 		return unitListBlue;
+	}
+
+	public boolean moveUnit(int[] source, int[] dest) {
+		GameSquare srcSquare = board[source[0]][source[1]];
+		GameSquare destSquare = board[dest[0]][dest[1]];
+		Unit performer = (Unit) srcSquare.getOccupant();
+		Occupant atDest = destSquare.getOccupant();
+		
+		if(!isTurn(performer))
+			return false;
+		
+		if( performer == null || atDest != null) {
+			return false;
+		}
+		
+		if(performer.canMoveTo(destSquare) && lineOfSightExists(srcSquare,destSquare)) {
+			performer.moveTo(destSquare);
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	public boolean attack(int[] source, int[] dest) {
+		GameSquare srcSquare = board[source[0]][source[1]];
+		GameSquare destSquare = board[dest[0]][dest[1]];
+		Unit performer = (Unit) srcSquare.getOccupant();
+		Occupant receiver = destSquare.getOccupant();
+		
+		if(!isTurn(performer))
+			return false;
+		
+		if(!(performer instanceof Unit) || receiver == null) return false;
+		
+		if(lineOfSightExists(srcSquare, destSquare) && performer.isInRange(receiver) && performer.getActionPoints() > 0) {
+			performer.attack(receiver);
+			return true;
+		}
+		
+		return false;
+	}
+
+	public boolean endTurn() {
+		for(int i = 0; i < unitListRed.size(); i++) {
+			unitListRed.get(i).restoreActionPoints();
+		}
+		for(int i = 0; i < unitListBlue.size(); i++) {
+			unitListBlue.get(i).restoreActionPoints();
+		}
+		currentPlayer %= currentPlayer + 1;
+		checkWinCondition();
+		return true;
+	}
+	
+	public boolean giveItem(int[] source, int[] dest, Item item) {
+		GameSquare srcSquare = board[source[0]][source[1]];
+		GameSquare destSquare = board[dest[0]][dest[1]];
+		Unit performer = (Unit) srcSquare.getOccupant();
+		Occupant receiver = destSquare.getOccupant();
+		
+		if(!isTurn(performer))
+			return false;
+		
+		if(lineOfSightExists(srcSquare, destSquare) && performer.isInRange(receiver) 
+				&& performer.getActionPoints() > 0) {
+			return performer.giveItem(item, (Unit)receiver);
+		}
+		
+		return true;
 	}
 	
 }

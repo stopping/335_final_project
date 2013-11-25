@@ -1,5 +1,6 @@
 package commands;
 
+import shared.Game;
 import shared.Item;
 
 @SuppressWarnings("serial")
@@ -15,5 +16,9 @@ public class GiveItemCommand extends GameCommand {
 	
 	public Item getItem() {
 		return this.item;
+	}
+	
+	public boolean executeOn( Game g ) {
+		return g.giveItem(source,dest,item);
 	}
 }
