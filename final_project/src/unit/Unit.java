@@ -22,8 +22,8 @@ public class Unit extends Occupant {
 	protected int abilityCoolDown;
 	protected int abilityCoolDownToGo;
 	protected double abilityRange;
-	protected Game game;
-	protected GameSquare[][] board;
+	protected Game game = null;
+	protected GameSquare[][] board = null;
 	
 	public Unit(String newName) {
 		super(newName);
@@ -82,6 +82,7 @@ public class Unit extends Occupant {
 		for(int i = 1; i < line.size() - 1; i++) {
 			int r = line.get(i).x;
 			int c = line.get(i).y;
+			System.out.println("" + r + " " + c);
 			if(board[r][c].hasOccupant()) return false;
 		}
 		return true;
@@ -186,6 +187,7 @@ public class Unit extends Occupant {
 		
 			location.setOccupant(null);
 			destSquare.setOccupant(this);
+			location = destSquare;
 			consumeActionPoints(apCost/speed);
 			return true;
 		}
