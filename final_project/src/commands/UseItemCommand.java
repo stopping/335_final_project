@@ -15,7 +15,7 @@ public class UseItemCommand extends GameCommand {
 	}
 	
 	public void execute(Game g) {
-		//g.useItem(source, dest, item);
+		g.useItem(source, dest, item);
 	}
 	
 	

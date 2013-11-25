@@ -153,9 +153,10 @@ public class Unit extends Occupant {
 		return false;
 	}
 	
-	public void useItem(Item i) {
+	public boolean useItem(Item i) {
 		i.execute();
 		removeItem(i);
+		return true;
 	}
 	
 	public void upgrade( Attribute a, double value) {
