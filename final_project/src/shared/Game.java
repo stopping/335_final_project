@@ -6,9 +6,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import commands.*;
-
 import server.Server;
 import shared.GameSquare.Terrain;
+import unit.Unit;
 
 @SuppressWarnings("serial")
 public class Game implements Serializable {
@@ -168,7 +168,7 @@ public class Game implements Serializable {
 	 * @param y1 - y coordinate of end point
 	 * @return List of points on the line connecting start and end point
 	 */
-	private ArrayList<Point> BresenhamLine(int x0, int y0, int x1, int y1) {
+	public static ArrayList<Point> BresenhamLine(int x0, int y0, int x1, int y1) {
 		ArrayList<Point> result = new ArrayList<Point>();
 
 	    boolean steep = Math.abs(y1 - y0) > Math.abs(x1 - x0);
@@ -242,7 +242,7 @@ public class Game implements Serializable {
 		if( performer == null || atDest != null) {
 			return false;
 		}
-		
+		//These checks are now performed inside of Unit
 		if(performer.canMoveTo(destSquare) && lineOfSightExists(srcSquare,destSquare)) {
 			performer.moveTo(destSquare);
 			return true;
@@ -250,25 +250,25 @@ public class Game implements Serializable {
 			return false;
 		}
 	}
-
-	public boolean attack(int[] source, int[] dest) {
-		GameSquare srcSquare = board[source[0]][source[1]];
-		GameSquare destSquare = board[dest[0]][dest[1]];
-		Unit performer = (Unit) srcSquare.getOccupant();
-		Occupant receiver = destSquare.getOccupant();
-		
-		if(!isTurn(performer))
-			return false;
-		
-		if(!(performer instanceof Unit) || receiver == null) return false;
-		
-		if(lineOfSightExists(srcSquare, destSquare) && performer.isInRange(receiver) && performer.getActionPoints() > 0) {
-			performer.attack(receiver);
-			return true;
-		}
-		
-		return false;
-	}
+//
+//	public boolean attack(int[] source, int[] dest) {
+//		GameSquare srcSquare = board[source[0]][source[1]];
+//		GameSquare destSquare = board[dest[0]][dest[1]];
+//		Unit performer = (Unit) srcSquare.getOccupant();
+//		Occupant receiver = destSquare.getOccupant();
+//		
+//		if(!isTurn(performer))
+//			return false;
+//		
+//		if(!(performer instanceof Unit) || receiver == null) return false;
+//		//These checks are now performed inside of Unit
+//		if(lineOfSightExists(srcSquare, destSquare) && performer.isInRange(receiver) && performer.getActionPoints() > 0) {
+//			performer.attack(receiver);
+//			return true;
+//		}
+//		
+//		return false;
+//	}
 
 	public boolean endTurn() {
 		for(int i = 0; i < unitListRed.size(); i++) {
@@ -282,21 +282,21 @@ public class Game implements Serializable {
 		return true;
 	}
 	
-	public boolean giveItem(int[] source, int[] dest, Item item) {
-		GameSquare srcSquare = board[source[0]][source[1]];
-		GameSquare destSquare = board[dest[0]][dest[1]];
-		Unit performer = (Unit) srcSquare.getOccupant();
-		Occupant receiver = destSquare.getOccupant();
-		
-		if(!isTurn(performer))
-			return false;
-		
-		if(lineOfSightExists(srcSquare, destSquare) && performer.isInRange(receiver) 
-				&& performer.getActionPoints() > 0) {
-			return performer.giveItem(item, (Unit)receiver);
-		}
-		
-		return true;
-	}
+//	public boolean giveItem(int[] source, int[] dest, Item item) {
+//		GameSquare srcSquare = board[source[0]][source[1]];
+//		GameSquare destSquare = board[dest[0]][dest[1]];
+//		Unit performer = (Unit) srcSquare.getOccupant();
+//		Occupant receiver = destSquare.getOccupant();
+//		
+//		if(!isTurn(performer))
+//			return false;
+//		
+//		if(lineOfSightExists(srcSquare, destSquare) && performer.isInRange(receiver) 
+//				&& performer.getActionPoints() > 0) {
+//			return performer.giveItem(item, (Unit)receiver);
+//		}
+//		
+//		return true;
+//	}
 	
 }

@@ -1,7 +1,8 @@
 package server;
 
 import java.util.ArrayList;
-import shared.Unit;
+
+import unit.Unit;
 
 public class UserAccount {
 	

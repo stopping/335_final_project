@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import commands.*;
 import client.Player;
 import shared.Game;
-import shared.Unit;
+import unit.Unit;
 
 public class ComputerPlayer implements Player, Runnable {
 

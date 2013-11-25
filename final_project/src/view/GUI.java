@@ -26,8 +26,8 @@ import commands.*;
 import shared.Game;
 import shared.GameSquare;
 import shared.Obstacle;
-import shared.Unit;
 import shared.Game.WinCondition;
+import unit.Unit;
 
 public class GUI {
 	

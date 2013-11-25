@@ -1,5 +1,7 @@
 package shared;
 
+import unit.Unit;
+
 public class HealthItem extends Item {
 	
 	
