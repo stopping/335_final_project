@@ -2,16 +2,20 @@ package shared;
 
 public class Item {
 
-	private String name;
-	private Attribute attribute;
-	private double modifier;
-	private int cost;
 	
-	public Item (String newName, Attribute newAttribute, double newModifier, int newCost ) {
+
+	protected String name;
+	protected Attribute attribute;
+	protected double modifier;
+	protected int cost;
+	protected Unit unit;
+	
+	public Item (String newName, Attribute newAttribute, double newModifier, int newCost, Unit newUnit ) {
 		name = newName;
 		attribute = newAttribute;
 		modifier = newModifier;
 		cost = newCost;
+		unit = newUnit;
 	}
 	
 	public Attribute getAttribute() {
@@ -30,8 +34,18 @@ public class Item {
 		return cost;
 	}
 	
+	public void setOwner(Unit newUnit) {
+		unit = newUnit;
+	}
+	
 	public int getResaleValue() {
 		return cost * 3 / 4;
 	}
-
+	
+	/**
+	 * This method may exist solely to be overwritten by items inheriting this class 
+	 */
+	public void execute() {
+		
+	}
 }

@@ -74,6 +74,7 @@ public class Unit extends Occupant {
 	public boolean addItem(Item i) {
 		if(inventoryHasRoom()) {
 			itemList.add(i);
+			i.setOwner(this);
 			return true;
 		}
 		return false;
@@ -86,6 +87,13 @@ public class Unit extends Occupant {
 		}
 		return false;
 	}
+	
+	public void useItem(Item i) {
+		i.execute();
+		removeItem(i);
+	}
+	
+
 	
 	public void upgrade( Attribute a, double value) {
 		switch(a) {
@@ -132,6 +140,7 @@ public class Unit extends Occupant {
 		if(itemList.contains(i) && receiver.inventoryHasRoom()) {
 			removeItem(i);
 			receiver.addItem(i);
+			i.setOwner(receiver);
 			return true;
 		}
 		return false;
