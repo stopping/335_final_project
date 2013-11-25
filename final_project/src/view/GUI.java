@@ -72,23 +72,6 @@ public class GUI extends HumanPlayer {
 		sendCommand(new ClientServerCommand(ClientServerCommandType.NewComputerPlayer, null));
 		sendCommand(new ClientServerCommand(ClientServerCommandType.StartGame, new String[] {"CTF"}));
 		
-		ArrayList<Unit> list1 = new ArrayList<Unit>();
-		ArrayList<Unit> list2 = new ArrayList<Unit>();
-		
-		list1.add(new Unit("Alice"));
-		list1.add(new Unit("Bob"));
-		list1.add(new Unit("Charlie"));
-		list1.add(new Unit("David"));
-		list1.add(new Unit("Eric"));
-		
-		list2.add(new Unit("Zander"));
-		list2.add(new Unit("Yvonne"));
-		list2.add(new Unit("Xavier"));
-		list2.add(new Unit("Will"));
-		list2.add(new Unit("Van"));
-		
-		game = new Game(list1,list2,WinCondition.Deathmatch);
-		
 		try {
 			sprites = ImageIO.read(new File("Sprites2.png"));
 		} catch (IOException e) {
@@ -182,8 +165,10 @@ public class GUI extends HumanPlayer {
 					int[] dest = {rightClickRow,rightClickCol};
 					
 					GameCommand c;
-					if(game.getBoard()[rightClickRow][rightClickCol].hasOccupant()) c = new AttackCommand(src,dest);
-					else c = new MoveCommand(src,dest);
+					if(game.getBoard()[rightClickRow][rightClickCol].hasOccupant())
+						c = new AttackCommand(src,dest);
+					else
+						c = new MoveCommand(src,dest);
 					
 					//System.out.println(game.executeCommand(c));
 					sendCommand(c);
