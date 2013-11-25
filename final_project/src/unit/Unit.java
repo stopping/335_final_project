@@ -50,7 +50,7 @@ public class Unit extends Occupant {
 	}
 	
 	public boolean useSpecialAbility( Occupant o ) {
-		if (abilityCoolDownToGo == 0 && canAttack(o, abilityRange)) {
+		if (abilityCoolDownToGo == 0 && isInRange(o, abilityRange)) {
 			attack(o);
 			restoreActionPoints(2.0);
 			return true;
@@ -82,7 +82,7 @@ public class Unit extends Occupant {
 		for(int i = 1; i < line.size() - 1; i++) {
 			int r = line.get(i).x;
 			int c = line.get(i).y;
-			System.out.println("" + r + " " + c);
+			//System.out.println("" + r + " " + c);
 			if(board[r][c].hasOccupant()) return false;
 		}
 		return true;
@@ -94,7 +94,7 @@ public class Unit extends Occupant {
 	
 	
 	public boolean attack( Occupant o ) {
-		if (canAttack(o, attackRange)) {
+		if (canAttack(o)) {
 			double attackModifier = 0;
 			for(int i = 0; i < itemList.size(); i++) {
 				Item currItem = itemList.get(i);
@@ -107,8 +107,8 @@ public class Unit extends Occupant {
 		return false;
 	}
 
-	public boolean canAttack(Occupant o, double range) {
-		return isInRange(o, range) && actionPoints >= 2.0 && lineOfSightExists(this.location, o.getLocation());
+	public boolean canAttack(Occupant o) {
+		return isInRange(o, attackRange) && actionPoints >= 2.0 && lineOfSightExists(this.location, o.getLocation());
 	}
 	
 	public boolean isInRange( Occupant o , double range) {
@@ -198,13 +198,14 @@ public class Unit extends Occupant {
 	}
 
 	public boolean canMoveTo(GameSquare destSquare) {
+		
 		int srcRow = location.getRow();
 		int destRow = destSquare.getRow();
 		int srcCol = location.getCol();
 		int destCol = destSquare.getCol();
 		double apCost = Math.sqrt(Math.pow(srcRow-destRow, 2)+Math.pow(srcCol-destCol, 2));
 
-		return apCost/speed <= actionPoints && lineOfSightExists(this.location, destSquare);
+		return !destSquare.hasOccupant() && apCost/speed <= actionPoints && lineOfSightExists(this.location, destSquare);
 	}
 	
 	/** 

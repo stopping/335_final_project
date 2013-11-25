@@ -29,6 +29,7 @@ import shared.Game;
 import shared.GameSquare;
 import shared.Obstacle;
 import shared.Game.WinCondition;
+import shared.Occupant;
 import unit.Unit;
 
 public class GUI extends HumanPlayer {
@@ -48,6 +49,8 @@ public class GUI extends HumanPlayer {
 	int leftClickCol;
 	int rightClickRow;
 	int rightClickCol;
+	int mouseOverRow;
+	int mouseOverCol;
 	
 	Image sprites;
 	
@@ -126,8 +129,7 @@ public class GUI extends HumanPlayer {
 
 		@Override
 		public void mouseEntered(MouseEvent arg0) {
-			// TODO Auto-generated method stub
-			
+
 		}
 
 		@Override
@@ -143,7 +145,9 @@ public class GUI extends HumanPlayer {
 				leftClickRow = arg0.getPoint().y / 32;
 				leftClickCol = arg0.getPoint().x / 32;
 				selected = true;
-				gameInfo.setText(game.getBoard()[leftClickRow][leftClickCol].getOccupant().toString());
+				GameSquare gs = game.getBoard()[leftClickRow][leftClickCol];
+				if(gs.hasOccupant()) gameInfo.setText(gs.getOccupant().toString());
+				else gameInfo.setText("Empty");
 			} else if(arg0.getButton() == MouseEvent.BUTTON3) {
 				rightClickRow = arg0.getPoint().y / 32;
 				rightClickCol = arg0.getPoint().x / 32;
@@ -168,8 +172,7 @@ public class GUI extends HumanPlayer {
 
 		@Override
 		public void mouseReleased(MouseEvent arg0) {
-			// TODO Auto-generated method stub
-			
+
 		}
 		
 	}
@@ -201,14 +204,22 @@ public class GUI extends HumanPlayer {
 					GameSquare srcSquare = game.getGameSquareAt(leftClickRow,leftClickCol);
 					GameSquare destSquare = game.getGameSquareAt(r, c);
 					
-					
-					if( (srcSquare.getOccupant() instanceof Unit) && game.lineOfSightExists(srcSquare, destSquare) && selected &&
+					if( selected && srcSquare.getOccupant() instanceof Unit) {
+						Unit u = (Unit) srcSquare.getOccupant();
+						if( u.canMoveTo(destSquare) ) g2.setColor( Color.white );
+						Occupant o = destSquare.getOccupant();
+						if( o != null && u.canAttack(o)) g2.setColor( Color.orange );
+						square = new Rectangle2D.Double( left+6, upper+6, size-13, size-13 );
+						g2.draw(square);
+						g2.fill(square);
+					}
+/*					if( (srcSquare.getOccupant() instanceof Unit) && game.lineOfSightExists(srcSquare, destSquare) && selected &&
 							Math.pow((r-leftClickRow),2) + Math.pow((c-leftClickCol), 2) <= Math.pow(((Unit)srcSquare.getOccupant()).getActionPoints(), 2)) {
 						square = new Rectangle2D.Double( left+6, upper+6, size-13, size-13 );
 						g2.setColor( Color.white );
 						g2.draw(square);
 						g2.fill(square);
-					}
+					}*/
 				}
 			}
 			

@@ -246,7 +246,7 @@ public class Game implements Serializable {
 		Unit performer = (Unit) srcSquare.getOccupant();
 		Occupant atDest = destSquare.getOccupant();
 		
-		if(!isTurn(performer))
+		if(!isTurn(performer) || !(performer instanceof Unit))
 			return false;
 		
 		if( performer == null || atDest != null) {

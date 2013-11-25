@@ -74,11 +74,11 @@ public class Server implements Runnable {
 	// TODO: make a process for creating a new army for human player and AI
 	private ArrayList<Unit> setNewUserUnits() {
 		ArrayList<Unit> units = new ArrayList<Unit>();
-		units.add(new Unit("Zander"));
-		units.add(new Unit("Yvonne"));
-		units.add(new Unit("Xavier"));
-		units.add(new Unit("Will"));
-		units.add(new Unit("Van"));
+		units.add(new Unit("Alice"));
+		units.add(new Unit("Bob"));
+		units.add(new Unit("Charles"));
+		units.add(new Unit("Dan"));
+		units.add(new Unit("Eric"));
 		return units;
 	}
 	

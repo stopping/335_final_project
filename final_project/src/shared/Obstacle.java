@@ -4,7 +4,7 @@ package shared;
 public class Obstacle extends Occupant {
 	
 	public Obstacle() {
-		super("Q");
+		super("Wall");
 		hitPoints = 10;
 		defense = 0;
 	}

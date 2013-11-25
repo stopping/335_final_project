@@ -26,8 +26,8 @@ public abstract class Occupant implements Serializable {
 	}
 	
 	public String toString() {
-		if(name == null) return " ";
-		return name.substring(0,1);
+		if(name == null) return "";
+		return name;
 	}
 	
 	public void takeDamage( double attackStrength ) {
