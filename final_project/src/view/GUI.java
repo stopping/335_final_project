@@ -227,13 +227,11 @@ public class GUI extends HumanPlayer {
 					g2.fill(square);
 					
 					GameSquare srcSquare = game.getGameSquareAt(leftClickRow,leftClickCol);
-					GameSquare destSquare = game.getGameSquareAt(r, c);
 					
 					if( selected && srcSquare.getOccupant() instanceof Unit) {
 						Unit u = (Unit) srcSquare.getOccupant();
-						if( u.canMoveTo(destSquare) ) g2.setColor( Color.white );
-						Occupant o = destSquare.getOccupant();
-						if( o != null && u.canAttack(o)) g2.setColor( Color.orange );
+						if( u.canMoveTo(r,c) ) g2.setColor( Color.white );
+						if( u.canAttack(r,c)) g2.setColor( Color.orange );
 						square = new Rectangle2D.Double( left+6, upper+6, size-13, size-13 );
 						g2.draw(square);
 						g2.fill(square);

@@ -51,9 +51,8 @@ public class Unit extends Occupant {
 		board = game.getBoard();
 	}
 	
-	public boolean useSpecialAbility( Occupant o ) {
-		if (abilityCoolDownToGo == 0 && isInRange(o, abilityRange)) {
-			attack(o);
+	public boolean useSpecialAbility( int row, int col ) {
+		if (abilityCoolDownToGo == 0 && isInRange( row, col, abilityRange )) {
 			restoreActionPoints(2.0);
 			return true;
 		}
@@ -75,11 +74,11 @@ public class Unit extends Occupant {
 	public double getStrength() {
 		return strength;
 	}
-	public boolean lineOfSightExists( GameSquare g1, GameSquare g2 ) {
-		int r0 = g1.getRow();
-		int c0 = g1.getCol();
-		int r1 = g2.getRow();
-		int c1 = g2.getCol();
+	public boolean lineOfSightExists( int row, int col ) {
+		int r0 = getLocation().getRow();
+		int c0 = getLocation().getCol();
+		int r1 = row;
+		int c1 = col;
 		ArrayList<Point> line = Game.BresenhamLine(r0,c0,r1,c1);
 		for(int i = 1; i < line.size() - 1; i++) {
 			int r = line.get(i).x;
@@ -95,8 +94,9 @@ public class Unit extends Occupant {
 	}
 	
 	
-	public boolean attack( Occupant o ) {
-		if (canAttack(o)) {
+	public boolean attack( int row, int col ) {
+		if (canAttack(row,col)) {
+			Occupant o = game.getGameSquareAt(row, col).getOccupant();
 			double attackModifier = 0;
 			for(int i = 0; i < itemList.size(); i++) {
 				Item currItem = itemList.get(i);
@@ -109,16 +109,16 @@ public class Unit extends Occupant {
 		return false;
 	}
 
-	public boolean canAttack(Occupant o) {
-		return isInRange(o, attackRange) && actionPoints >= 2.0 && lineOfSightExists(this.location, o.getLocation());
+	public boolean canAttack( int row, int col ) {
+		GameSquare gs = game.getGameSquareAt(row, col);
+		if( !gs.hasOccupant() ) return false;
+		return isInRange( row, col, attackRange ) && actionPoints >= 2.0 && lineOfSightExists(row,col);
 	}
 	
-	public boolean isInRange( Occupant o , double range) {
+	public boolean isInRange( int row, int col , double range) {
 		int aRow = this.getLocation().getRow();
 		int aCol = this.getLocation().getCol();
-		int tRow = o.getLocation().getRow();
-		int tCol = o.getLocation().getCol();
-		double distance = Math.sqrt(Math.pow(aRow-tRow, 2)+Math.pow(aCol-tCol, 2));
+		double distance = Math.sqrt(Math.pow(aRow-row, 2)+Math.pow(aCol-col, 2));
 		return range >= distance;
 	}
 	
@@ -180,8 +180,9 @@ public class Unit extends Occupant {
 		}
 	}
 
-	public boolean moveTo(GameSquare destSquare) {
-		if (canMoveTo(destSquare)) {
+	public boolean moveTo( int row, int col ) {
+		if (canMoveTo(row,col)) {
+			GameSquare destSquare = game.getGameSquareAt(row, col);
 			int srcRow = location.getRow();
 			int destRow = destSquare.getRow();
 			int srcCol = location.getCol();
@@ -199,15 +200,17 @@ public class Unit extends Occupant {
 		}
 	}
 
-	public boolean canMoveTo(GameSquare destSquare) {
+	public boolean canMoveTo( int row, int col ) {
+		GameSquare destSquare = game.getGameSquareAt(row, col);
 		
 		int srcRow = location.getRow();
 		int destRow = destSquare.getRow();
 		int srcCol = location.getCol();
 		int destCol = destSquare.getCol();
+		
 		double apCost = Math.sqrt(Math.pow(srcRow-destRow, 2)+Math.pow(srcCol-destCol, 2));
 
-		return !destSquare.hasOccupant() && apCost/speed <= actionPoints && lineOfSightExists(this.location, destSquare);
+		return !destSquare.hasOccupant() && apCost/speed <= actionPoints && lineOfSightExists( row, col );
 	}
 	
 	/** 
@@ -221,14 +224,25 @@ public class Unit extends Occupant {
 	 * @param receiver The receiver of the item
 	 * @return
 	 */
-	public boolean giveItem( Item i, Unit receiver ) {
-		if(itemList.contains(i) && receiver.inventoryHasRoom() && lineOfSightExists(this.location, receiver.getLocation()) && isInRange(receiver, 1.0)) {
+	public boolean giveItem( int row, int col, Item i ) {
+		if(canGiveItem(row,col,i)) {
+			GameSquare gs = game.getGameSquareAt(row, col);
+			Unit receiver = (Unit) gs.getOccupant();
 			removeItem(i);
 			receiver.addItem(i);
 			i.setOwner(receiver);
 			return true;
 		}
 		return false;
+	}
+
+	private boolean canGiveItem(int row, int col, Item i) {
+		GameSquare gs = game.getGameSquareAt(row, col);
+		if(!gs.hasOccupant()) return false;
+		Occupant o = gs.getOccupant();
+		if(!(o instanceof Unit)) return false;
+		Unit receiver = (Unit) o;
+		return itemList.contains(i) && receiver.inventoryHasRoom() && lineOfSightExists( row, col ) && isInRange( row, col, 1.5 );
 	}
 
 	private boolean inventoryHasRoom() {

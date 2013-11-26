@@ -254,20 +254,15 @@ public class Game implements Serializable {
 		if(!isTurn(performer))
 			return false;
 		
-		if( performer == null || destSquare.hasOccupant() ) {
-			return false;
-		}
 		// unit's move method now performs the requisite checks
-		return performer.moveTo(destSquare);
+		return performer.moveTo(dest[0],dest[1]);
 
 	}
 
 	public boolean attack(int[] source, int[] dest) {
 		GameSquare srcSquare = board[source[0]][source[1]];
-		GameSquare destSquare = board[dest[0]][dest[1]];
 		
 		Unit performer;
-		Occupant receiver = destSquare.getOccupant();
 		
 		if(srcSquare.getOccupant() instanceof Unit) 
 			performer = (Unit) srcSquare.getOccupant();
@@ -276,10 +271,9 @@ public class Game implements Serializable {
 		
 		if(!isTurn(performer)) { return false; }
 		
-		if(!(performer instanceof Unit) || receiver == null) { return false; }
 		// attack returns true if attack was successful false if otherwise
 		// important to note that the unit's attack method now perform the requisite checks
-		return performer.attack(receiver);
+		return performer.attack(dest[0],dest[1]);
 
 	}
 
@@ -297,15 +291,20 @@ public class Game implements Serializable {
 	
 	public boolean giveItem(int[] source, int[] dest, Item item) {
 		GameSquare srcSquare = board[source[0]][source[1]];
-		GameSquare destSquare = board[dest[0]][dest[1]];
-		Unit performer = (Unit) srcSquare.getOccupant();
-		Occupant receiver = destSquare.getOccupant();
+		
+		Unit performer;
+		
+		if(srcSquare.getOccupant() instanceof Unit) 
+			performer = (Unit) srcSquare.getOccupant();
+		else
+			return false;
+		
 		//If it's not your turn you can't do anything
 		if(!isTurn(performer))
 			return false;
 		//otherwise try to give the item. giveItem() returns true if successful otherwise false.
 		else
-			return performer.giveItem(item, (Unit)receiver);
+			return performer.giveItem(dest[0],dest[1],item);
 
 	}
 	

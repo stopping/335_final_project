@@ -111,7 +111,7 @@ public class ComputerPlayer implements Player, Runnable {
 //				}
 //				else {
 					
-					if(u.canMoveTo(game.getGameSquareAt(dest[0], dest[1]))) {
+					if(u.canMoveTo(dest[0], dest[1])) {
 						MoveCommand c = new MoveCommand(source, dest);
 						sendCommand(c);
 						
