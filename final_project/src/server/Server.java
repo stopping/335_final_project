@@ -12,7 +12,7 @@ import commands.*;
 import commands.ClientServerCommand.ClientServerCommandType;
 import shared.Game;
 import shared.Game.WinCondition;
-import unit.Unit;
+import unit.*;
 
 
 /**
@@ -74,7 +74,7 @@ public class Server implements Runnable {
 	// TODO: make a process for creating a new army for human player and AI
 	private ArrayList<Unit> setNewUserUnits() {
 		ArrayList<Unit> units = new ArrayList<Unit>();
-		units.add(new Unit("Alice"));
+		units.add(new RocketUnit("Alice"));
 		units.add(new Unit("Bob"));
 		units.add(new Unit("Charles"));
 		units.add(new Unit("Dan"));

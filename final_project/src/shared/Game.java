@@ -162,6 +162,9 @@ public class Game implements Serializable {
 	}
 	
 	public GameSquare getGameSquareAt( int row, int col ) {
+		int numRows = board.length;
+		int numCols = board[0].length;
+		if( row < 0 || row >= numRows || col < 0 || col >= numCols ) return null;
 		return board[row][col];
 	}
 	

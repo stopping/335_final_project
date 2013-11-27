@@ -5,7 +5,8 @@ public class Obstacle extends Occupant {
 	
 	public Obstacle() {
 		super("Wall");
-		hitPoints = 10;
+		maxHitPoints = 10;
+		hitPoints = maxHitPoints;
 		defense = 0;
 	}
 	

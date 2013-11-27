@@ -25,11 +25,6 @@ public abstract class Occupant implements Serializable {
 		hitPoints = hitPoints + amount > maxHitPoints ? maxHitPoints : hitPoints + amount ;
 	}
 	
-	public String toString() {
-		if(name == null) return "";
-		return name;
-	}
-	
 	public void takeDamage( double attackStrength ) {
 		double damage = attackStrength*(1 - defense*damageReduction);
 		hitPoints -= damage > 0 ? damage : 0;
@@ -52,7 +47,11 @@ public abstract class Occupant implements Serializable {
 		return name.equals(otherOccupant.getName());
 	}
 
-
+	public String toString() {
+		if(name == null) return "";
+		return "Name: " + name + "\n" +
+				"HP: " + (int) hitPoints + "/" + (int) maxHitPoints + "\n";
+	}
 	
 	
 	

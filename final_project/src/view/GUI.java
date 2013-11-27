@@ -37,12 +37,13 @@ import shared.Item;
 import shared.Obstacle;
 import shared.Game.WinCondition;
 import shared.Occupant;
-import unit.Unit;
+import unit.*;
 
 public class GUI extends HumanPlayer {
 	
 	boolean selected = false;
 	DefaultListModel<Item> itemListModel = new DefaultListModel<Item>();
+	DefaultListModel<String> actionListModel = new DefaultListModel<String>();
 	
 	JFrame mainFrame = new JFrame();
 	JPanel mainPanel = new JPanel();
@@ -51,6 +52,7 @@ public class GUI extends HumanPlayer {
 	JPanel shopPanel = new JPanel();
 	JTextArea gameInfo = new JTextArea();
 	JList<Item> itemList = new JList<Item>(itemListModel);
+	JList<String> actionList = new JList<String>(actionListModel);
 	
 	JButton endTurnButton = new JButton("End Turn");
 	JButton useItemButton = new JButton("Use Item");
@@ -86,6 +88,44 @@ public class GUI extends HumanPlayer {
 		boardPanel.setBackground(Color.cyan);
 		
 		itemList.setPreferredSize(new Dimension(384, 80));
+		actionList.addListSelectionListener(new ListSelectionListener() {
+
+			@Override
+			public void valueChanged(ListSelectionEvent e) {
+				
+				if(actionList.getSelectedIndex() == -1) return;
+				
+				int[] src = {leftClickRow,leftClickCol};
+				int[] dest = {rightClickRow,rightClickCol};
+				
+				GameCommand c;
+				switch(actionList.getSelectedValue()) {
+				case "Attack":
+					c = new AttackCommand(src,dest);
+					break;
+				case "Move":
+					c = new MoveCommand(src,dest);
+					break;
+				case "Cancel":
+					c = null;
+					break;
+				default:
+					c = null;
+					break;
+				}
+				
+				//System.out.println(game.executeCommand(c));
+				if(c != null) sendCommand(c);
+				//parseAndExecuteCommand(c);
+				selected = false;
+				actionList.setSelectedIndex(-1);
+				actionListModel.removeAllElements();
+				boardPanel.remove(actionList);
+				update();
+				
+			}
+			
+		});
 		
 		gamePanel.setPreferredSize(new Dimension(400, 700));
 		gamePanel.add(boardPanel);
@@ -161,19 +201,18 @@ public class GUI extends HumanPlayer {
 				rightClickRow = arg0.getPoint().y / 32;
 				rightClickCol = arg0.getPoint().x / 32;
 				if(selected) {
-					int[] src = {leftClickRow,leftClickCol};
-					int[] dest = {rightClickRow,rightClickCol};
+
 					
-					GameCommand c;
-					if(game.getBoard()[rightClickRow][rightClickCol].hasOccupant())
-						c = new AttackCommand(src,dest);
-					else
-						c = new MoveCommand(src,dest);
+					GameSquare gs = game.getGameSquareAt(leftClickRow, leftClickCol);
+					Unit performer = (Unit) gs.getOccupant();
 					
-					//System.out.println(game.executeCommand(c));
-					sendCommand(c);
-					//parseAndExecuteCommand(c);
-					selected = false;
+					boardPanel.add(actionList);
+					actionList.setLocation(rightClickCol*32, rightClickRow*32);
+					
+					if(performer.canAttack(rightClickRow, rightClickCol)) actionListModel.addElement("Attack");
+					if(performer.canMoveTo(rightClickRow, rightClickCol)) actionListModel.addElement("Move");
+					actionListModel.addElement("Cancel");
+
 				}
 			}
 			
@@ -250,14 +289,18 @@ public class GUI extends HumanPlayer {
 				if(u.isDead()) continue;
 				int upper = u.getLocation().getRow()*size;
 				int left = u.getLocation().getCol()*size;
-				g2.drawImage(sprites, left, upper, left+size, upper+size, 0, 0, size, size, null);
+				int imagey = 0;
+				if(u instanceof RocketUnit) imagey = size*3;
+				g2.drawImage(sprites, left, upper, left+size, upper+size, 0, imagey, size, imagey+size, null);
 			}
 			
 			for(Unit u : game.getRedUnitList()) {
 				if(u.isDead()) continue;
 				int upper = u.getLocation().getRow()*size;
 				int left = u.getLocation().getCol()*size;
-				g2.drawImage(sprites, left, upper, left+size, upper+size, 32, 0, 32+size, size, null);
+				int imagey = 0;
+				if(u instanceof RocketUnit) imagey = size*3;
+				g2.drawImage(sprites, left, upper, left+size, upper+size, size, imagey, size+size, imagey+size, null);
 			}
 		}
 	}
