@@ -71,7 +71,8 @@ public class GUI extends HumanPlayer {
 		super();
 		
 		sendCommand(new ClientServerCommand(ClientServerCommandType.Login, new String[] {"Username","password"}));
-		sendCommand(new ClientServerCommand(ClientServerCommandType.NewComputerPlayer, null));
+		sendCommand(new ClientServerCommand(ClientServerCommandType.NewGame, null));
+		sendCommand(new ClientServerCommand(ClientServerCommandType.NewComputerPlayer, new String[] {"1"}));
 		sendCommand(new ClientServerCommand(ClientServerCommandType.StartGame, new String[] {"CTF"}));
 		
 		try {

@@ -21,6 +21,8 @@ public class ClientServerCommand extends Command {
 		ComputerTurn,
 		PlayerForfeit,
 		JoinGame,
+		ComputerPlayerJoin,
+		NewGame,
 		Login,
 		NewComputerPlayer,
 		Ready,

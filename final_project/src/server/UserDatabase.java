@@ -17,8 +17,8 @@ public class UserDatabase {
 		loginAndPassword = new HashMap<String, String>();
 	}
 	
-	public void addUser(String name, String password, ArrayList<Unit> units, int playerNumber) {
-		database.put(name, new UserAccount(units, playerNumber));
+	public void addUser(String name, String password, ArrayList<Unit> units) {
+		database.put(name, new UserAccount(units));
 		loginAndPassword.put(name, password);
 	}
 	

@@ -316,15 +316,17 @@ public class Game implements Serializable {
 		GameSquare destSquare = board[dest[0]][dest[1]];
 		Unit performer = (Unit) srcSquare.getOccupant();
 		Occupant receiver = destSquare.getOccupant();
-		Item toUse = performer.getItemList().get(itemIndex);
+
 		//If it's not your turn you can't do anything
 		if(!isTurn(performer)) {
 			return false;
 		}
 		//otherwise try to give the item. giveItem() returns true if successful otherwise false.
-		else
+		if (performer.getItemList().size() > 0) {
+			Item toUse = performer.getItemList().get(itemIndex);
 			return performer.useItem(toUse);
-
+		}
+		return false;
 	}
 	
 }
