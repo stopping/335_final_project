@@ -27,6 +27,11 @@ public class ClientServerCommand extends Command {
 		NewComputerPlayer,
 		Ready,
 		StartGame,
+		ModifyUnit,
+		IllegalOption,
+		SendingGame,
+		NewUnit,
+		NewUser
 	}
 	
 	public ArrayList<String> getData() {

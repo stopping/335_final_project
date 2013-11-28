@@ -12,7 +12,6 @@ import shared.Game;
 /**
  * Class:	Client
  * Purpose:	Facilitate communication between Server and the User.
- * @author  Kyle Criddle
  */
 public class Client implements Runnable {
 
@@ -37,15 +36,22 @@ public class Client implements Runnable {
 			this.output = new ObjectOutputStream(sock.getOutputStream());
 			this.input = new ObjectInputStream(sock.getInputStream());
 			
-			Game g = (Game) input.readObject();
-			player.setGame(g);
-			player.update();
+
 			
 			while (true) {
 				Command com = (Command) input.readObject();
 				
 				if (com instanceof ClientServerCommand) {
-					// do things
+					ClientServerCommand c = (ClientServerCommand)com;
+					switch (c.getType()) {
+						case SendingGame:
+							Game g = (Game) input.readObject();
+							player.setGame(g);
+							player.update();
+							break;
+					default:
+						break;
+						}
 				}
 				
 				else if (com instanceof GameCommand) {

@@ -6,8 +6,11 @@ import java.util.ArrayList;
 import java.util.Deque;
 import commands.*;
 import commands.ClientServerCommand.ClientServerCommandType;
+import shared.Attribute;
 import shared.Game;
+import shared.Occupant;
 import unit.*;
+import unit.Unit.UnitClass;
 
 /**
  * Class:	Server
@@ -18,7 +21,7 @@ public class Server implements Runnable {
 	
 	public static final int PORT_NUMBER = 4009;
 	public static final int MAX_PLAYERS = 2;
-	private ArrayList<GameRoom> runningGames;
+	private ArrayList<GameRoom> gameRooms;
 	private UserDatabase database;
 	
 	public static void main(String[] args) {
@@ -30,7 +33,7 @@ public class Server implements Runnable {
 	
 	private Server() {
 		database = new UserDatabase();
-		runningGames = new ArrayList<GameRoom>();
+		gameRooms = new ArrayList<GameRoom>();
 	}
 
 	@Override
@@ -42,8 +45,7 @@ public class Server implements Runnable {
 			sockServer = new ServerSocket(PORT_NUMBER);
 			System.out.println("Server started");
 
-			while(true) {
-				
+			while(true) {	
 				clientHandle = sockServer.accept();		
 				ClientHandler newClient = new ClientHandler(clientHandle, this);
 				Thread newThread = new Thread(newClient);
@@ -55,39 +57,36 @@ public class Server implements Runnable {
 			e.printStackTrace();
 		}
 	}
-	
-	private ArrayList<Unit> setNewUserUnits() {
-		ArrayList<Unit> units = new ArrayList<Unit>();
-		units.add(new RocketUnit("Alice"));
-		units.add(new Unit("Bob"));
-		units.add(new Unit("Charles"));
-		units.add(new Unit("Dan"));
-		units.add(new Unit("Eric"));
-		return units;
-	}
-	
+		
 	public void joinGame(int gameNumber, ClientHandler c) {
-		runningGames.get(gameNumber).addPlayer(c);
+		gameRooms.get(gameNumber).addPlayer(c);
 	}
 	
-	public void processUser(String name, String password) {
+	public boolean processUser(String name, String password) {
 		if (!database.isValidUser(name, password)) 
-			database.addUser(name, password, setNewUserUnits());
-		database.getUser(name).setLoggedOn(true);
+			return false;
+		else {
+			database.getUser(name).setLoggedOn(true);
+			return true;
+		}
+	}
+	
+	public void newUser(String name, String password) {
+		database.addUser(name, password);
 	}
 	
 	public int numGameRooms() {
-		return this.runningGames.size();
+		return this.gameRooms.size();
 	}
 	
 	public void requestNewGameRoom(ClientHandler c) {
 		GameRoom g = new GameRoom();
 		g.addPlayer(c);
-		runningGames.add(g);
+		gameRooms.add(g);
 	}
 	
 	public void playerForfeit(int game, ClientHandler c) {
-		runningGames.get(game).removePlayer(c);
+		gameRooms.get(game).removePlayer(c);
 //		runningGames.get(gameNumber).players.get(0).sendCommand(
 //				new ClientServerCommand(ClientServerCommandType.OpponentForfeit, null);
 	}
@@ -105,11 +104,28 @@ public class Server implements Runnable {
 		database.getUser(p2).isReady();
 	}	
 	
+	public boolean modifyUnit(String player, String unit, Attribute a) {
+		UserAccount user = database.getUser(player);
+		for (Unit u : user.getUnits() ) {
+			Occupant o = (Occupant)u;
+			if (o.getName().equals(unit)) {
+				// if (user.getNumCredits() ) 	TODO: decide cost for things, how we check it & how to inform the player
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	public void newUnit(String player, String unit, UnitClass type) {
+		UserAccount user = database.getUser(player);
+		user.addUnit(unit, type);
+	}
+	
 	// send the opponent commands in FIFO. if playing the AI, passes him his turn
 	public void updateClients( int gameNumber, int playerNumber,  Deque<Command> playerCommands, boolean isAIGame) {
 		
 		int playerToSendCommandsTo = playerNumber % 2 == 0 ? playerNumber+1 : playerNumber-1;
-		ClientHandler client = runningGames.get(gameNumber).players.get(playerToSendCommandsTo);
+		ClientHandler client = gameRooms.get(gameNumber).players.get(playerToSendCommandsTo);
 
 		while (!playerCommands.isEmpty()) {
 			client.sendCommand(playerCommands.removeFirst());
@@ -121,14 +137,17 @@ public class Server implements Runnable {
 	
 	// send the clients the starting game
 	public void sendNewGame(Game g, int gameNumber, int computerPlayerLevel) {	
-		int numAIS = Server.MAX_PLAYERS - runningGames.get(gameNumber).players.size();
+		int numAIS = Server.MAX_PLAYERS - gameRooms.get(gameNumber).players.size();
 
 		for (int i=0 ; i<numAIS ; i++) {
 			ComputerPlayer p = new ComputerPlayer(gameNumber, computerPlayerLevel);
 			Thread t = new Thread(p);
 			t.start();
 		}
-		for (int i=0 ; i< runningGames.get(gameNumber).players.size() ; i++) 
-			runningGames.get(gameNumber).players.get(i).sendGame(g);
+		for (int i=0 ; i< gameRooms.get(gameNumber).players.size() ; i++)  {
+			gameRooms.get(gameNumber).players.get(i).sendCommand(new ClientServerCommand(
+					ClientServerCommandType.SendingGame, null));
+			gameRooms.get(gameNumber).players.get(i).sendGame(g);
+		}
 	}
 }

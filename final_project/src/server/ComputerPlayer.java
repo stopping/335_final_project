@@ -124,7 +124,6 @@ public class ComputerPlayer implements Player, Runnable {
 		int dest[] = getAttackableCoords(options);
 
 		if (dest != null) {
-			System.out.println(dest[0] + " " + dest[1]);
 			Unit uToAttack = (Unit)game.getGameSquareAt(dest[0], dest[1]).getOccupant();
 		
 			if (units.contains(uToAttack))
@@ -185,25 +184,34 @@ public class ComputerPlayer implements Player, Runnable {
 			e.printStackTrace();
 		}
 	}
+	
+
 
 	@Override
 	public void run() {
 		
 		boolean isAiTurn = false;
 
-		try {
-			Game g = (Game) input.readObject();
-			setGame(g);
-			
+		try {			
 			while (true) {
-
 				Command com = (Command) input.readObject();
+				
 				if (com instanceof ClientServerCommand) {
-					if (((ClientServerCommand)com).getType() == ClientServerCommandType.ComputerTurn) {
-						isAiTurn = true;
-						doComputerTurn();
-						isAiTurn = false;
-					}
+					ClientServerCommand c = (ClientServerCommand)com;
+					switch (c.getType()) {
+						case ComputerTurn:
+							isAiTurn = true;
+							doComputerTurn();
+							isAiTurn = false;
+							break;
+						
+						case SendingGame:
+							Game g = (Game) input.readObject();
+							setGame(g);
+							break;
+					default:
+						break;
+						}
 				}
 				
 				else if (com instanceof GameCommand && !isAiTurn) {

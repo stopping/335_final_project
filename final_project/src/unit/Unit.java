@@ -260,5 +260,10 @@ public class Unit extends Occupant {
 	public List<Item> getItemList() {
 		return itemList;
 	}
+	
+	public enum UnitClass {
+		Melee,
+		Rocket
+	}
 
 }

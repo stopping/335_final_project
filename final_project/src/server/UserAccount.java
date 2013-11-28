@@ -2,16 +2,31 @@ package server;
 
 import java.util.ArrayList;
 
-import unit.Unit;
+import unit.*;
+import unit.Unit.UnitClass;
 
 public class UserAccount {
 	
 	private ArrayList<Unit> units;
 	private boolean isLoggedOn;
 	private boolean isReady;
+	private int credits;
 	
-	public UserAccount(ArrayList<Unit> units) {
-		this.units = units;		
+	public UserAccount() {
+		this.units = new ArrayList<Unit>();
+		this.credits = 1000;		// new user starting credits
+	}
+	
+	public void addUnit(String name, UnitClass type) {
+		switch (type) {
+		case Melee:
+			units.add(new MeleeUnit(name));
+			break;
+		case Rocket:
+			units.add(new RocketUnit(name));
+			break;
+		}
+		System.out.println("added new unit: " + name);
 	}
 	
 	public ArrayList<Unit> getUnits() {
@@ -32,5 +47,9 @@ public class UserAccount {
 	
 	public void setIsReady(boolean status) {
 		this.isReady = status;
+	}
+	
+	public int getNumCredits() {
+		return this.credits;
 	}
 }

@@ -69,9 +69,14 @@ public class GUI extends HumanPlayer {
 	public GUI() {
 		
 		super();
-		
-		sendCommand(new ClientServerCommand(ClientServerCommandType.Login, new String[] {"Username","password"}));
+				
+		sendCommand(new ClientServerCommand(ClientServerCommandType.NewUser, new String[] {"Username","password"}));
 		sendCommand(new ClientServerCommand(ClientServerCommandType.NewGame, null));
+		sendCommand(new ClientServerCommand(ClientServerCommandType.NewUnit, new String[] {"Alice", "Rocket"}));	
+		sendCommand(new ClientServerCommand(ClientServerCommandType.NewUnit, new String[] {"Bob", "Melee"}));		
+		sendCommand(new ClientServerCommand(ClientServerCommandType.NewUnit, new String[] {"Charles", "Melee"}));		
+		sendCommand(new ClientServerCommand(ClientServerCommandType.NewUnit, new String[] {"Dan", "Melee"}));		
+		sendCommand(new ClientServerCommand(ClientServerCommandType.NewUnit, new String[] {"Eric", "Melee"}));		
 		sendCommand(new ClientServerCommand(ClientServerCommandType.NewComputerPlayer, new String[] {"1"}));
 		sendCommand(new ClientServerCommand(ClientServerCommandType.StartGame, new String[] {"CTF"}));
 		

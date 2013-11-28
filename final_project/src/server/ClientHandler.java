@@ -7,11 +7,14 @@ import java.util.ArrayList;
 import java.util.Deque;
 import java.util.LinkedList;
 
+import shared.Attribute;
 import shared.Game;
 import shared.Game.WinCondition;
 import unit.Unit;
+import unit.Unit.UnitClass;
 
 import commands.ClientServerCommand;
+import commands.ClientServerCommand.ClientServerCommandType;
 import commands.Command;
 import commands.EndTurnCommand;
 import commands.GameCommand;
@@ -64,7 +67,12 @@ public class ClientHandler implements Runnable {
 		case Login:
 			String name =com.getData().get(0);
 			String password = com.getData().get(1);
-			server.processUser(name, password);
+			if (!server.processUser(name, password)) {
+				sendCommand(new ClientServerCommand(
+						ClientServerCommandType.IllegalOption, 
+						new String[] {"Incorrect Username or Password"}));
+				break;
+			}
 			playerName = name;
 			break;
 			
@@ -79,9 +87,31 @@ public class ClientHandler implements Runnable {
 			playerNumber = 1;
 			break;
 			
+		case ModifyUnit:
+			String unitName = com.getData().get(0);
+			Attribute attr = Attribute.valueOf(com.getData().get(1));
+			if (!server.modifyUnit(playerName, unitName, attr))
+				sendCommand(new ClientServerCommand(
+						ClientServerCommandType.IllegalOption, 
+						new String[] {"Cannot modify unit"}));
+			break;
+			
 		case NewGame:
 			this.gameNumber = server.numGameRooms();
 			server.requestNewGameRoom(this);
+			break;
+			
+		case NewUnit:
+			String uName = com.getData().get(0);
+			UnitClass type = UnitClass.valueOf(com.getData().get(1));
+			server.newUnit(playerName, uName, type);
+			break;
+			
+		case NewUser:
+			String nm =com.getData().get(0);
+			String pw = com.getData().get(1);
+			server.newUser(nm, pw);
+			playerName = nm;
 			break;
 			
 		case PlayerForfeit:

@@ -19,7 +19,7 @@ public abstract class Occupant implements Serializable {
 	
 	public void setLocation( GameSquare g ) { location = g; }
 	public GameSquare getLocation() { return location; }
-	protected String getName() { return name; }
+	public String getName() { return name; }
 	
 	public void heal( double amount ) {
 		hitPoints = hitPoints + amount > maxHitPoints ? maxHitPoints : hitPoints + amount ;

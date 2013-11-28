@@ -17,16 +17,14 @@ public class UserDatabase {
 		loginAndPassword = new HashMap<String, String>();
 	}
 	
-	public void addUser(String name, String password, ArrayList<Unit> units) {
-		database.put(name, new UserAccount(units));
+	public void addUser(String name, String password) {
+		database.put(name, new UserAccount());
 		loginAndPassword.put(name, password);
 	}
 	
 	public ArrayList<Unit> getUnits(String name) {
 		return database.get(name).getUnits();
 	}
-	
-
 	
 	public boolean isValidUser(String name, String password) {
 		return (loginAndPassword.containsKey(name) && loginAndPassword.get(name).equals(password));
