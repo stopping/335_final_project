@@ -121,6 +121,13 @@ public class Server implements Runnable {
 		user.addUnit(unit, type);
 	}
 	
+	// send chat message to all members in game room
+	public void sendMessage(int gameNumber, String player, ClientServerCommand com, String playerNumber) {
+		for (int i =0 ; i < gameRooms.get(gameNumber).players.size() ; i++)
+			gameRooms.get(gameNumber).players.get(i).sendCommand(new ClientServerCommand(
+					ClientServerCommandType.Message, new String[] { player,  playerNumber, com.getData().get(0) }));
+	}
+	
 	// send the opponent commands in FIFO. if playing the AI, passes him his turn
 	public void updateClients( int gameNumber, int playerNumber,  Deque<Command> playerCommands, boolean isAIGame) {
 		

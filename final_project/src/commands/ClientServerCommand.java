@@ -31,7 +31,8 @@ public class ClientServerCommand extends Command {
 		IllegalOption,
 		SendingGame,
 		NewUnit,
-		NewUser
+		NewUser,
+		Message
 	}
 	
 	public ArrayList<String> getData() {

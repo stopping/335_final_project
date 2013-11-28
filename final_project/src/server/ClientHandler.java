@@ -85,6 +85,7 @@ public class ClientHandler implements Runnable {
 			gameNumber = Integer.parseInt(com.getData().get(0));
 			server.joinGame(gameNumber, this);
 			playerNumber = 1;
+			playerName = "Computer";
 			break;
 			
 		case ModifyUnit:
@@ -112,6 +113,10 @@ public class ClientHandler implements Runnable {
 			String pw = com.getData().get(1);
 			server.newUser(nm, pw);
 			playerName = nm;
+			break;
+			
+		case Message:
+			server.sendMessage(gameNumber, playerName, com, String.valueOf(playerNumber));
 			break;
 			
 		case PlayerForfeit:

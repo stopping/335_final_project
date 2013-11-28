@@ -37,5 +37,9 @@ public class HumanPlayer implements Player {
 	public void sendCommand(Command com) {
 		client.sendCommand(com);
 	}
+	
+	public void receiveMessage(ClientServerCommand com) {
+		// display the message
+	}
 
 }

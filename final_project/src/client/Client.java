@@ -49,6 +49,8 @@ public class Client implements Runnable {
 							player.setGame(g);
 							player.update();
 							break;
+						case Message:
+							player.receiveMessage((ClientServerCommand)com);
 					default:
 						break;
 						}

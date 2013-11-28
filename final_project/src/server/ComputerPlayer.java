@@ -185,6 +185,15 @@ public class ComputerPlayer implements Player, Runnable {
 		}
 	}
 	
+	private void sendRandomMessage() {
+		String msgs[] = new String[] {
+				"Ha. Ha."  };
+		//Random r = new Random();
+		//int index = r.nextInt(msgs.length-1);
+		sendCommand(new ClientServerCommand(
+				ClientServerCommandType.Message, new String[] {msgs[0]}));
+	}
+	
 
 
 	@Override
@@ -199,6 +208,11 @@ public class ComputerPlayer implements Player, Runnable {
 				if (com instanceof ClientServerCommand) {
 					ClientServerCommand c = (ClientServerCommand)com;
 					switch (c.getType()) {
+					
+						case Message:
+							//sendRandomMessage();
+							break;
+							
 						case ComputerTurn:
 							isAiTurn = true;
 							doComputerTurn();
@@ -209,20 +223,18 @@ public class ComputerPlayer implements Player, Runnable {
 							Game g = (Game) input.readObject();
 							setGame(g);
 							break;
-					default:
-						break;
-						}
+						default:
+							break;
+					}
 				}
 				
 				else if (com instanceof GameCommand && !isAiTurn) {
 					parseAndExecuteCommand((GameCommand)com);
 				}
-
 			}
 
 		} catch (Exception e) {
 	      e.printStackTrace();
 	    }
 	}
-
 }

@@ -1,41 +1,44 @@
 package view;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
+import java.awt.event.AdjustmentEvent;
+import java.awt.event.AdjustmentListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.geom.Rectangle2D;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
-
 import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
+import javax.swing.BoundedRangeModel;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JList;
 import javax.swing.JPanel;
+import javax.swing.JScrollBar;
+import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
-import javax.swing.ListModel;
+import javax.swing.JTextField;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import client.HumanPlayer;
 import commands.*;
 import commands.ClientServerCommand.ClientServerCommandType;
-import shared.Game;
 import shared.GameSquare;
 import shared.Item;
 import shared.Obstacle;
-import shared.Game.WinCondition;
 import shared.Occupant;
 import unit.*;
 
@@ -50,9 +53,14 @@ public class GUI extends HumanPlayer {
 	BoardPanel boardPanel = new BoardPanel();
 	JPanel gamePanel = new JPanel();
 	JPanel shopPanel = new JPanel();
+	JTabbedPane lowerPane = new JTabbedPane();
 	JTextArea gameInfo = new JTextArea();
 	JList<Item> itemList = new JList<Item>(itemListModel);
 	JList<String> actionList = new JList<String>(actionListModel);
+	JPanel chatPanel = new JPanel();
+	JTextField chatField = new JTextField();
+	JTextArea chatArea = new JTextArea();
+	JScrollPane chatScrollPane = new JScrollPane(chatArea);
 	
 	JButton endTurnButton = new JButton("End Turn");
 	JButton useItemButton = new JButton("Use Item");
@@ -86,7 +94,7 @@ public class GUI extends HumanPlayer {
 			e.printStackTrace();
 		}
 		
-		gameInfo.setPreferredSize(new Dimension(384, 100));
+		lowerPane.setPreferredSize(new Dimension(384, 130));
 		gameInfo.setEditable(false);
 
 		boardPanel.setPreferredSize(new Dimension(384, 384));
@@ -135,7 +143,16 @@ public class GUI extends HumanPlayer {
 		
 		gamePanel.setPreferredSize(new Dimension(400, 700));
 		gamePanel.add(boardPanel);
-		gamePanel.add(gameInfo);
+		
+		lowerPane.add("Info", gameInfo);
+		chatPanel.setLayout(new BorderLayout());
+		chatPanel.add(chatScrollPane, BorderLayout.CENTER);
+		chatScrollPane.setVerticalScrollBar(new JScrollBar());
+		chatArea.setEditable(false);
+		chatPanel.add(chatField, BorderLayout.SOUTH);
+		lowerPane.add("Chat", chatPanel);
+		
+		gamePanel.add(lowerPane);
 		gamePanel.add(endTurnButton);
 		gamePanel.add(itemList);
 		gamePanel.add(useItemButton);
@@ -171,6 +188,9 @@ public class GUI extends HumanPlayer {
 			}
 			
 		});
+		
+		chatScrollPane.getVerticalScrollBar().addAdjustmentListener(new ScrollBarListener());
+		chatField.addKeyListener(new ChatFieldListener());
 		
 	}
 	
@@ -233,6 +253,38 @@ public class GUI extends HumanPlayer {
 		
 	}
 	
+	private class ScrollBarListener implements AdjustmentListener {
+
+		BoundedRangeModel brm = chatScrollPane.getVerticalScrollBar().getModel();
+	   boolean wasAtBottom = true;
+
+	   public void adjustmentValueChanged(AdjustmentEvent e) {
+	   	if (!brm.getValueIsAdjusting()) {
+	   		if (wasAtBottom)
+	   			brm.setValue(brm.getMaximum());
+	      } else
+	      	wasAtBottom = ((brm.getValue() + brm.getExtent()) == brm.getMaximum());
+	   }
+	}
+	
+	
+	private class ChatFieldListener implements KeyListener {
+
+		@Override
+		public void keyPressed(KeyEvent e) {
+			if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+				String message = chatField.getText();
+				sendCommand(new ClientServerCommand(
+						ClientServerCommandType.Message, new String[] {message}));
+			}
+		}
+
+		public void keyReleased(KeyEvent e) {}
+		public void keyTyped(KeyEvent e) {}
+
+	}
+	
+	
 	public void update() {
 		GameSquare gs = game.getBoard()[leftClickRow][leftClickCol];
 		if(gs.hasOccupant()) {
@@ -249,6 +301,12 @@ public class GUI extends HumanPlayer {
 		}
 		else gameInfo.setText("Empty");
 		boardPanel.repaint();
+	}
+	
+	public void receiveMessage(ClientServerCommand com) {
+		String source = com.getData().get(0);
+		String msg = com.getData().get(2);
+		chatArea.append(source + ": " + msg + "\n");
 	}
 	
 	private class BoardPanel extends JPanel {
