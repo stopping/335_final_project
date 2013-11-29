@@ -13,9 +13,15 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.awt.geom.Rectangle2D;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.List;
 import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
@@ -24,6 +30,7 @@ import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JList;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
@@ -74,10 +81,18 @@ public class GUI extends HumanPlayer {
 	
 	Image sprites;
 	
+	public static String baseDir = System.getProperty("user.dir")
+			+ System.getProperty("file.separator");
+	
+	public static final String GUI_OBJ_LOC = baseDir
+	        + "GUI.object";
+	
 	public GUI() {
 		
 		super();
-				
+//		sendCommand(new ClientServerCommand(ClientServerCommandType.Login, new String[] {"Username","password"}));
+//		sendCommand(new ClientServerCommand(ClientServerCommandType.ResumeSession, null));
+
 		sendCommand(new ClientServerCommand(ClientServerCommandType.NewUser, new String[] {"Username","password"}));
 		sendCommand(new ClientServerCommand(ClientServerCommandType.NewGame, null));
 		sendCommand(new ClientServerCommand(ClientServerCommandType.NewUnit, new String[] {"Alice", "Rocket"}));	
@@ -191,7 +206,7 @@ public class GUI extends HumanPlayer {
 		
 		chatScrollPane.getVerticalScrollBar().addAdjustmentListener(new ScrollBarListener());
 		chatField.addKeyListener(new ChatFieldListener());
-		
+		mainFrame.addWindowListener(new WindowClosingListener());
 	}
 	
 	public static void main( String[] args ) {
@@ -253,6 +268,19 @@ public class GUI extends HumanPlayer {
 		
 	}
 	
+	private class WindowClosingListener extends WindowAdapter {
+		public void windowClosing(WindowEvent we) {
+			switch(JOptionPane.showConfirmDialog(null, "Save Session?")) {
+		  		case JOptionPane.YES_OPTION:
+		  			sendCommand(new ClientServerCommand(
+		  					ClientServerCommandType.SuspendSession, null));
+		  			System.exit(0);
+		  		case JOptionPane.NO_OPTION:
+		  			System.exit(0);
+			}
+		} 
+	}
+	
 	private class ScrollBarListener implements AdjustmentListener {
 
 		BoundedRangeModel brm = chatScrollPane.getVerticalScrollBar().getModel();
@@ -278,10 +306,8 @@ public class GUI extends HumanPlayer {
 						ClientServerCommandType.Message, new String[] {message}));
 			}
 		}
-
 		public void keyReleased(KeyEvent e) {}
 		public void keyTyped(KeyEvent e) {}
-
 	}
 	
 	

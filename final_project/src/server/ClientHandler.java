@@ -1,5 +1,6 @@
 package server;
 
+import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
@@ -35,13 +36,15 @@ public class ClientHandler implements Runnable {
 	private Game game;	
 	private boolean isplayingComputer;
 	private int computerPlayerLevel;
-	private Deque<Command> playerCommands;	
+	private Deque<GameCommand> playerCommands;	
 	private Server server;
+	private Socket sock;
 	
 	public ClientHandler(Socket clientSock, Server s) {
 		
-		playerCommands = new LinkedList<Command>();
+		playerCommands = new LinkedList<GameCommand>();
 		server = s;
+		sock = clientSock;
 		try {
 			output = new ObjectOutputStream(clientSock.getOutputStream());
 			input = new ObjectInputStream(clientSock.getInputStream());
@@ -127,6 +130,12 @@ public class ClientHandler implements Runnable {
 			server.userSetReady(playerName);
 			break;
 			
+		case ResumeSession:
+			Game g = server.getGameSession(playerName);
+			if (g != null)
+				sendCommand(new ClientServerCommand(ClientServerCommandType.ResumeSession, null));
+				sendGame(g);
+			
 		case StartGame:
 			WinCondition condition = WinCondition.valueOf(com.getData().get(0));
 			if (isplayingComputer) {
@@ -144,13 +153,25 @@ public class ClientHandler implements Runnable {
 			}
 			break;
 			
+		case SuspendSession:
+			try {
+				sock.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			while (!playerCommands.isEmpty()) {
+				game.executeCommand((playerCommands.removeFirst()));
+			}
+			server.saveGameSession(playerName, game);
+			System.out.println("saved session for " + playerName);
+			break;
+			
 		default:
 			break;
-		
 		}
 	}
 	
-	private void resolveGameCommand(Command com) {
+	private void resolveGameCommand(GameCommand com) {
 		
 		if (game.isCurrentPlayer(playerNumber)) {
 
@@ -179,7 +200,7 @@ public class ClientHandler implements Runnable {
 						resolveClientServerCommand((ClientServerCommand)com);
 						
 					} else if (com instanceof GameCommand) {
-						resolveGameCommand(com);
+						resolveGameCommand((GameCommand)com);
 					}
 				}
 			}			

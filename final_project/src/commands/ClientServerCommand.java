@@ -32,7 +32,9 @@ public class ClientServerCommand extends Command {
 		SendingGame,
 		NewUnit,
 		NewUser,
-		Message
+		Message,
+		SuspendSession,
+		ResumeSession
 	}
 	
 	public ArrayList<String> getData() {

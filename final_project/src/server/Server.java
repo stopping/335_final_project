@@ -128,8 +128,20 @@ public class Server implements Runnable {
 					ClientServerCommandType.Message, new String[] { player,  playerNumber, com.getData().get(0) }));
 	}
 	
+	// store the user's game session
+	public void saveGameSession(String name, Game g) {
+		database.saveGameSesseion(name, g);
+	}
+	
+	public Game getGameSession(String name) {
+		if (database.isSavedGame(name))
+			return database.getSavedGame(name);
+		else
+			return null;
+	}
+	
 	// send the opponent commands in FIFO. if playing the AI, passes him his turn
-	public void updateClients( int gameNumber, int playerNumber,  Deque<Command> playerCommands, boolean isAIGame) {
+	public void updateClients( int gameNumber, int playerNumber,  Deque<GameCommand> playerCommands, boolean isAIGame) {
 		
 		int playerToSendCommandsTo = playerNumber % 2 == 0 ? playerNumber+1 : playerNumber-1;
 		ClientHandler client = gameRooms.get(gameNumber).players.get(playerToSendCommandsTo);

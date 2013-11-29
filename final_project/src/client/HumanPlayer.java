@@ -39,7 +39,6 @@ public class HumanPlayer implements Player {
 	}
 	
 	public void receiveMessage(ClientServerCommand com) {
-		// display the message
+		// to be over written by GUI
 	}
-
 }
