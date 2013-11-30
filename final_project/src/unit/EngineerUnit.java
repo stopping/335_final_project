@@ -22,7 +22,7 @@ public class EngineerUnit extends Unit {
 		abilityRange = 1.5;
 		itemList = new ArrayList<Item>();
 		abilityCoolDown = 3;
-		abilityCoolDownToGo = 3;
+		abilityCoolDownToGo = 0;
 		addItem(new HealthItem("Stimpack",5.0,1,this));
 	}
 	

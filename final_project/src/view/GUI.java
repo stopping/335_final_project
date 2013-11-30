@@ -205,7 +205,7 @@ public class GUI extends HumanPlayer {
 				int[] src = {leftClickRow,leftClickCol};
 				int[] dest = {rightClickRow,rightClickCol};
 				
-				Command com = new MoveCommand(src,dest);
+				Command com = new UseAbilityCommand(src,dest);
 				sendCommand(com);
 				
 				selected = false;
