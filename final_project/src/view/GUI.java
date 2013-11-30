@@ -105,7 +105,7 @@ public class GUI extends HumanPlayer {
 		sendCommand(new ClientServerCommand(ClientServerCommandType.NewGame, null));
 		sendCommand(new ClientServerCommand(ClientServerCommandType.NewUnit, new String[] {"Alice", "Rocket"}));	
 		sendCommand(new ClientServerCommand(ClientServerCommandType.NewUnit, new String[] {"Bob", "Melee"}));		
-		sendCommand(new ClientServerCommand(ClientServerCommandType.NewUnit, new String[] {"Charles", "Melee"}));		
+		sendCommand(new ClientServerCommand(ClientServerCommandType.NewUnit, new String[] {"Charles", "Engineer"}));		
 		sendCommand(new ClientServerCommand(ClientServerCommandType.NewUnit, new String[] {"Dan", "Melee"}));		
 		sendCommand(new ClientServerCommand(ClientServerCommandType.NewUnit, new String[] {"Eric", "Melee"}));		
 		sendCommand(new ClientServerCommand(ClientServerCommandType.NewComputerPlayer, new String[] {"1"}));
@@ -179,6 +179,25 @@ public class GUI extends HumanPlayer {
 		});
 		
 		moveItem.addActionListener(new AbstractAction() {
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				
+				int[] src = {leftClickRow,leftClickCol};
+				int[] dest = {rightClickRow,rightClickCol};
+				
+				Command com = new MoveCommand(src,dest);
+				sendCommand(com);
+				
+				selected = false;
+				actionMenu.setVisible(false);
+				update();
+				
+			}
+			
+		});
+		
+		specialItem.addActionListener(new AbstractAction() {
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
@@ -282,6 +301,7 @@ public class GUI extends HumanPlayer {
 					
 					if(performer.canAttack(rightClickRow, rightClickCol)) actionMenu.add(attackItem);
 					if(performer.canMoveTo(rightClickRow, rightClickCol)) actionMenu.add(moveItem);
+					if(performer.canUseAbility(rightClickRow, rightClickCol)) actionMenu.add(specialItem);
 					actionMenu.add(cancelItem);
 					
 					actionMenu.show(arg0.getComponent(), rightClickCol*32+16, rightClickRow*32+16);
@@ -406,6 +426,7 @@ public class GUI extends HumanPlayer {
 				int upper = u.getLocation().getRow()*size;
 				int left = u.getLocation().getCol()*size;
 				int imagey = 0;
+				if(u instanceof EngineerUnit) imagey = size*1;
 				if(u instanceof RocketUnit) imagey = size*3;
 				if(u instanceof MeleeUnit) imagey = size*4;
 				g2.drawImage(sprites, left, upper, left+size, upper+size, 0, imagey, size, imagey+size, null);
@@ -416,6 +437,7 @@ public class GUI extends HumanPlayer {
 				int upper = u.getLocation().getRow()*size;
 				int left = u.getLocation().getCol()*size;
 				int imagey = 0;
+				if(u instanceof EngineerUnit) imagey = size*1;
 				if(u instanceof RocketUnit) imagey = size*3;
 				if(u instanceof MeleeUnit) imagey = size*4;
 				g2.drawImage(sprites, left, upper, left+size, upper+size, size, imagey, size+size, imagey+size, null);

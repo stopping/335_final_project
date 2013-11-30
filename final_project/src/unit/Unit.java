@@ -52,8 +52,15 @@ public class Unit extends Occupant {
 	}
 	
 	public boolean useSpecialAbility( int row, int col ) {
+		if (canUseAbility(row,col)) {
+			
+			return true;
+		}
+		return false;
+	}
+	
+	public boolean canUseAbility( int row, int col ) {
 		if (abilityCoolDownToGo == 0 && isInRange( row, col, abilityRange )) {
-			restoreActionPoints(2.0);
 			return true;
 		}
 		return false;
@@ -258,8 +265,11 @@ public class Unit extends Occupant {
 	}
 	
 	public enum UnitClass {
+		Soldier,
 		Melee,
-		Rocket
+		Rocket,
+		Engineer,
+		Demolition
 	}
 	
 	public double getModifier(Attribute a) {
