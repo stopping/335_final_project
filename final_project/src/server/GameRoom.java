@@ -35,7 +35,7 @@ public class GameRoom {
 		return false;
 	}
 	
-	private boolean isFull() {
+	public boolean isFull() {
 		return players.size() == Server.MAX_PLAYERS ? true : false;
 	}	
 }

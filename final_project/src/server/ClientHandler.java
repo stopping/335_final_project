@@ -81,6 +81,7 @@ public class ClientHandler implements Runnable {
 		case NewComputerPlayer:
 			computerPlayerLevel = Integer.parseInt(com.getData().get(0));
 			isplayingComputer = true;
+			server.addComputerPlayer(gameNumber, computerPlayerLevel);
 			break;
 			
 		case ComputerPlayerJoin:
@@ -183,7 +184,11 @@ public class ClientHandler implements Runnable {
 				playerCommands.add(com);
 				sendCommand(com);
 			}
-			game.executeCommand((GameCommand)com);
+			if (game.executeCommand((GameCommand)com) == false) {
+				System.out.println("player: " + playerName + " gave illegal option");
+				sendCommand(new ClientServerCommand(ClientServerCommandType.IllegalOption, null));
+				playerCommands.removeLast();
+			}
 		}
 	}
 

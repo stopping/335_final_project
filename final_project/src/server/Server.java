@@ -142,6 +142,13 @@ public class Server implements Runnable {
 			return null;
 	}
 	
+	// starts a new ComputerPlayer in its own thread
+	public void addComputerPlayer(int gameNumber, int computerPlayerLevel) {
+		ComputerPlayer p = new ComputerPlayer(gameNumber, computerPlayerLevel);
+		Thread t = new Thread(p);
+		t.start();
+	}
+	
 	// send the opponent commands in FIFO. if playing the AI, passes him his turn
 	public void updateClients( int gameNumber, int playerNumber,  Deque<GameCommand> playerCommands, boolean isAIGame) {
 		
@@ -158,12 +165,18 @@ public class Server implements Runnable {
 	
 	// send the clients the starting game
 	public void sendNewGame(Game g, int gameNumber, int computerPlayerLevel) {	
-		int numAIS = Server.MAX_PLAYERS - gameRooms.get(gameNumber).players.size();
-
-		for (int i=0 ; i<numAIS ; i++) {
-			ComputerPlayer p = new ComputerPlayer(gameNumber, computerPlayerLevel);
-			Thread t = new Thread(p);
-			t.start();
+		System.out.println("gameRoomSize: " + gameRooms.get(gameNumber).players.size());
+		System.out.println("Sending game to gameRoom: " + gameNumber);
+		
+		// wait until the room is full -- This is a hasty avoidance of possibly a race condition
+		if (!gameRooms.get(gameNumber).isFull()) {
+			addComputerPlayer(gameNumber, computerPlayerLevel);
+			try {
+				Thread.sleep(500);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 		
 		try {
@@ -174,7 +187,7 @@ public class Server implements Runnable {
 		}
 		
 		for (ClientHandler handler : gameRooms.get(gameNumber).players)  {
-			System.out.println(handler.toString());
+			System.out.println("gameRoomSize: " + gameRooms.get(gameNumber).players.size());
 			handler.sendCommand(new ClientServerCommand(
 					ClientServerCommandType.SendingGame, null));
 			handler.sendGame(g);
