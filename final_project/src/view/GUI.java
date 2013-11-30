@@ -31,8 +31,11 @@ import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JList;
+import javax.swing.JMenu;
+import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
@@ -54,7 +57,6 @@ public class GUI extends HumanPlayer {
 	
 	boolean selected = false;
 	DefaultListModel<Item> itemListModel = new DefaultListModel<Item>();
-	DefaultListModel<String> actionListModel = new DefaultListModel<String>();
 	
 	JFrame mainFrame = new JFrame();
 	JPanel mainPanel = new JPanel();
@@ -64,14 +66,18 @@ public class GUI extends HumanPlayer {
 	JTabbedPane lowerPane = new JTabbedPane();
 	JTextArea gameInfo = new JTextArea();
 	JList<Item> itemList = new JList<Item>(itemListModel);
-	JList<String> actionList = new JList<String>(actionListModel);
 	JPanel chatPanel = new JPanel();
 	JTextField chatField = new JTextField();
 	JTextArea chatArea = new JTextArea();
 	JScrollPane chatScrollPane = new JScrollPane(chatArea);
 	
+	JPopupMenu actionMenu = new JPopupMenu("Action");
+	JMenuItem moveItem = new JMenuItem("Move");
+	JMenuItem attackItem = new JMenuItem("Attack");
+	JMenuItem specialItem = new JMenuItem("Special");
+	JMenuItem cancelItem = new JMenuItem("Cancel");
+	
 	JButton endTurnButton = new JButton("End Turn");
-	JButton actionButton = new JButton("Do Action");
 	JButton useItemButton = new JButton("Use Item");
 	
 	int leftClickRow;
@@ -114,13 +120,13 @@ public class GUI extends HumanPlayer {
 		lowerPane.setPreferredSize(new Dimension(384, 130));
 		gameInfo.setEditable(false);
 		
-		actionList.setVisible(false);
+		actionMenu.setVisible(false);
 
 		boardPanel.setPreferredSize(new Dimension(384, 384));
 		boardPanel.addMouseListener(new gameMouseListener());
 		boardPanel.setBackground(Color.cyan);
 		boardPanel.setLayout(null);
-		boardPanel.add(actionList);
+		boardPanel.add(actionMenu);
 		
 		itemList.setPreferredSize(new Dimension(384, 80));
 		
@@ -137,7 +143,6 @@ public class GUI extends HumanPlayer {
 		
 		gamePanel.add(lowerPane);
 		gamePanel.add(endTurnButton);
-		gamePanel.add(actionButton);
 		gamePanel.add(itemList);
 		gamePanel.add(useItemButton);
 		
@@ -148,6 +153,62 @@ public class GUI extends HumanPlayer {
 		mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		mainFrame.setSize(800,800);
 		mainFrame.setVisible(true);
+		
+		setListeners();
+	}
+	
+	public void setListeners() {
+		
+		attackItem.addActionListener(new AbstractAction() {
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				
+				int[] src = {leftClickRow,leftClickCol};
+				int[] dest = {rightClickRow,rightClickCol};
+				
+				Command com = new AttackCommand(src,dest);
+				sendCommand(com);
+				
+				selected = false;
+				actionMenu.setVisible(false);
+				update();
+				
+			}
+			
+		});
+		
+		moveItem.addActionListener(new AbstractAction() {
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				
+				int[] src = {leftClickRow,leftClickCol};
+				int[] dest = {rightClickRow,rightClickCol};
+				
+				Command com = new MoveCommand(src,dest);
+				sendCommand(com);
+				
+				selected = false;
+				actionMenu.setVisible(false);
+				update();
+				
+			}
+			
+		});
+		
+		cancelItem.addActionListener(new AbstractAction() {
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				
+				selected = false;
+				actionMenu.setVisible(false);
+				update();
+				
+			}
+			
+		});
 		
 		endTurnButton.addActionListener(new AbstractAction() {
 
@@ -169,43 +230,6 @@ public class GUI extends HumanPlayer {
 					sendCommand(c);
 					itemListModel.removeElementAt(index);
 				}
-			}
-			
-		});
-		
-		actionButton.addActionListener(new AbstractAction() {
-
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				if(actionList.getSelectedIndex() == -1) return;
-				
-				System.out.println("Action selected");
-				
-				int[] src = {leftClickRow,leftClickCol};
-				int[] dest = {rightClickRow,rightClickCol};
-				
-				GameCommand c;
-				switch(actionList.getSelectedValue()) {
-				case "Attack":
-					c = new AttackCommand(src,dest);
-					break;
-				case "Move":
-					c = new MoveCommand(src,dest);
-					break;
-				case "Cancel":
-					c = null;
-					break;
-				default:
-					c = null;
-					break;
-				}
-				
-				if(c != null) sendCommand(c);
-				selected = false;
-				actionList.setSelectedIndex(-1);
-				actionList.setVisible(false);
-				update();
-				
 			}
 			
 		});
@@ -240,8 +264,6 @@ public class GUI extends HumanPlayer {
 		@Override
 		public void mousePressed(MouseEvent arg0) {
 			
-			actionList.setVisible(false);
-			
 			if(arg0.getButton() == MouseEvent.BUTTON1) {
 				leftClickRow = arg0.getPoint().y / 32;
 				leftClickCol = arg0.getPoint().x / 32;
@@ -256,19 +278,13 @@ public class GUI extends HumanPlayer {
 					
 					Unit performer = (Unit) gs.getOccupant();
 					
-					Dimension size = actionList.getPreferredSize();
+					actionMenu.removeAll();
 					
-					//actionList.setLocation(rightClickCol*32, rightClickRow*32);
-					actionList.setBounds(rightClickCol*32+16, rightClickRow*32+16, size.width, size.height);
-					actionList.setVisible(true);
+					if(performer.canAttack(rightClickRow, rightClickCol)) actionMenu.add(attackItem);
+					if(performer.canMoveTo(rightClickRow, rightClickCol)) actionMenu.add(moveItem);
+					actionMenu.add(cancelItem);
 					
-					actionListModel.removeAllElements();
-					
-					if(performer.canAttack(rightClickRow, rightClickCol)) actionListModel.addElement("Attack");
-					if(performer.canMoveTo(rightClickRow, rightClickCol)) actionListModel.addElement("Move");
-					actionListModel.addElement("Cancel");
-					
-					actionList.setVisible(true);
+					actionMenu.show(arg0.getComponent(), rightClickCol*32+16, rightClickRow*32+16);
 
 				}
 			}
@@ -382,13 +398,6 @@ public class GUI extends HumanPlayer {
 						g2.draw(square);
 						g2.fill(square);
 					}
-/*					if( (srcSquare.getOccupant() instanceof Unit) && game.lineOfSightExists(srcSquare, destSquare) && selected &&
-							Math.pow((r-leftClickRow),2) + Math.pow((c-leftClickCol), 2) <= Math.pow(((Unit)srcSquare.getOccupant()).getActionPoints(), 2)) {
-						square = new Rectangle2D.Double( left+6, upper+6, size-13, size-13 );
-						g2.setColor( Color.white );
-						g2.draw(square);
-						g2.fill(square);
-					}*/
 				}
 			}
 			

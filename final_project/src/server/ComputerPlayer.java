@@ -1,5 +1,6 @@
 package server;
 
+import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
@@ -246,10 +247,11 @@ public class ComputerPlayer implements Player, Runnable {
 					case SendingGame:
 						System.out.println("Game received");
 						Game g = null;
-
+						
 						try {
 							g = (Game) input.readObject();
 						} catch (ClassNotFoundException | IOException e) {
+							// TODO Auto-generated catch block
 							e.printStackTrace();
 						}
 
