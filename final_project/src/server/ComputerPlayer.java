@@ -1,6 +1,5 @@
 package server;
 
-import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
@@ -112,9 +111,17 @@ public class ComputerPlayer implements Player, Runnable {
 			sendCommand(c);
 			
 			try {
-				c = (MoveCommand) input.readObject();
-				parseAndExecuteCommand(c);
-			} catch (ClassNotFoundException | IOException e) {
+				Command ret = (Command) input.readObject();
+				if (ret instanceof ClientServerCommand) {
+					if (((ClientServerCommand) ret).getType() ==
+						(ClientServerCommandType.IllegalOption))
+						doRandomMove(u, source, options);
+				}
+				else {
+					GameCommand com = (GameCommand) ret;
+					parseAndExecuteCommand(com);
+					}
+			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
@@ -129,12 +136,21 @@ public class ComputerPlayer implements Player, Runnable {
 			if (units.contains(uToAttack))
 				doRandomMove(u, source, options);
 			else {
+				
 				AttackCommand c = new AttackCommand(source, dest);
 				sendCommand(c);
 				try {
-					c = (AttackCommand) input.readObject();
-					parseAndExecuteCommand(c);
-				} catch (ClassNotFoundException | IOException e) {
+					Command ret = (Command) input.readObject();
+					if (ret instanceof ClientServerCommand) {
+						if (((ClientServerCommand) ret).getType() ==
+								(ClientServerCommandType.IllegalOption))
+							doRandomMove(u, source, options);
+					}
+					else {
+						GameCommand com = (GameCommand) ret;
+						parseAndExecuteCommand(com);
+					}
+				} catch (Exception e) {
 					e.printStackTrace();
 				}
 			}
@@ -144,7 +160,7 @@ public class ComputerPlayer implements Player, Runnable {
 	}
 
 	private void doComputerTurn() {
-		System.out.println("Beginning computer turn");
+		//System.out.println("Beginning computer turn");
 		units = game.getBlueUnitList();
 
 		for (Unit u : units) {	
