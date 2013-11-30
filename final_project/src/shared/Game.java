@@ -299,11 +299,13 @@ public class Game implements Serializable {
 	}
 
 	public boolean endTurn() {
-		for(int i = 0; i < unitListRed.size(); i++) {
-			unitListRed.get(i).restoreActionPoints();
+		for(Unit u : unitListRed) {
+			u.restoreActionPoints();
+			u.coolDown();
 		}
-		for(int i = 0; i < unitListBlue.size(); i++) {
-			unitListBlue.get(i).restoreActionPoints();
+		for(Unit u : unitListBlue) {
+			u.restoreActionPoints();
+			u.coolDown();
 		}
 		currentPlayer = (currentPlayer + 1) % 2;
 		checkWinCondition();

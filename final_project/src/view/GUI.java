@@ -106,8 +106,8 @@ public class GUI extends HumanPlayer {
 		sendCommand(new ClientServerCommand(ClientServerCommandType.NewUnit, new String[] {"Alice", "Rocket"}));	
 		sendCommand(new ClientServerCommand(ClientServerCommandType.NewUnit, new String[] {"Bob", "Melee"}));		
 		sendCommand(new ClientServerCommand(ClientServerCommandType.NewUnit, new String[] {"Charles", "Engineer"}));		
-		sendCommand(new ClientServerCommand(ClientServerCommandType.NewUnit, new String[] {"Dan", "Melee"}));		
-		sendCommand(new ClientServerCommand(ClientServerCommandType.NewUnit, new String[] {"Eric", "Melee"}));		
+		sendCommand(new ClientServerCommand(ClientServerCommandType.NewUnit, new String[] {"Dan", "Demolition"}));		
+		sendCommand(new ClientServerCommand(ClientServerCommandType.NewUnit, new String[] {"Eric", "Soldier"}));		
 		sendCommand(new ClientServerCommand(ClientServerCommandType.NewComputerPlayer, new String[] {"1"}));
 		sendCommand(new ClientServerCommand(ClientServerCommandType.StartGame, new String[] {"CTF"}));
 		
@@ -414,6 +414,7 @@ public class GUI extends HumanPlayer {
 						Unit u = (Unit) srcSquare.getOccupant();
 						if( u.canMoveTo(r,c) ) g2.setColor( Color.white );
 						if( u.canAttack(r,c)) g2.setColor( Color.orange );
+						if( u.canUseAbility(r,c)) g2.setColor( Color.blue );
 						square = new Rectangle2D.Double( left+6, upper+6, size-13, size-13 );
 						g2.draw(square);
 						g2.fill(square);
@@ -426,7 +427,9 @@ public class GUI extends HumanPlayer {
 				int upper = u.getLocation().getRow()*size;
 				int left = u.getLocation().getCol()*size;
 				int imagey = 0;
+				if(u instanceof SoldierUnit) imagey = size*0;
 				if(u instanceof EngineerUnit) imagey = size*1;
+				if(u instanceof DemolitionUnit) imagey = size*2;
 				if(u instanceof RocketUnit) imagey = size*3;
 				if(u instanceof MeleeUnit) imagey = size*4;
 				g2.drawImage(sprites, left, upper, left+size, upper+size, 0, imagey, size, imagey+size, null);
@@ -437,7 +440,9 @@ public class GUI extends HumanPlayer {
 				int upper = u.getLocation().getRow()*size;
 				int left = u.getLocation().getCol()*size;
 				int imagey = 0;
+				if(u instanceof SoldierUnit) imagey = size*0;
 				if(u instanceof EngineerUnit) imagey = size*1;
+				if(u instanceof DemolitionUnit) imagey = size*2;
 				if(u instanceof RocketUnit) imagey = size*3;
 				if(u instanceof MeleeUnit) imagey = size*4;
 				g2.drawImage(sprites, left, upper, left+size, upper+size, size, imagey, size+size, imagey+size, null);

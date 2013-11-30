@@ -29,10 +29,10 @@ public class UserAccount {
 			units.add(new EngineerUnit(name));
 			break;
 		case Demolition:
-			units.add(new RocketUnit(name));
+			units.add(new DemolitionUnit(name));
 			break;
 		case Soldier:
-			units.add(new EngineerUnit(name));
+			units.add(new SoldierUnit(name));
 			break;
 		}
 		System.out.println("added new unit: " + name);

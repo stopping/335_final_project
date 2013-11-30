@@ -60,9 +60,6 @@ public class Unit extends Occupant {
 	}
 	
 	public boolean canUseAbility( int row, int col ) {
-		if (abilityCoolDownToGo == 0 && isInRange( row, col, abilityRange )) {
-			return true;
-		}
 		return false;
 	}
 	
@@ -256,7 +253,8 @@ public class Unit extends Occupant {
 	public String toString() {
 		return "Name: " + name + "\n" +
 				"HP: " + (int) hitPoints + "/" + (int) maxHitPoints + "\n" +
-				"AP: " + (int) actionPoints + "/" + (int) maxActionPoints + "\n";
+				"AP: " + (int) actionPoints + "/" + (int) maxActionPoints + "\n" +
+				"Cooldown: " + abilityCoolDownToGo + "/" + abilityCoolDown + "\n";
 				
 	}
 	
@@ -279,6 +277,11 @@ public class Unit extends Occupant {
 			if(currItem.getAttribute() == a) modifier += currItem.getModifier();
 		}
 		return modifier;
+	}
+
+	public void coolDown() {
+		abilityCoolDownToGo -= 1;
+		abilityCoolDownToGo = abilityCoolDownToGo < 0 ? 0 : abilityCoolDownToGo ;
 	}
 
 }
