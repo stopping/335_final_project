@@ -97,11 +97,7 @@ public class Unit extends Occupant {
 	public boolean attack( int row, int col ) {
 		if (canAttack(row,col)) {
 			Occupant o = game.getGameSquareAt(row, col).getOccupant();
-			double attackModifier = 0;
-			for(int i = 0; i < itemList.size(); i++) {
-				Item currItem = itemList.get(i);
-				if(currItem.getAttribute() == Attribute.Strength) attackModifier += currItem.getModifier();
-			}
+			double attackModifier = getModifier(Attribute.Strength);
 			consumeActionPoints(2.0);
 			o.takeDamage(strength+attackModifier); 
 			return true;
@@ -264,6 +260,15 @@ public class Unit extends Occupant {
 	public enum UnitClass {
 		Melee,
 		Rocket
+	}
+	
+	public double getModifier(Attribute a) {
+		double modifier = 0;
+		for(int i = 0; i < itemList.size(); i++) {
+			Item currItem = itemList.get(i);
+			if(currItem.getAttribute() == a) modifier += currItem.getModifier();
+		}
+		return modifier;
 	}
 
 }

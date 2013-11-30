@@ -13,7 +13,6 @@ import shared.Game;
 import shared.Game.WinCondition;
 import unit.Unit;
 import unit.Unit.UnitClass;
-
 import commands.ClientServerCommand;
 import commands.ClientServerCommand.ClientServerCommandType;
 import commands.Command;
@@ -190,23 +189,26 @@ public class ClientHandler implements Runnable {
 
 	@Override
 	public void run() {
-		
-		try {					
-			while(true) {	
-				Command com = (Command) input.readObject();
-				
-				if (com != null) {
-					if (com instanceof ClientServerCommand) {
-						resolveClientServerCommand((ClientServerCommand)com);
-						
-					} else if (com instanceof GameCommand) {
-						resolveGameCommand((GameCommand)com);
-					}
+
+
+		while(true) {	
+			Command com = null;
+			try {
+				com = (Command) input.readObject();
+			} catch (ClassNotFoundException | IOException e) {
+				e.printStackTrace();
+			}
+
+			if (com != null) {
+				if (com instanceof ClientServerCommand) {
+					resolveClientServerCommand((ClientServerCommand)com);
+
+				} else if (com instanceof GameCommand) {
+					resolveGameCommand((GameCommand)com);
 				}
-			}			
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+			}
+		}			
+
 	}
 	
 	public void sendGame(Game g) {

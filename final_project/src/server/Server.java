@@ -4,6 +4,8 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Deque;
+
+import client.Player;
 import commands.*;
 import commands.ClientServerCommand.ClientServerCommandType;
 import shared.Attribute;
@@ -163,10 +165,19 @@ public class Server implements Runnable {
 			Thread t = new Thread(p);
 			t.start();
 		}
-		for (int i=0 ; i< gameRooms.get(gameNumber).players.size() ; i++)  {
-			gameRooms.get(gameNumber).players.get(i).sendCommand(new ClientServerCommand(
+		
+		try {
+			Thread.sleep(3000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		for (ClientHandler handler : gameRooms.get(gameNumber).players)  {
+			System.out.println(handler.toString());
+			handler.sendCommand(new ClientServerCommand(
 					ClientServerCommandType.SendingGame, null));
-			gameRooms.get(gameNumber).players.get(i).sendGame(g);
+			handler.sendGame(g);
 		}
 	}
 }

@@ -48,6 +48,7 @@ public class Client implements Runnable {
 					
 						case SendingGame:
 							Game g = (Game) input.readObject();
+							System.out.println("Game received");
 							player.setGame(g);
 							player.update();
 							break;

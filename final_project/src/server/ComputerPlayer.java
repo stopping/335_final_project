@@ -13,7 +13,6 @@ import commands.ClientServerCommand.ClientServerCommandType;
 import client.Player;
 import shared.Attribute;
 import shared.Game;
-
 import unit.Unit;
 import shared.GameSquare;
 
@@ -200,41 +199,57 @@ public class ComputerPlayer implements Player, Runnable {
 	public void run() {
 		
 		boolean isAiTurn = false;
-
-		try {			
-			while (true) {
-				Command com = (Command) input.readObject();
+		System.out.println("Starting computer player...");
+		
+		while (true) {
+			Command com = null;
+			
+			try {
+				com = (Command) input.readObject();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			
+			System.out.println("Object read");
+			
+			if (com instanceof ClientServerCommand) {
+				ClientServerCommand c = (ClientServerCommand)com;
+				switch (c.getType()) {
 				
-				if (com instanceof ClientServerCommand) {
-					ClientServerCommand c = (ClientServerCommand)com;
-					switch (c.getType()) {
-					
-						case Message:
-							//sendRandomMessage();
-							break;
-							
-						case ComputerTurn:
-							isAiTurn = true;
-							doComputerTurn();
-							isAiTurn = false;
-							break;
+					case Message:
+						//sendRandomMessage();
+						System.out.println("Reading message");
+						break;
 						
-						case SendingGame:
-							Game g = (Game) input.readObject();
-							setGame(g);
-							break;
-						default:
-							break;
-					}
-				}
-				
-				else if (com instanceof GameCommand && !isAiTurn) {
-					parseAndExecuteCommand((GameCommand)com);
+					case ComputerTurn:
+						isAiTurn = true;
+						doComputerTurn();
+						isAiTurn = false;
+						break;
+					
+					case SendingGame:
+						System.out.println("Game received");
+						Game g = null;
+
+						try {
+							g = (Game) input.readObject();
+						} catch (ClassNotFoundException | IOException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+
+						setGame(g);
+						break;
+					default:
+						break;
 				}
 			}
+			
+			else if (com instanceof GameCommand && !isAiTurn) {
+				parseAndExecuteCommand((GameCommand)com);
+			}
+		}
 
-		} catch (Exception e) {
-	      e.printStackTrace();
-	    }
+
 	}
 }
