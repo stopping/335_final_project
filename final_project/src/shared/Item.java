@@ -4,9 +4,8 @@ import java.io.Serializable;
 
 import unit.Unit;
 
+@SuppressWarnings("serial")
 public class Item implements Serializable {
-
-	
 
 	protected String name;
 	protected Attribute attribute;

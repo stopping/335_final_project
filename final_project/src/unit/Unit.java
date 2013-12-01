@@ -38,8 +38,8 @@ public class Unit extends Occupant {
 		attackRange = 5.0;
 		abilityRange = 5.0;
 		itemList = new ArrayList<Item>();
-		abilityCoolDown = 3;
-		abilityCoolDownToGo = 3;
+		abilityCoolDown = 2;
+		abilityCoolDownToGo = 0;
 		addItem(new HealthItem("Stimpack",5.0,1,this));
 	}
 	
@@ -53,7 +53,6 @@ public class Unit extends Occupant {
 	
 	public boolean useSpecialAbility( int row, int col ) {
 		if (canUseAbility(row,col)) {
-			
 			return true;
 		}
 		return false;
@@ -65,11 +64,7 @@ public class Unit extends Occupant {
 	
 	
 	public void takeDamage( double attackStrength ) {
-		double defenseModifier = 0;
-		for(int i = 0; i < itemList.size(); i++) {
-			Item currItem = itemList.get(i);
-			if(currItem.getAttribute() == Attribute.Defense) defenseModifier += currItem.getModifier();
-		}
+		double defenseModifier = getModifier(Attribute.Defense);
 		double damage = attackStrength*(1 - (defense+defenseModifier)*damageReduction);
 		hitPoints -= damage > 0 ? damage : 0;
 		checkDeath();
@@ -171,9 +166,11 @@ public class Unit extends Occupant {
 			break;
 		case MaxHitPoints:
 			maxHitPoints += value;
+			hitPoints = maxHitPoints;
 			break;
 		case MaxActionPoints:
 			maxActionPoints += value;
+			actionPoints = maxActionPoints;
 			break;
 		default:
 			break;
@@ -254,7 +251,7 @@ public class Unit extends Occupant {
 		return "Name: " + name + "\n" +
 				"HP: " + (int) hitPoints + "/" + (int) maxHitPoints + "\n" +
 				"AP: " + (int) actionPoints + "/" + (int) maxActionPoints + "\n" +
-				"Cooldown: " + abilityCoolDownToGo + "/" + abilityCoolDown + "\n";
+				"Cooldown Remaining: " + abilityCoolDownToGo / 2 + " turns\n";
 				
 	}
 	

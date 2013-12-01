@@ -245,7 +245,6 @@ public class Game implements Serializable {
 
 	public boolean moveUnit(int[] source, int[] dest) {
 		GameSquare srcSquare = board[source[0]][source[1]];
-		GameSquare destSquare = board[dest[0]][dest[1]];
 		
 		Unit performer;
 		
@@ -333,9 +332,7 @@ public class Game implements Serializable {
 	
 	public boolean useItem(int[] source, int[] dest, int itemIndex) {
 		GameSquare srcSquare = board[source[0]][source[1]];
-		GameSquare destSquare = board[dest[0]][dest[1]];
 		Unit performer = (Unit) srcSquare.getOccupant();
-		Occupant receiver = destSquare.getOccupant();
 
 		//If it's not your turn you can't do anything
 		if(!isTurn(performer)) {

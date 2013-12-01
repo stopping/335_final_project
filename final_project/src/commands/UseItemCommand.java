@@ -1,7 +1,6 @@
 package commands;
 
 import shared.Game;
-import shared.Item;
 
 @SuppressWarnings("serial")
 public class UseItemCommand extends GameCommand {

@@ -71,6 +71,8 @@ public class PlayConsoleGame {
 				System.out.println("You won!");
 			}
 		}
+		
+		input.close();
 
 	}
 

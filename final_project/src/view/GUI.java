@@ -17,11 +17,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.geom.Rectangle2D;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.util.List;
 
 import javax.imageio.ImageIO;
@@ -31,7 +27,6 @@ import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JList;
-import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -41,8 +36,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 
 import client.HumanPlayer;
 import commands.*;
@@ -157,6 +150,173 @@ public class GUI extends HumanPlayer {
 		setListeners();
 	}
 	
+
+	
+	public static void main( String[] args ) {
+		new GUI();
+	}
+	
+	private class gameMouseListener implements MouseListener {
+
+		@Override
+		public void mouseClicked(MouseEvent arg0) {
+
+		}
+
+		@Override
+		public void mouseEntered(MouseEvent arg0) {
+
+		}
+
+		@Override
+		public void mouseExited(MouseEvent arg0) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void mousePressed(MouseEvent arg0) {
+			
+			if(arg0.getButton() == MouseEvent.BUTTON1) {
+				leftClickRow = arg0.getPoint().y / 32;
+				leftClickCol = arg0.getPoint().x / 32;
+				selected = true;
+			} else if(arg0.getButton() == MouseEvent.BUTTON3) {
+				rightClickRow = arg0.getPoint().y / 32;
+				rightClickCol = arg0.getPoint().x / 32;
+				if(selected) {
+
+					GameSquare gs = game.getGameSquareAt(leftClickRow, leftClickCol);
+					if(!gs.hasOccupant() || !(gs.getOccupant() instanceof Unit)) return;
+					
+					Unit performer = (Unit) gs.getOccupant();
+					
+					actionMenu.removeAll();
+					
+					if(performer.canMoveTo(rightClickRow, rightClickCol)) actionMenu.add(moveItem);
+					if(performer.canAttack(rightClickRow, rightClickCol)) actionMenu.add(attackItem);
+					if(performer.canUseAbility(rightClickRow, rightClickCol)) actionMenu.add(specialItem);
+					actionMenu.add(cancelItem);
+					
+					actionMenu.show(arg0.getComponent(), rightClickCol*32+16, rightClickRow*32+16);
+
+				}
+			}
+			
+			update();
+
+		}
+
+		@Override
+		public void mouseReleased(MouseEvent arg0) {
+
+		}
+		
+	}
+	
+
+	
+	
+	public void update() {
+		GameSquare gs = game.getBoard()[leftClickRow][leftClickCol];
+		if(gs.hasOccupant()) {
+			Occupant o = gs.getOccupant();
+			gameInfo.setText(o.toString());
+			itemListModel.removeAllElements();
+			if(o instanceof Unit) {
+				List<Item> list = ((Unit) o).getItemList();
+				for(Item i : list) {
+					itemListModel.addElement(i);
+				}
+			}
+			
+		}
+		else gameInfo.setText("Empty");
+		mainPanel.repaint();
+	}
+	
+	public void receiveMessage(ClientServerCommand com) {
+		String source = com.getData().get(0);
+		String msg = com.getData().get(2);
+		chatArea.append(source + ": " + msg + "\n");
+	}
+	
+	@SuppressWarnings("serial")
+	private class BoardPanel extends JPanel {
+		
+		@Override
+		public void paintComponent(Graphics g) {
+			super.paintComponent(g);
+			Graphics2D g2 = (Graphics2D) g;
+			GameSquare[][] map = game.getBoard();
+			
+			int size = 32;
+			
+			for(int r = 0; r < map.length; r++) {
+				for(int c = 0; c < map[0].length; c++) {
+					int upper = r*size;
+					int left = c*size;
+					Rectangle2D square = new Rectangle2D.Double( left, upper, size, size );
+					g2.draw(square);
+					g2.setColor( map[r][c].getOccupant() instanceof Obstacle ? Color.black : Color.gray );
+					if(leftClickRow == r && leftClickCol == c && selected ) g2.setColor(Color.yellow);
+					g2.fill(square);
+					
+					GameSquare srcSquare = game.getGameSquareAt(leftClickRow,leftClickCol);
+					
+					if( selected && srcSquare.getOccupant() instanceof Unit) {
+						Unit u = (Unit) srcSquare.getOccupant();
+						if( u.canAttack(r,c)) {
+							g2.setColor( Color.red );
+							square = new Rectangle2D.Double( left+6, upper+6, size-13, size-13 );
+							g2.draw(square);
+							g2.fill(square);
+						}
+						if( u.canUseAbility(r,c)) {
+							g2.setColor( Color.blue );
+							square = new Rectangle2D.Double( left+6, upper+6, size-13, size-13 );
+							g2.draw(square);
+							g2.fill(square);
+						}
+						if( u.canMoveTo(r,c) ) {
+							g2.setColor( Color.white );
+							square = new Rectangle2D.Double( left+10, upper+10, size-21, size-21 );
+							g2.draw(square);
+							g2.fill(square);
+						}
+					}
+				}
+			}
+			
+			for(Unit u : game.getBlueUnitList()) {
+				if(u.isDead()) continue;
+				int upper = u.getLocation().getRow()*size;
+				int left = u.getLocation().getCol()*size;
+				int imagey = 0;
+				if(u instanceof SoldierUnit) imagey = size*0;
+				if(u instanceof EngineerUnit) imagey = size*1;
+				if(u instanceof DemolitionUnit) imagey = size*2;
+				if(u instanceof RocketUnit) imagey = size*3;
+				if(u instanceof MeleeUnit) imagey = size*4;
+				g2.drawImage(sprites, left, upper, left+size, upper+size, 0, imagey, size, imagey+size, null);
+			}
+			
+			for(Unit u : game.getRedUnitList()) {
+				if(u.isDead()) continue;
+				int upper = u.getLocation().getRow()*size;
+				int left = u.getLocation().getCol()*size;
+				int imagey = 0;
+				if(u instanceof SoldierUnit) imagey = size*0;
+				if(u instanceof EngineerUnit) imagey = size*1;
+				if(u instanceof DemolitionUnit) imagey = size*2;
+				if(u instanceof RocketUnit) imagey = size*3;
+				if(u instanceof MeleeUnit) imagey = size*4;
+				g2.drawImage(sprites, left, upper, left+size, upper+size, size, imagey, size+size, imagey+size, null);
+			}
+		}
+	}
+	
+	@SuppressWarnings("serial")
 	public void setListeners() {
 		
 		attackItem.addActionListener(new AbstractAction() {
@@ -258,68 +418,6 @@ public class GUI extends HumanPlayer {
 		mainFrame.addWindowListener(new WindowClosingListener());
 	}
 	
-	public static void main( String[] args ) {
-		new GUI();
-	}
-	
-	private class gameMouseListener implements MouseListener {
-
-		@Override
-		public void mouseClicked(MouseEvent arg0) {
-
-		}
-
-		@Override
-		public void mouseEntered(MouseEvent arg0) {
-
-		}
-
-		@Override
-		public void mouseExited(MouseEvent arg0) {
-			// TODO Auto-generated method stub
-			
-		}
-
-		@Override
-		public void mousePressed(MouseEvent arg0) {
-			
-			if(arg0.getButton() == MouseEvent.BUTTON1) {
-				leftClickRow = arg0.getPoint().y / 32;
-				leftClickCol = arg0.getPoint().x / 32;
-				selected = true;
-			} else if(arg0.getButton() == MouseEvent.BUTTON3) {
-				rightClickRow = arg0.getPoint().y / 32;
-				rightClickCol = arg0.getPoint().x / 32;
-				if(selected) {
-
-					GameSquare gs = game.getGameSquareAt(leftClickRow, leftClickCol);
-					if(!gs.hasOccupant() || !(gs.getOccupant() instanceof Unit)) return;
-					
-					Unit performer = (Unit) gs.getOccupant();
-					
-					actionMenu.removeAll();
-					
-					if(performer.canAttack(rightClickRow, rightClickCol)) actionMenu.add(attackItem);
-					if(performer.canMoveTo(rightClickRow, rightClickCol)) actionMenu.add(moveItem);
-					if(performer.canUseAbility(rightClickRow, rightClickCol)) actionMenu.add(specialItem);
-					actionMenu.add(cancelItem);
-					
-					actionMenu.show(arg0.getComponent(), rightClickCol*32+16, rightClickRow*32+16);
-
-				}
-			}
-			
-			update();
-
-		}
-
-		@Override
-		public void mouseReleased(MouseEvent arg0) {
-
-		}
-		
-	}
-	
 	private class WindowClosingListener extends WindowAdapter {
 		public void windowClosing(WindowEvent we) {
 			switch(JOptionPane.showConfirmDialog(null, "Save Session?")) {
@@ -361,93 +459,6 @@ public class GUI extends HumanPlayer {
 		}
 		public void keyReleased(KeyEvent e) {}
 		public void keyTyped(KeyEvent e) {}
-	}
-	
-	
-	public void update() {
-		GameSquare gs = game.getBoard()[leftClickRow][leftClickCol];
-		if(gs.hasOccupant()) {
-			Occupant o = gs.getOccupant();
-			gameInfo.setText(o.toString());
-			itemListModel.removeAllElements();
-			if(o instanceof Unit) {
-				List<Item> list = ((Unit) o).getItemList();
-				for(Item i : list) {
-					itemListModel.addElement(i);
-				}
-			}
-			
-		}
-		else gameInfo.setText("Empty");
-		mainPanel.repaint();
-	}
-	
-	public void receiveMessage(ClientServerCommand com) {
-		String source = com.getData().get(0);
-		String msg = com.getData().get(2);
-		chatArea.append(source + ": " + msg + "\n");
-	}
-	
-	private class BoardPanel extends JPanel {
-		
-		@Override
-		public void paintComponent(Graphics g) {
-			super.paintComponent(g);
-			Graphics2D g2 = (Graphics2D) g;
-			GameSquare[][] map = game.getBoard();
-			
-			int size = 32;
-			
-			for(int r = 0; r < map.length; r++) {
-				for(int c = 0; c < map[0].length; c++) {
-					int upper = r*size;
-					int left = c*size;
-					Rectangle2D square = new Rectangle2D.Double( left, upper, size, size );
-					g2.draw(square);
-					g2.setColor( map[r][c].getOccupant() instanceof Obstacle ? Color.black : Color.gray );
-					if(leftClickRow == r && leftClickCol == c && selected ) g2.setColor(Color.yellow);
-					g2.fill(square);
-					
-					GameSquare srcSquare = game.getGameSquareAt(leftClickRow,leftClickCol);
-					
-					if( selected && srcSquare.getOccupant() instanceof Unit) {
-						Unit u = (Unit) srcSquare.getOccupant();
-						if( u.canMoveTo(r,c) ) g2.setColor( Color.white );
-						if( u.canAttack(r,c)) g2.setColor( Color.orange );
-						if( u.canUseAbility(r,c)) g2.setColor( Color.blue );
-						square = new Rectangle2D.Double( left+6, upper+6, size-13, size-13 );
-						g2.draw(square);
-						g2.fill(square);
-					}
-				}
-			}
-			
-			for(Unit u : game.getBlueUnitList()) {
-				if(u.isDead()) continue;
-				int upper = u.getLocation().getRow()*size;
-				int left = u.getLocation().getCol()*size;
-				int imagey = 0;
-				if(u instanceof SoldierUnit) imagey = size*0;
-				if(u instanceof EngineerUnit) imagey = size*1;
-				if(u instanceof DemolitionUnit) imagey = size*2;
-				if(u instanceof RocketUnit) imagey = size*3;
-				if(u instanceof MeleeUnit) imagey = size*4;
-				g2.drawImage(sprites, left, upper, left+size, upper+size, 0, imagey, size, imagey+size, null);
-			}
-			
-			for(Unit u : game.getRedUnitList()) {
-				if(u.isDead()) continue;
-				int upper = u.getLocation().getRow()*size;
-				int left = u.getLocation().getCol()*size;
-				int imagey = 0;
-				if(u instanceof SoldierUnit) imagey = size*0;
-				if(u instanceof EngineerUnit) imagey = size*1;
-				if(u instanceof DemolitionUnit) imagey = size*2;
-				if(u instanceof RocketUnit) imagey = size*3;
-				if(u instanceof MeleeUnit) imagey = size*4;
-				g2.drawImage(sprites, left, upper, left+size, upper+size, size, imagey, size+size, imagey+size, null);
-			}
-		}
 	}
 	
 }

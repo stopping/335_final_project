@@ -5,7 +5,6 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Deque;
 
-import client.Player;
 import commands.*;
 import commands.ClientServerCommand.ClientServerCommandType;
 import shared.Attribute;

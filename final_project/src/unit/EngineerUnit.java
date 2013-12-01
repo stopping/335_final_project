@@ -7,6 +7,7 @@ import shared.HealthItem;
 import shared.Item;
 import shared.Obstacle;
 
+@SuppressWarnings("serial")
 public class EngineerUnit extends Unit {
 
 	public EngineerUnit(String newName) {
@@ -15,7 +16,7 @@ public class EngineerUnit extends Unit {
 		defense = 0;
 		maxHitPoints = 10;
 		hitPoints = maxHitPoints;
-		maxActionPoints = 5;
+		maxActionPoints = 3;
 		actionPoints = maxActionPoints;
 		speed = 1.0;
 		attackRange = 5.0;

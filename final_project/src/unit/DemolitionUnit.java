@@ -16,7 +16,7 @@ public class DemolitionUnit extends Unit {
 		defense = 0;
 		maxHitPoints = 10;
 		hitPoints = maxHitPoints;
-		maxActionPoints = 5;
+		maxActionPoints = 3;
 		actionPoints = maxActionPoints;
 		speed = 1.0;
 		attackRange = 3.0;

@@ -13,7 +13,7 @@ import commands.ClientServerCommand.ClientServerCommandType;
 import client.Player;
 import shared.Attribute;
 import shared.Game;
-import unit.Unit;
+import unit.*;
 import shared.GameSquare;
 
 public class ComputerPlayer implements Player, Runnable {
@@ -44,11 +44,11 @@ public class ComputerPlayer implements Player, Runnable {
 	// returns ComputerPlayer units based on selected difficulty level
 	public static ArrayList<Unit> generateAIUnits(int level) {
 		ArrayList<Unit> units = new ArrayList<Unit>();
-		units.add(new Unit("Zander"));
-		units.add(new Unit("Yvonne"));
-		units.add(new Unit("Xavier"));
-		units.add(new Unit("Will"));
-		units.add(new Unit("Van"));
+		units.add(new SoldierUnit("Zander"));
+		units.add(new SoldierUnit("Yvonne"));
+		units.add(new SoldierUnit("Xavier"));
+		units.add(new SoldierUnit("Will"));
+		units.add(new SoldierUnit("Van"));
 		double modifier = level * 0.5;
 		if (modifier > 0.0) {
 			for (Unit u : units) {
@@ -93,7 +93,7 @@ public class ComputerPlayer implements Player, Runnable {
 			int destRow = options[i][0];
 			int destCol = options[i][1];
 			GameSquare g = game.getGameSquareAt(destRow, destCol);
-			if (g.hasOccupant() && g.getOccupant().getClass().equals(Unit.class)) {
+			if (g.hasOccupant() && g.getOccupant() instanceof Unit) {
 				return new int[] {destRow, destCol};
 			}
 		}
