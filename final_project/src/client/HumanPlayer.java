@@ -41,4 +41,13 @@ public class HumanPlayer implements Player {
 	public void receiveMessage(ClientServerCommand com) {
 		// to be over written by GUI
 	}
+	
+	public void failLogin(ClientServerCommand com) {
+		// to be over written by GUI sounds like an abstract method/class to me
+	}
+	
+	public void login() {
+		// to be over written by GUI sounds like an abstract method/class to me
+
+	}
 }

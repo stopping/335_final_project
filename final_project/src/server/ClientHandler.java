@@ -76,12 +76,14 @@ public class ClientHandler implements Runnable {
 						new String[] {"Incorrect Username or Password"}));
 				break;
 			}
+			sendCommand(new ClientServerCommand(ClientServerCommandType.ValidLogin, null));
 			playerName = name;
 			break;
 			
 		case NewComputerPlayer:
 			computerPlayerLevel = Integer.parseInt(com.getData().get(0));
 			isplayingComputer = true;
+			server.addComputerPlayer(gameNumber, computerPlayerLevel);
 			break;
 			
 		case ComputerPlayerJoin:

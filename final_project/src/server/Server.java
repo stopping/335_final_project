@@ -140,6 +140,13 @@ public class Server implements Runnable {
 			return null;
 	}
 	
+	// starts a new ComputerPlayer in its own thread
+	public void addComputerPlayer(int gameNumber, int computerPlayerLevel) {
+		ComputerPlayer p = new ComputerPlayer(gameNumber, computerPlayerLevel);
+		Thread t = new Thread(p);
+		t.start();
+	}
+	
 	// send the opponent commands in FIFO. if playing the AI, passes him his turn
 	public void updateClients( int gameNumber, int playerNumber,  Deque<GameCommand> playerCommands, boolean isAIGame) {
 		

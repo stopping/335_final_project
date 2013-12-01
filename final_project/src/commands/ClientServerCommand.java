@@ -24,6 +24,7 @@ public class ClientServerCommand extends Command {
 		ComputerPlayerJoin,
 		NewGame,
 		Login,
+		ValidLogin,
 		NewComputerPlayer,
 		Ready,
 		StartGame,
