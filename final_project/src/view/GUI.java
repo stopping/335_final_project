@@ -596,6 +596,7 @@ public class GUI extends HumanPlayer {
 				sendCommand(new ClientServerCommand(
 						ClientServerCommandType.Message,
 						new String[] { message }));
+				chatField.setText("");
 			}
 		}
 
