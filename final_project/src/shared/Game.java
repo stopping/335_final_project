@@ -279,13 +279,33 @@ public class Game implements Serializable {
 		return performer.attack(dest[0],dest[1]);
 
 	}
+	
+	public boolean useAbility(int[] source, int[] dest) {
+		GameSquare srcSquare = board[source[0]][source[1]];
+		
+		Unit performer;
+		
+		if(srcSquare.getOccupant() instanceof Unit) 
+			performer = (Unit) srcSquare.getOccupant();
+		else
+			return false;
+		
+		if(!isTurn(performer)) { return false; }
+		
+		// attack returns true if attack was successful false if otherwise
+		// important to note that the unit's attack method now perform the requisite checks
+		return performer.useSpecialAbility(dest[0],dest[1]);
+
+	}
 
 	public boolean endTurn() {
-		for(int i = 0; i < unitListRed.size(); i++) {
-			unitListRed.get(i).restoreActionPoints();
+		for(Unit u : unitListRed) {
+			u.restoreActionPoints();
+			u.coolDown();
 		}
-		for(int i = 0; i < unitListBlue.size(); i++) {
-			unitListBlue.get(i).restoreActionPoints();
+		for(Unit u : unitListBlue) {
+			u.restoreActionPoints();
+			u.coolDown();
 		}
 		currentPlayer = (currentPlayer + 1) % 2;
 		checkWinCondition();

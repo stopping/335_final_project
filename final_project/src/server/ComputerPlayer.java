@@ -13,7 +13,6 @@ import commands.ClientServerCommand.ClientServerCommandType;
 import client.Player;
 import shared.Attribute;
 import shared.Game;
-
 import unit.Unit;
 import shared.GameSquare;
 
@@ -112,9 +111,17 @@ public class ComputerPlayer implements Player, Runnable {
 			sendCommand(c);
 			
 			try {
-				c = (MoveCommand) input.readObject();
-				parseAndExecuteCommand(c);
-			} catch (ClassNotFoundException | IOException e) {
+				Command ret = (Command) input.readObject();
+				if (ret instanceof ClientServerCommand) {
+					if (((ClientServerCommand) ret).getType() ==
+						(ClientServerCommandType.IllegalOption))
+						doRandomMove(u, source, options);
+				}
+				else {
+					GameCommand com = (GameCommand) ret;
+					parseAndExecuteCommand(com);
+					}
+			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
@@ -129,12 +136,21 @@ public class ComputerPlayer implements Player, Runnable {
 			if (units.contains(uToAttack))
 				doRandomMove(u, source, options);
 			else {
+				
 				AttackCommand c = new AttackCommand(source, dest);
 				sendCommand(c);
 				try {
-					c = (AttackCommand) input.readObject();
-					parseAndExecuteCommand(c);
-				} catch (ClassNotFoundException | IOException e) {
+					Command ret = (Command) input.readObject();
+					if (ret instanceof ClientServerCommand) {
+						if (((ClientServerCommand) ret).getType() ==
+								(ClientServerCommandType.IllegalOption))
+							doRandomMove(u, source, options);
+					}
+					else {
+						GameCommand com = (GameCommand) ret;
+						parseAndExecuteCommand(com);
+					}
+				} catch (Exception e) {
 					e.printStackTrace();
 				}
 			}
@@ -144,7 +160,7 @@ public class ComputerPlayer implements Player, Runnable {
 	}
 
 	private void doComputerTurn() {
-		System.out.println("Beginning computer turn");
+		//System.out.println("Beginning computer turn");
 		units = game.getBlueUnitList();
 
 		for (Unit u : units) {	
@@ -200,41 +216,57 @@ public class ComputerPlayer implements Player, Runnable {
 	public void run() {
 		
 		boolean isAiTurn = false;
-
-		try {			
-			while (true) {
-				Command com = (Command) input.readObject();
+		System.out.println("Starting computer player...");
+		
+		while (true) {
+			Command com = null;
+			
+			try {
+				com = (Command) input.readObject();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			
+			System.out.println("Object read");
+			
+			if (com instanceof ClientServerCommand) {
+				ClientServerCommand c = (ClientServerCommand)com;
+				switch (c.getType()) {
 				
-				if (com instanceof ClientServerCommand) {
-					ClientServerCommand c = (ClientServerCommand)com;
-					switch (c.getType()) {
-					
-						case Message:
-							//sendRandomMessage();
-							break;
-							
-						case ComputerTurn:
-							isAiTurn = true;
-							doComputerTurn();
-							isAiTurn = false;
-							break;
+					case Message:
+						//sendRandomMessage();
+						System.out.println("Reading message");
+						break;
 						
-						case SendingGame:
-							Game g = (Game) input.readObject();
-							setGame(g);
-							break;
-						default:
-							break;
-					}
-				}
-				
-				else if (com instanceof GameCommand && !isAiTurn) {
-					parseAndExecuteCommand((GameCommand)com);
+					case ComputerTurn:
+						isAiTurn = true;
+						doComputerTurn();
+						isAiTurn = false;
+						break;
+					
+					case SendingGame:
+						System.out.println("Game received");
+						Game g = null;
+						
+						try {
+							g = (Game) input.readObject();
+						} catch (ClassNotFoundException | IOException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+
+						setGame(g);
+						break;
+					default:
+						break;
 				}
 			}
+			
+			else if (com instanceof GameCommand && !isAiTurn) {
+				parseAndExecuteCommand((GameCommand)com);
+			}
+		}
 
-		} catch (Exception e) {
-	      e.printStackTrace();
-	    }
+
 	}
 }

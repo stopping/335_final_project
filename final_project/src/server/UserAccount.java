@@ -25,6 +25,15 @@ public class UserAccount {
 		case Rocket:
 			units.add(new RocketUnit(name));
 			break;
+		case Engineer:
+			units.add(new EngineerUnit(name));
+			break;
+		case Demolition:
+			units.add(new DemolitionUnit(name));
+			break;
+		case Soldier:
+			units.add(new SoldierUnit(name));
+			break;
 		}
 		System.out.println("added new unit: " + name);
 	}

@@ -52,10 +52,14 @@ public class Unit extends Occupant {
 	}
 	
 	public boolean useSpecialAbility( int row, int col ) {
-		if (abilityCoolDownToGo == 0 && isInRange( row, col, abilityRange )) {
-			restoreActionPoints(2.0);
+		if (canUseAbility(row,col)) {
+			
 			return true;
 		}
+		return false;
+	}
+	
+	public boolean canUseAbility( int row, int col ) {
 		return false;
 	}
 	
@@ -97,11 +101,7 @@ public class Unit extends Occupant {
 	public boolean attack( int row, int col ) {
 		if (canAttack(row,col)) {
 			Occupant o = game.getGameSquareAt(row, col).getOccupant();
-			double attackModifier = 0;
-			for(int i = 0; i < itemList.size(); i++) {
-				Item currItem = itemList.get(i);
-				if(currItem.getAttribute() == Attribute.Strength) attackModifier += currItem.getModifier();
-			}
+			double attackModifier = getModifier(Attribute.Strength);
 			consumeActionPoints(2.0);
 			o.takeDamage(strength+attackModifier); 
 			return true;
@@ -248,12 +248,13 @@ public class Unit extends Occupant {
 	private boolean inventoryHasRoom() {
 		return itemList.size() < 3;
 	}
-
+	
 	@Override
 	public String toString() {
 		return "Name: " + name + "\n" +
 				"HP: " + (int) hitPoints + "/" + (int) maxHitPoints + "\n" +
-				"AP: " + (int) actionPoints + "/" + (int) maxActionPoints + "\n";
+				"AP: " + (int) actionPoints + "/" + (int) maxActionPoints + "\n" +
+				"Cooldown: " + abilityCoolDownToGo + "/" + abilityCoolDown + "\n";
 				
 	}
 	
@@ -262,8 +263,25 @@ public class Unit extends Occupant {
 	}
 	
 	public enum UnitClass {
+		Soldier,
 		Melee,
-		Rocket
+		Rocket,
+		Engineer,
+		Demolition
+	}
+	
+	public double getModifier(Attribute a) {
+		double modifier = 0;
+		for(int i = 0; i < itemList.size(); i++) {
+			Item currItem = itemList.get(i);
+			if(currItem.getAttribute() == a) modifier += currItem.getModifier();
+		}
+		return modifier;
+	}
+
+	public void coolDown() {
+		abilityCoolDownToGo -= 1;
+		abilityCoolDownToGo = abilityCoolDownToGo < 0 ? 0 : abilityCoolDownToGo;
 	}
 
 }
