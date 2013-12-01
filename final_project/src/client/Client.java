@@ -45,7 +45,15 @@ public class Client implements Runnable {
 				if (com instanceof ClientServerCommand) {
 					ClientServerCommand c = (ClientServerCommand)com;
 					switch (c.getType()) {
-					
+						
+						case ValidLogin:
+							player.login();
+							break;
+							
+						case IllegalOption:
+							player.failLogin((ClientServerCommand) com);
+							break;
+							
 						case SendingGame:
 							Game g = (Game) input.readObject();
 							System.out.println("Game received");
