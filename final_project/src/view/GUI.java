@@ -375,7 +375,7 @@ public class GUI extends HumanPlayer {
 					
 					sendCommand(com);
 				}
-				sendCommand(new ClientServerCommand(ClientServerCommandType.NewComputerPlayer, new String[] { "2" }));
+				sendCommand(new ClientServerCommand(ClientServerCommandType.NewComputerPlayer, new String[] { "3" }));
 				sendCommand(new ClientServerCommand(ClientServerCommandType.StartGame, new String[] { "CTF" }));
 				mainPanel.removeAll();
 				mainPanel.add(gamePanel);

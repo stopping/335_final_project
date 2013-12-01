@@ -64,8 +64,8 @@ public class ComputerPlayer implements Player, Runnable {
 	}
 
 	@Override
-	public void parseAndExecuteCommand(GameCommand c) {	
-		game.executeCommand(c);
+	public boolean parseAndExecuteCommand(GameCommand c) {	
+		return game.executeCommand(c);
 	}
 	
 	private int[][] getAdjacentCoords(int source[]) {
@@ -86,6 +86,63 @@ public class ComputerPlayer implements Player, Runnable {
 		res[3][1] = sourceCol == 11 ? 11 : sourceCol+1;	
 		
 		return res;
+	}
+	
+	private boolean tryMove(Unit u, int[] source, int[] dest) {
+		if(u.canMoveTo(dest[0], dest[1])) {
+			MoveCommand c = new MoveCommand(source, dest);
+			sendCommand(c);
+			
+			try {
+				Command ret = (Command) input.readObject();
+				if (ret instanceof ClientServerCommand) {
+					if (((ClientServerCommand) ret).getType() ==
+						(ClientServerCommandType.IllegalOption))
+						return false;
+				}
+				else {
+					GameCommand com = (GameCommand) ret;
+					return parseAndExecuteCommand(com);
+					}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		return false;
+	}
+	
+	private boolean tryAttack(Unit u ,int[] source, int[] dest) {
+		for (Unit ut : units) {
+			if (ut != null) {
+				GameSquare g = ut.getLocation();
+				if (g != null && g.hasOccupant()) {
+					g = game.getGameSquareAt(dest[0], dest[1]);
+					if (g != null && g.hasOccupant()) 
+						if (ut.equals(g.getOccupant()))
+							return false;
+				}
+			}
+		}
+		
+		if (u.canAttack(dest[0], dest[1])) {
+			AttackCommand c = new AttackCommand(source, dest);
+			sendCommand(c);
+			try {
+				Command ret = (Command) input.readObject();
+				if (ret instanceof ClientServerCommand) {
+					if (((ClientServerCommand) ret).getType() ==
+							(ClientServerCommandType.IllegalOption))
+						return false;
+				}
+				else {
+					GameCommand com = (GameCommand) ret;
+					return parseAndExecuteCommand(com);
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		return false;
 	}
 	
 	private int[] getAttackableCoords(int[][] options, boolean unit) {
@@ -111,58 +168,98 @@ public class ComputerPlayer implements Player, Runnable {
 		Random r = new Random();
 		int rand = r.nextInt(4);
 		int[] dest = options[rand];
-		
-		if(u.canMoveTo(dest[0], dest[1])) {
-			MoveCommand c = new MoveCommand(source, dest);
-			sendCommand(c);
-			
-			try {
-				Command ret = (Command) input.readObject();
-				if (ret instanceof ClientServerCommand) {
-					if (((ClientServerCommand) ret).getType() ==
-						(ClientServerCommandType.IllegalOption))
-						return;
-				}
-				else {
-					GameCommand com = (GameCommand) ret;
-					parseAndExecuteCommand(com);
-					}
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
+		for (int i=0; i < 4 ; i++)
+			if (tryMove(u, source, dest))
+				break;
 	}
 	
 	private void doAttackAnything(Unit u, int[] source, int[][] options) {
 		int dest[] = getAttackableCoords(options, false);
-
+		
 		if (dest != null) {
 			Occupant oToAttack = (Occupant)game.getGameSquareAt(dest[0], dest[1]).getOccupant();
 		
 			if (units.contains(oToAttack))
 				doRandomMove(u, source, options);
-			else {
-				
-				AttackCommand c = new AttackCommand(source, dest);
-				sendCommand(c);
-				try {
-					Command ret = (Command) input.readObject();
-					if (ret instanceof ClientServerCommand) {
-						if (((ClientServerCommand) ret).getType() ==
-								(ClientServerCommandType.IllegalOption))
-							return;
-					}
-					else {
-						GameCommand com = (GameCommand) ret;
-						parseAndExecuteCommand(com);
-					}
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
+			else 
+				tryAttack(u, source, dest);		
 		}
 		else 
 			doRandomMove(u, source, options);
+	}
+	
+	private boolean attackThyNeighboor(Unit u, int[] source, int[][] opt) {
+		for (int i=0 ; i < 4 ; i++) {
+			GameSquare g = game.getGameSquareAt(opt[i][0], opt[i][1]);
+			if (g.hasOccupant() && g.getOccupant() instanceof Unit) {
+				return tryAttack(u, source, new int[] {opt[i][0], opt[i][1]});
+			}		
+		}
+		return false;
+	}
+	
+	private void doSeekAndDestroy(Unit u, int[] source, int[][] opt) {
+		
+		if (attackThyNeighboor(u, source, opt))
+			return;
+		
+		List<Unit> opUnits = game.getRedUnitList();
+		int  closest[] = new int[2];
+		int in = 0;
+		for (Unit un : opUnits) {
+			if (un != null) {
+				GameSquare g = un.getLocation();
+				if (g != null && g.hasOccupant()) {
+					closest[0] = opUnits.get(in).getLocation().getRow();
+					closest[1] = opUnits.get(in).getLocation().getCol();
+					break;
+				}
+			}
+			in++;
+		}
+		
+		double dist = Math.sqrt( Math.pow((Math.abs(source[0]-closest[0])),2)+
+				Math.pow((Math.abs(source[1]-closest[1])),2));
+
+		for (Unit ut : opUnits) {
+			if (ut != null) {
+				GameSquare g = ut.getLocation();
+				if (g != null) {
+					int r = ut.getLocation().getRow();
+					int c = ut.getLocation().getCol();
+					double distComp = Math.sqrt( Math.pow((Math.abs(source[0]-r)),2)+
+							Math.pow((Math.abs(source[1]-c)),2));
+					if (distComp < dist) {
+						dist = distComp;
+						closest[0] = r;
+						closest[1] = c;
+					}
+				}
+			}
+		}
+		int dest[] = new int[] {closest[0], closest[1]};
+
+		if (!tryAttack(u, source, dest)) {
+
+			int row = source[0];
+			int col = source[1];
+			
+			if (dest[0] < row)
+				row--;
+			else if (dest[0] > row)
+				row++;
+			if (dest[1] < col)
+				col--;
+			else if (dest[1] > col)
+				col++;
+			
+			dest[0] = row;
+			dest[1] = col;
+			
+			if (!tryMove(u ,source, dest))
+				if (!tryAttack(u, source, dest))
+					doRandomMove(u, source, opt);
+		}
 	}
 	
 	private void doAttackOnSite(Unit u, int[] source, int[][] options) {
@@ -174,23 +271,7 @@ public class ComputerPlayer implements Player, Runnable {
 			if (units.contains(uToAttack))
 				doRandomMove(u, source, options);
 			else {
-				
-				AttackCommand c = new AttackCommand(source, dest);
-				sendCommand(c);
-				try {
-					Command ret = (Command) input.readObject();
-					if (ret instanceof ClientServerCommand) {
-						if (((ClientServerCommand) ret).getType() ==
-								(ClientServerCommandType.IllegalOption))
-							return;
-					}
-					else {
-						GameCommand com = (GameCommand) ret;
-						parseAndExecuteCommand(com);
-					}
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
+				tryAttack(u, source, dest);
 			}
 		}
 		else 
@@ -221,6 +302,9 @@ public class ComputerPlayer implements Player, Runnable {
 				case 2: 
 					doAttackAnything(u ,source, destOpt);
 					break;
+				case 3:
+					doSeekAndDestroy(u, source, destOpt);
+					break;
 				}
 			}
 		}
@@ -241,17 +325,6 @@ public class ComputerPlayer implements Player, Runnable {
 			e.printStackTrace();
 		}
 	}
-	
-	private void sendRandomMessage() {
-		String msgs[] = new String[] {
-				"Ha. Ha."  };
-		//Random r = new Random();
-		//int index = r.nextInt(msgs.length-1);
-		sendCommand(new ClientServerCommand(
-				ClientServerCommandType.Message, new String[] {msgs[0]}));
-	}
-	
-
 
 	@Override
 	public void run() {
@@ -269,9 +342,7 @@ public class ComputerPlayer implements Player, Runnable {
 					ClientServerCommand c = (ClientServerCommand)com;
 					switch (c.getType()) {
 					
-						case Message:
-							//sendRandomMessage();
-							System.out.println("Reading message");
+						case Message: 
 							break;
 							
 						case ComputerTurn:
@@ -287,7 +358,6 @@ public class ComputerPlayer implements Player, Runnable {
 							try {
 								g = (Game) input.readObject();
 							} catch (ClassNotFoundException | IOException e) {
-								// TODO Auto-generated catch block
 								e.printStackTrace();
 							}
 	

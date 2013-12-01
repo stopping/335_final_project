@@ -20,8 +20,10 @@ public class HumanPlayer implements Player {
 	}
 	
 	@Override
-	public void parseAndExecuteCommand(GameCommand com) {
-		System.out.println(game.executeCommand(com));
+	public boolean parseAndExecuteCommand(GameCommand com) {
+		boolean ret = game.executeCommand(com);
+		System.out.println(ret);
+		return ret;
 	}
 
 	public void update() {

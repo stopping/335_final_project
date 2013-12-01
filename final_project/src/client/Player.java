@@ -18,7 +18,7 @@ public interface Player {
 	 * @param c		The Command to be executed. 
 	 * 				Precondition: command has been validated by server.
 	 */
-	public abstract void parseAndExecuteCommand(GameCommand com);
+	public abstract boolean parseAndExecuteCommand(GameCommand com);
 	
 	
 	/**
