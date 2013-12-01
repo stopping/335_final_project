@@ -203,7 +203,7 @@ public class GUI extends HumanPlayer {
 
 		mainFrame.setResizable(false);
 		mainFrame.add(mainPanel);
-		mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		mainFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		mainFrame.setSize(800, 800);
 		mainFrame.setVisible(true);
 		
@@ -375,7 +375,7 @@ public class GUI extends HumanPlayer {
 					
 					sendCommand(com);
 				}
-				sendCommand(new ClientServerCommand(ClientServerCommandType.NewComputerPlayer, new String[] { "1" }));
+				sendCommand(new ClientServerCommand(ClientServerCommandType.NewComputerPlayer, new String[] { "2" }));
 				sendCommand(new ClientServerCommand(ClientServerCommandType.StartGame, new String[] { "CTF" }));
 				mainPanel.removeAll();
 				mainPanel.add(gamePanel);
@@ -565,8 +565,14 @@ public class GUI extends HumanPlayer {
 				sendCommand(new ClientServerCommand(
 						ClientServerCommandType.SuspendSession, null));
 				System.exit(0);
+				break;
 			case JOptionPane.NO_OPTION:
+				sendCommand(new ClientServerCommand(
+						ClientServerCommandType.Logout, null));
 				System.exit(0);
+				break;
+			case JOptionPane.DEFAULT_OPTION:
+				break;
 			}
 		}
 	}

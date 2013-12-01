@@ -13,6 +13,7 @@ import commands.ClientServerCommand.ClientServerCommandType;
 import client.Player;
 import shared.Attribute;
 import shared.Game;
+import shared.Occupant;
 import unit.*;
 import shared.GameSquare;
 
@@ -87,14 +88,19 @@ public class ComputerPlayer implements Player, Runnable {
 		return res;
 	}
 	
-	private int[] getAttackableCoords(int[][] options) {
+	private int[] getAttackableCoords(int[][] options, boolean unit) {
 		
 		for (int i = 0 ; i< 4 ; i++) {
 			int destRow = options[i][0];
 			int destCol = options[i][1];
 			GameSquare g = game.getGameSquareAt(destRow, destCol);
-			if (g.hasOccupant() && g.getOccupant() instanceof Unit) {
-				return new int[] {destRow, destCol};
+			
+			if (g.hasOccupant()) {
+				if (unit && g.getOccupant() instanceof Unit) {
+					return new int[] {destRow, destCol};
+				}
+				else
+					return new int[] {destRow, destCol};
 			}
 		}
 		return null;
@@ -115,7 +121,7 @@ public class ComputerPlayer implements Player, Runnable {
 				if (ret instanceof ClientServerCommand) {
 					if (((ClientServerCommand) ret).getType() ==
 						(ClientServerCommandType.IllegalOption))
-						doRandomMove(u, source, options);
+						return;
 				}
 				else {
 					GameCommand com = (GameCommand) ret;
@@ -127,8 +133,40 @@ public class ComputerPlayer implements Player, Runnable {
 		}
 	}
 	
+	private void doAttackAnything(Unit u, int[] source, int[][] options) {
+		int dest[] = getAttackableCoords(options, false);
+
+		if (dest != null) {
+			Occupant oToAttack = (Occupant)game.getGameSquareAt(dest[0], dest[1]).getOccupant();
+		
+			if (units.contains(oToAttack))
+				doRandomMove(u, source, options);
+			else {
+				
+				AttackCommand c = new AttackCommand(source, dest);
+				sendCommand(c);
+				try {
+					Command ret = (Command) input.readObject();
+					if (ret instanceof ClientServerCommand) {
+						if (((ClientServerCommand) ret).getType() ==
+								(ClientServerCommandType.IllegalOption))
+							return;
+					}
+					else {
+						GameCommand com = (GameCommand) ret;
+						parseAndExecuteCommand(com);
+					}
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		else 
+			doRandomMove(u, source, options);
+	}
+	
 	private void doAttackOnSite(Unit u, int[] source, int[][] options) {
-		int dest[] = getAttackableCoords(options);
+		int dest[] = getAttackableCoords(options, true);
 
 		if (dest != null) {
 			Unit uToAttack = (Unit)game.getGameSquareAt(dest[0], dest[1]).getOccupant();
@@ -144,7 +182,7 @@ public class ComputerPlayer implements Player, Runnable {
 					if (ret instanceof ClientServerCommand) {
 						if (((ClientServerCommand) ret).getType() ==
 								(ClientServerCommandType.IllegalOption))
-							doRandomMove(u, source, options);
+							return;
 					}
 					else {
 						GameCommand com = (GameCommand) ret;
@@ -179,6 +217,9 @@ public class ComputerPlayer implements Player, Runnable {
 					break;
 				case 1:
 					doAttackOnSite(u, source, destOpt);
+					break;
+				case 2: 
+					doAttackAnything(u ,source, destOpt);
 					break;
 				}
 			}
@@ -217,56 +258,52 @@ public class ComputerPlayer implements Player, Runnable {
 		
 		boolean isAiTurn = false;
 		System.out.println("Starting computer player...");
+		Command com = null;
 		
-		while (true) {
-			Command com = null;
-			
-			try {
-				com = (Command) input.readObject();
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-			
-			System.out.println("Object read");
-			
-			if (com instanceof ClientServerCommand) {
-				ClientServerCommand c = (ClientServerCommand)com;
-				switch (c.getType()) {
+		try {
+			while (true) {
+				com = (Command) input.readObject();			
+				System.out.println("Object read");
 				
-					case Message:
-						//sendRandomMessage();
-						System.out.println("Reading message");
-						break;
-						
-					case ComputerTurn:
-						isAiTurn = true;
-						doComputerTurn();
-						isAiTurn = false;
-						break;
+				if (com instanceof ClientServerCommand) {
+					ClientServerCommand c = (ClientServerCommand)com;
+					switch (c.getType()) {
 					
-					case SendingGame:
-						System.out.println("Game received");
-						Game g = null;
+						case Message:
+							//sendRandomMessage();
+							System.out.println("Reading message");
+							break;
+							
+						case ComputerTurn:
+							isAiTurn = true;
+							doComputerTurn();
+							isAiTurn = false;
+							break;
 						
-						try {
-							g = (Game) input.readObject();
-						} catch (ClassNotFoundException | IOException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-
-						setGame(g);
-						break;
-					default:
-						break;
+						case SendingGame:
+							System.out.println("Game received");
+							Game g = null;
+							
+							try {
+								g = (Game) input.readObject();
+							} catch (ClassNotFoundException | IOException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+	
+							setGame(g);
+							break;
+						default:
+							break;
+					}
+				}
+				
+				else if (com instanceof GameCommand && !isAiTurn) {
+					parseAndExecuteCommand((GameCommand)com);
 				}
 			}
-			
-			else if (com instanceof GameCommand && !isAiTurn) {
-				parseAndExecuteCommand((GameCommand)com);
-			}
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
-
-
 	}
 }

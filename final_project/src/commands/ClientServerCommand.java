@@ -35,7 +35,8 @@ public class ClientServerCommand extends Command {
 		NewUser,
 		Message,
 		SuspendSession,
-		ResumeSession
+		ResumeSession,
+		Logout
 	}
 	
 	public ArrayList<String> getData() {

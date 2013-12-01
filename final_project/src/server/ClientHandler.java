@@ -79,6 +79,11 @@ public class ClientHandler implements Runnable {
 			playerName = name;
 			break;
 			
+		case Logout:
+			System.out.println("logging out " + playerName);
+			disconnect();
+			break;
+			
 		case NewComputerPlayer:
 			computerPlayerLevel = Integer.parseInt(com.getData().get(0));
 			isplayingComputer = true;
@@ -155,16 +160,12 @@ public class ClientHandler implements Runnable {
 			break;
 			
 		case SuspendSession:
-			try {
-				sock.close();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
 			while (!playerCommands.isEmpty()) {
 				game.executeCommand((playerCommands.removeFirst()));
 			}
 			server.saveGameSession(playerName, game);
 			System.out.println("saved session for " + playerName);
+			disconnect();
 			break;
 			
 		default:
@@ -195,26 +196,24 @@ public class ClientHandler implements Runnable {
 
 	@Override
 	public void run() {
-
-
-		while(true) {	
-			Command com = null;
-			try {
+		// need exception catch outside to avoid infinite loop
+		Command com = null;
+		try{
+			while(true) {	
 				com = (Command) input.readObject();
-			} catch (ClassNotFoundException | IOException e) {
-				e.printStackTrace();
-			}
 
-			if (com != null) {
-				if (com instanceof ClientServerCommand) {
-					resolveClientServerCommand((ClientServerCommand)com);
-
-				} else if (com instanceof GameCommand) {
-					resolveGameCommand((GameCommand)com);
+				if (com != null) {
+					if (com instanceof ClientServerCommand) {
+						resolveClientServerCommand((ClientServerCommand)com);
+	
+					} else if (com instanceof GameCommand) {
+						resolveGameCommand((GameCommand)com);
+					}
 				}
-			}
-		}			
-
+			}	
+		} catch (ClassNotFoundException | IOException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	public void sendGame(Game g) {
@@ -236,6 +235,16 @@ public class ClientHandler implements Runnable {
 	
 	public void setOpponent(String n) {
 		this.opponentName = n;
+	}
+	
+	public void disconnect() {
+		try {
+			input.close();
+			output.close(); 
+			sock.close();
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		}
 	}
 
 }
