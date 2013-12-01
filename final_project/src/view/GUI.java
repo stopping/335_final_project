@@ -40,8 +40,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 
 import shared.GameSquare;
 import shared.Item;
@@ -59,7 +57,6 @@ import commands.ClientServerCommand;
 import commands.ClientServerCommand.ClientServerCommandType;
 import commands.Command;
 import commands.EndTurnCommand;
-import commands.GameCommand;
 import commands.MoveCommand;
 import commands.UseAbilityCommand;
 import commands.UseItemCommand;
