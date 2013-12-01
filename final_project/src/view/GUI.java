@@ -68,7 +68,6 @@ public class GUI extends HumanPlayer {
 
 	boolean selected = false;
 	DefaultListModel<Item> itemListModel = new DefaultListModel<Item>();
-	DefaultListModel<String> actionListModel = new DefaultListModel<String>();
 	DefaultListModel<Unit> possibleUnitListModel = new DefaultListModel<Unit>();
 	DefaultListModel<Unit> userUnitListModel = new DefaultListModel<Unit>();
 	JList<Unit> possibleUnitList = new JList<Unit>(possibleUnitListModel);
@@ -82,7 +81,6 @@ public class GUI extends HumanPlayer {
 	JTabbedPane lowerPane = new JTabbedPane();
 	JTextArea gameInfo = new JTextArea();
 	JList<Item> itemList = new JList<Item>(itemListModel);
-	JList<String> actionList = new JList<String>(actionListModel);
 	JPanel chatPanel = new JPanel();
 	JTextField chatField = new JTextField();
 	JTextArea chatArea = new JTextArea();
@@ -170,46 +168,6 @@ public class GUI extends HumanPlayer {
 		boardPanel.setBackground(Color.cyan);
 
 		itemList.setPreferredSize(new Dimension(384, 80));
-		actionList.addListSelectionListener(new ListSelectionListener() {
-
-			@Override
-			public void valueChanged(ListSelectionEvent e) {
-
-				if (actionList.getSelectedIndex() == -1)
-					return;
-
-				int[] src = { leftClickRow, leftClickCol };
-				int[] dest = { rightClickRow, rightClickCol };
-
-				GameCommand c;
-				switch (actionList.getSelectedValue()) {
-				case "Attack":
-					c = new AttackCommand(src, dest);
-					break;
-				case "Move":
-					c = new MoveCommand(src, dest);
-					break;
-				case "Cancel":
-					c = null;
-					break;
-				default:
-					c = null;
-					break;
-				}
-
-				// System.out.println(game.executeCommand(c));
-				if (c != null)
-					sendCommand(c);
-				// parseAndExecuteCommand(c);
-				selected = false;
-				actionList.setSelectedIndex(-1);
-				actionListModel.removeAllElements();
-				boardPanel.remove(actionList);
-				update();
-
-			}
-
-		});
 
 		gamePanel.setPreferredSize(new Dimension(400, 700));
 		gamePanel.add(boardPanel);
@@ -512,7 +470,6 @@ public class GUI extends HumanPlayer {
 
 		@Override
 		public void mouseExited(MouseEvent arg0) {
-			// TODO Auto-generated method stub
 
 		}
 

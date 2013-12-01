@@ -177,5 +177,19 @@ public class Server implements Runnable {
 				e.printStackTrace();
 			}
 		}
+
+		try {
+			Thread.sleep(3000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		for (ClientHandler handler : gameRooms.get(gameNumber).players)  {
+			System.out.println("gameRoomSize: " + gameRooms.get(gameNumber).players.size());
+			handler.sendCommand(new ClientServerCommand(
+					ClientServerCommandType.SendingGame, null));
+			handler.sendGame(g);
+		}
 	}
 }
