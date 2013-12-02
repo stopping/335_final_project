@@ -50,7 +50,7 @@ public class Server implements Runnable {
 				clientHandle = sockServer.accept();		
 				ClientHandler newClient = new ClientHandler(clientHandle, this);
 				Thread newThread = new Thread(newClient);
-				System.out.println("new player connected");
+				System.out.println("New Socket Opened");
 				newThread.start();		
 			}
 			

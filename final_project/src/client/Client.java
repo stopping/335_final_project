@@ -41,6 +41,7 @@ public class Client implements Runnable {
 			
 			while (true) {
 				Command com = (Command) input.readObject();
+				System.out.println("Client: Object read");
 				
 				if (com instanceof ClientServerCommand) {
 					ClientServerCommand c = (ClientServerCommand)com;

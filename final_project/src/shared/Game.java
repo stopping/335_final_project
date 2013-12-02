@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import commands.*;
-import server.Server;
 import shared.GameSquare.Terrain;
 import unit.Unit;
 
@@ -17,8 +16,8 @@ public class Game implements Serializable {
 	ArrayList<Unit> unitListRed = new ArrayList<Unit>();
 	ArrayList<Unit> unitListBlue = new ArrayList<Unit>();
 	WinCondition victoryCondition;
-	Server server;
 	
+	int winner = -1;
 	int currentPlayer;
 	
 	
@@ -105,13 +104,29 @@ public class Game implements Serializable {
 			for(Unit u : unitListRed) {
 				if(!u.isDead()) allDead = false;
 			}
-			if(allDead) return true;
+			if(allDead) {
+				winner = 1;
+				return true;
+			}
 			
 			allDead = true;
 			for(Unit u : unitListBlue) {
 				if(!u.isDead()) allDead = false;
 			}
-			return allDead;
+			if(allDead) {
+				winner = 0;
+				return true;
+			}
+			
+			return false;
+			
+		case CTF:
+			
+			return false;
+			
+		case Demolition:
+			
+			return false;
 			
 		default:
 			return false;
@@ -273,6 +288,7 @@ public class Game implements Serializable {
 		
 		if(!isTurn(performer)) { return false; }
 		
+		checkWinCondition();
 		// attack returns true if attack was successful false if otherwise
 		// important to note that the unit's attack method now perform the requisite checks
 		return performer.attack(dest[0],dest[1]);
@@ -344,6 +360,14 @@ public class Game implements Serializable {
 			return performer.useItem(toUse);
 		}
 		return false;
+	}
+	
+	public int getWinner() {
+		return winner;
+	}
+	
+	public boolean isWon() {
+		return winner >= 0;
 	}
 	
 }

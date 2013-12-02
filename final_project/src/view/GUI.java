@@ -368,7 +368,7 @@ public class GUI extends HumanPlayer {
 				sendNewUnitCommands();
 
 				sendCommand(new ClientServerCommand(ClientServerCommandType.NewComputerPlayer, new String[] { "2" }));
-				sendCommand(new ClientServerCommand(ClientServerCommandType.StartGame, new String[] { "CTF" }));
+				sendCommand(new ClientServerCommand(ClientServerCommandType.StartGame, new String[] { "Deathmatch" }));
 				showGamePanel();
 			}
 		}
@@ -446,7 +446,7 @@ public class GUI extends HumanPlayer {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			sendCommand(new ClientServerCommand(ClientServerCommandType.StartGame, 
-					new String[] { "CTF"} ));
+					new String[] { "Deathmatch" } ));
 		}
 	}
 	
@@ -677,7 +677,12 @@ public class GUI extends HumanPlayer {
 
 	public void update() {
 		GameSquare gs = game.getBoard()[leftClickRow][leftClickCol];
-		if (gs.hasOccupant()) {
+		if(game.getWinner() != -1) {
+			if(game.isCurrentPlayer(game.getWinner()))
+				gameInfo.setText("You won!");
+			else
+				gameInfo.setText("You lost.");
+		} else if (gs.hasOccupant()) {
 			Occupant o = gs.getOccupant();
 			gameInfo.setText(o.toString());
 			itemListModel.removeAllElements();
@@ -687,9 +692,10 @@ public class GUI extends HumanPlayer {
 					itemListModel.addElement(i);
 				}
 			}
-
-		} else
+		} else {
 			gameInfo.setText("Empty");
+		}
+		
 		boardPanel.repaint();
 	}
 

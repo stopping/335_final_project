@@ -61,7 +61,8 @@ public class ClientHandler implements Runnable {
 			String playerJoining = com.getData().get(0);
 			gameNumber = server.joinGame(playerJoining, this);
 			if (gameNumber == -1)
-				sendCommand(new ClientServerCommand(ClientServerCommandType.IllegalOption, null));
+				sendCommand(new ClientServerCommand(ClientServerCommandType.IllegalOption, 
+						new String[] {"Cannot join game"}));
 			else {
 				server.userSetReady(playerName);
 				opponentName = playerJoining;
@@ -194,21 +195,31 @@ public class ClientHandler implements Runnable {
 	
 	private void resolveGameCommand(GameCommand com) {
 		
-		if (game.isCurrentPlayer(playerNumber)) {
+		if (!game.isWon() && game.isCurrentPlayer(playerNumber)) {
 
 			if (com instanceof EndTurnCommand) {
+				com.executeOn(game);
 				sendCommand(com);
 				playerCommands.add(com);
 				server.updateClients(gameNumber, playerNumber, playerCommands, isplayingComputer);
 				
 			} else  {
-				playerCommands.add(com);
-				sendCommand(com);
-			}
-			if (game.executeCommand((GameCommand)com) == false) {
-				System.out.println("player: " + playerName + " gave illegal option");
-				sendCommand(new ClientServerCommand(ClientServerCommandType.IllegalOption, null));
-				playerCommands.removeLast();
+				
+				if (game.executeCommand((GameCommand)com)) {
+					playerCommands.add(com);
+					sendCommand(com);
+					if(game.isWon() && playerNumber != game.getWinner()) {
+						com = new EndTurnCommand();
+						com.executeOn(game);
+						sendCommand(com);
+						playerCommands.add(com);
+						server.updateClients(gameNumber, playerNumber, playerCommands, isplayingComputer);
+					}
+				} else {
+					//sendCommand(com);
+					System.out.println("player: " + playerName + " gave illegal option");
+					sendCommand(new ClientServerCommand(ClientServerCommandType.IllegalOption, new String[] {"Bad game command"}));
+				}
 			}
 		}
 	}

@@ -28,6 +28,7 @@ public class ClientServerCommand extends Command {
 		NewComputerPlayer,
 		Ready,
 		StartGame,
+		GameOver,
 		ModifyUnit,
 		IllegalOption,
 		SendingGame,

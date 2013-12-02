@@ -336,7 +336,7 @@ public class ComputerPlayer implements Player, Runnable {
 		try {
 			while (true) {
 				com = (Command) input.readObject();			
-				System.out.println("Object read");
+				System.out.println("Computer Player: Object read");
 				
 				if (com instanceof ClientServerCommand) {
 					ClientServerCommand c = (ClientServerCommand)com;
