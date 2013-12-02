@@ -20,9 +20,12 @@ public class UserDatabase {
 		savedGames = new HashMap<String, Game>();
 	}
 	
-	public void addUser(String name, String password) {
+	public boolean addUser(String name, String password) {
+		if (database.containsKey(name))
+			return false;
 		database.put(name, new UserAccount());
 		loginAndPassword.put(name, password);
+		return true;
 	}
 	
 	public ArrayList<Unit> getUnits(String name) {

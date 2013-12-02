@@ -59,12 +59,25 @@ public class Server implements Runnable {
 		}
 	}
 		
-	public void joinGame(int gameNumber, ClientHandler c) {
-		gameRooms.get(gameNumber).addPlayer(c);
+	public int joinGame(String player, ClientHandler c) {
+		for (int i=0 ; i<gameRooms.size() ; i++)
+			if (gameRooms.get(i).waitingForOpponent())
+				if (gameRooms.get(i).players.get(0).playerName.equals(player)) {
+					gameRooms.get(i).addPlayer(c);
+					System.out.println("joining game with " + player);
+					gameRooms.get(i).players.get(0).sendCommand(
+							new ClientServerCommand(ClientServerCommandType.StartGame, null));
+					gameRooms.get(i).players.get(1).sendCommand(
+							new ClientServerCommand(ClientServerCommandType.StartGame, null));
+					return i;
+				}
+		return -1;
 	}
 	
 	public boolean processUser(String name, String password) {
 		if (!database.isValidUser(name, password)) 
+			return false;
+		else if (database.getUser(name).isLoggedOn())
 			return false;
 		else {
 			database.getUser(name).setLoggedOn(true);
@@ -72,8 +85,13 @@ public class Server implements Runnable {
 		}
 	}
 	
-	public void newUser(String name, String password) {
-		database.addUser(name, password);
+	public void logoutUser(String name) {
+		if (database.getUser(name).isLoggedOn())
+			database.getUser(name).setLoggedOn(false);
+	}
+	
+	public boolean newUser(String name, String password) {
+		return database.addUser(name, password);
 	}
 	
 	public int numGameRooms() {
@@ -84,6 +102,18 @@ public class Server implements Runnable {
 		GameRoom g = new GameRoom();
 		g.addPlayer(c);
 		gameRooms.add(g);
+	}
+	
+	public String[] getUnitInfo(String player) {
+		String ret[] = new String[10];
+		ArrayList<Unit> units = database.getUnits(player);
+		int i = 0;
+		for (Unit u: units) {
+			ret[i] = u.getName();
+			ret[i+1] = u.toString();
+			i+=2;
+		}
+		return ret;
 	}
 	
 	public void playerForfeit(int game, ClientHandler c) {
@@ -142,10 +172,30 @@ public class Server implements Runnable {
 	}
 	
 	// starts a new ComputerPlayer in its own thread
-	public void addComputerPlayer(int gameNumber, int computerPlayerLevel) {
-		ComputerPlayer p = new ComputerPlayer(gameNumber, computerPlayerLevel);
+	public void addComputerPlayer(String player, int computerPlayerLevel) {
+		ComputerPlayer p = new ComputerPlayer(player, computerPlayerLevel);
 		Thread t = new Thread(p);
 		t.start();
+	}
+	
+	public String[] getOpenGameRooms() {
+		String ret[] = new String[gameRooms.size()];
+		int index = 0;
+		for (GameRoom g : gameRooms)
+			if (g.waitingForOpponent()) {
+				ret[index] = g.players.get(0).playerName;
+				index++;
+			}
+		return ret;
+	}
+	
+	public void updateClientGameRoomStatus() {
+		for (GameRoom g : gameRooms)
+			for (ClientHandler handler : g.players)  {
+				handler.sendCommand(new ClientServerCommand(
+						ClientServerCommandType.OpenGameRooms, getOpenGameRooms()));
+			}
+			
 	}
 	
 	// send the opponent commands in FIFO. if playing the AI, passes him his turn
@@ -163,13 +213,13 @@ public class Server implements Runnable {
 	}
 	
 	// send the clients the starting game
-	public void sendNewGame(Game g, int gameNumber, int computerPlayerLevel) {	
+	public void sendNewGame(Game g, int gameNumber, String player, int computerPlayerLevel) {	
 		System.out.println("gameRoomSize: " + gameRooms.get(gameNumber).players.size());
 		System.out.println("Sending game to gameRoom: " + gameNumber);
 		
 		// wait until the room is full -- This is a hasty avoidance of possibly a race condition
 		if (!gameRooms.get(gameNumber).isFull()) {
-			addComputerPlayer(gameNumber, computerPlayerLevel);
+			addComputerPlayer(player, computerPlayerLevel);
 			try {
 				Thread.sleep(500);
 			} catch (InterruptedException e) {

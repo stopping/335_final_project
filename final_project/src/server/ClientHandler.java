@@ -59,11 +59,16 @@ public class ClientHandler implements Runnable {
 		
 		case JoinGame:
 			String playerJoining = com.getData().get(0);
-			int gameRoom = Integer.parseInt(com.getData().get(1));
-			server.joinGame(gameRoom, this);
-			gameNumber = gameRoom;
-			opponentName = playerJoining;
-			playerNumber = 1;
+			gameNumber = server.joinGame(playerJoining, this);
+			if (gameNumber == -1)
+				sendCommand(new ClientServerCommand(ClientServerCommandType.IllegalOption, null));
+			else {
+				server.userSetReady(playerName);
+				opponentName = playerJoining;
+				playerNumber = 1;
+				server.updateClientGameRoomStatus();
+			}
+			
 			break;
 			
 		case Login:
@@ -76,23 +81,24 @@ public class ClientHandler implements Runnable {
 				break;
 			}
 			sendCommand(new ClientServerCommand(ClientServerCommandType.ValidLogin, null));
+			//sendCommand(new ClientServerCommand(ClientServerCommandType.UnitInfo, server.getUnitInfo(playerName)));
 			playerName = name;
 			break;
 			
 		case Logout:
 			System.out.println("logging out " + playerName);
+			server.logoutUser(playerName);
 			disconnect();
 			break;
 			
 		case NewComputerPlayer:
 			computerPlayerLevel = Integer.parseInt(com.getData().get(0));
 			isplayingComputer = true;
-			server.addComputerPlayer(gameNumber, computerPlayerLevel);
+			server.addComputerPlayer(playerName, computerPlayerLevel);
 			break;
 			
 		case ComputerPlayerJoin:
-			gameNumber = Integer.parseInt(com.getData().get(0));
-			server.joinGame(gameNumber, this);
+			gameNumber = server.joinGame(com.getData().get(0), this);
 			playerNumber = 1;
 			playerName = "Computer";
 			break;
@@ -109,6 +115,8 @@ public class ClientHandler implements Runnable {
 		case NewGame:
 			this.gameNumber = server.numGameRooms();
 			server.requestNewGameRoom(this);
+			server.userSetReady(playerName);
+			server.updateClientGameRoomStatus();
 			break;
 			
 		case NewUnit:
@@ -120,8 +128,14 @@ public class ClientHandler implements Runnable {
 		case NewUser:
 			String nm =com.getData().get(0);
 			String pw = com.getData().get(1);
-			server.newUser(nm, pw);
-			playerName = nm;
+			if (!server.newUser(nm, pw))
+				sendCommand(new ClientServerCommand(ClientServerCommandType.IllegalOption, 
+						new String[] {"Usename taken!"}));
+			else {
+				server.processUser(nm, pw);
+				sendCommand(new ClientServerCommand(ClientServerCommandType.ValidLogin, null));
+				playerName = nm;
+			}
 			break;
 			
 		case Message:
@@ -147,7 +161,7 @@ public class ClientHandler implements Runnable {
 			if (isplayingComputer) {
 				ArrayList<Unit> userUnits = server.getUserUnits(playerName);
 				game = new Game(userUnits, ComputerPlayer.generateAIUnits(computerPlayerLevel), condition);
-				server.sendNewGame(game, gameNumber, computerPlayerLevel);
+				server.sendNewGame(game, gameNumber, playerName, computerPlayerLevel);
 			}
 			
 			else if (server.playersAreReady(playerName, opponentName)) {
@@ -155,7 +169,7 @@ public class ClientHandler implements Runnable {
 				ArrayList<Unit> player2Units = server.getUserUnits(opponentName);
 
 				game = new Game(player1Units, player2Units, condition);
-				server.sendNewGame(game, gameNumber, computerPlayerLevel);
+				server.sendNewGame(game, gameNumber, playerName, computerPlayerLevel);
 			}
 			break;
 			
@@ -166,6 +180,11 @@ public class ClientHandler implements Runnable {
 			server.saveGameSession(playerName, game);
 			System.out.println("saved session for " + playerName);
 			disconnect();
+			break;
+			
+		case OpenGameRooms:
+			sendCommand(new ClientServerCommand(ClientServerCommandType.OpenGameRooms,
+					server.getOpenGameRooms()));
 			break;
 			
 		default:

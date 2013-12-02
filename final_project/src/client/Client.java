@@ -57,8 +57,13 @@ public class Client implements Runnable {
 						case SendingGame:
 							Game g = (Game) input.readObject();
 							System.out.println("Game received");
+							player.showGamePanel();
 							player.setGame(g);
 							player.update();
+							break;
+							
+						case StartGame:
+							player.setStartGameAvail();
 							break;
 							
 						case Message:
@@ -69,6 +74,14 @@ public class Client implements Runnable {
 							g = (Game) input.readObject();
 							player.setGame(g);
 							player.update();
+							break;
+							
+						case OpenGameRooms:
+							player.updateAvailGameRooms(((ClientServerCommand) com).getData());
+							break;
+							
+						case UnitInfo:
+							//player.updateUnitInfo(((ClientServerCommand) com).getData());
 							break;
 
 					default:

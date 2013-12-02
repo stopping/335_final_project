@@ -38,4 +38,8 @@ public class GameRoom {
 	public boolean isFull() {
 		return players.size() == Server.MAX_PLAYERS ? true : false;
 	}	
+	
+	public boolean waitingForOpponent() {
+		return players.size() == 1;
+	}
 }

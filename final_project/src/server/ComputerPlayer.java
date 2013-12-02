@@ -25,7 +25,7 @@ public class ComputerPlayer implements Player, Runnable {
 	private int difficulty;
 	private List<Unit> units;
 
-	public ComputerPlayer(int gameNumber, int difficultyLevel) {
+	public ComputerPlayer(String opponent, int difficultyLevel) {
 		System.out.println("Computer player created");
 		Socket sock = null;
 		this.difficulty = difficultyLevel;
@@ -35,7 +35,7 @@ public class ComputerPlayer implements Player, Runnable {
 			this.input = new ObjectInputStream(sock.getInputStream());
 			output.writeObject(new ClientServerCommand(
 					ClientServerCommandType.ComputerPlayerJoin, 
-					new String[] {String.valueOf(gameNumber)}));
+					new String[] {opponent}));
 			
 		} catch (Exception e) {
 	      e.printStackTrace();
@@ -375,5 +375,33 @@ public class ComputerPlayer implements Player, Runnable {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+
+	@Override
+	public void receiveMessage(ClientServerCommand com) {
+	}
+
+	@Override
+	public void failLogin(ClientServerCommand com) {
+	}
+
+	@Override
+	public void login() {
+	}
+
+	@Override
+	public void updateAvailGameRooms(ArrayList<String> names) {
+	}
+
+	@Override
+	public void setStartGameAvail() {
+	}
+
+	@Override
+	public void showGamePanel() {
+	}
+
+	@Override
+	public void updateUnitInfo(ArrayList<String> info) {
 	}
 }

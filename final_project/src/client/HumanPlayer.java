@@ -1,5 +1,7 @@
 package client;
 
+import java.util.ArrayList;
+
 import commands.*;
 
 import shared.Game;
@@ -39,17 +41,26 @@ public class HumanPlayer implements Player {
 	public void sendCommand(Command com) {
 		client.sendCommand(com);
 	}
-	
-	public void receiveMessage(ClientServerCommand com) {
-		// to be over written by GUI
-	}
-	
-	public void failLogin(ClientServerCommand com) {
-		// to be over written by GUI sounds like an abstract method/class to me
-	}
-	
-	public void login() {
-		// to be over written by GUI sounds like an abstract method/class to me
 
-	}
+	@Override
+	public void receiveMessage(ClientServerCommand com) {}
+
+	@Override
+	public void failLogin(ClientServerCommand com) {}
+
+	@Override
+	public void login() {}
+
+	@Override
+	public void updateAvailGameRooms(ArrayList<String> names) {}
+
+	@Override
+	public void setStartGameAvail() {}
+
+	@Override
+	public void showGamePanel() {}
+
+	@Override
+	public void updateUnitInfo(ArrayList<String> info) {}
+
 }

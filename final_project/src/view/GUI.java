@@ -20,6 +20,7 @@ import java.awt.event.WindowEvent;
 import java.awt.geom.Rectangle2D;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.imageio.ImageIO;
@@ -104,6 +105,15 @@ public class GUI extends HumanPlayer {
 	JButton loginButton = new JButton("Login");
 	JPanel logisticsPanel = new JPanel();
 	JPanel loginButtonPanel = new JPanel();
+	
+	JButton gameRoomLobbyButton = new JButton("Go To Lobby");
+	JPanel gameRoomLobbyPanel = new JPanel();
+	DefaultListModel<String> gameRoomModel = new DefaultListModel<String>();
+	JList<String> gameRoomLobby = new JList<String>(gameRoomModel);
+	JButton newGameRoomButton = new JButton("New GameRoom");
+	JLabel gameRoomLobbyLabel = new JLabel("Open GameRooms");
+	JButton joinGameRoomButton = new JButton("Join");
+	JButton startGameButton = new JButton("Start Game!");
 
 	JButton endTurnButton = new JButton("End Turn");
 	JButton useItemButton = new JButton("Use Item");
@@ -120,37 +130,10 @@ public class GUI extends HumanPlayer {
 	public static String baseDir = System.getProperty("user.dir")
 			+ System.getProperty("file.separator");
 
-	public static final String GUI_OBJ_LOC = baseDir + "GUI.object";
-
 	public GUI() {
 
 		super();
-		// sendCommand(new ClientServerCommand(ClientServerCommandType.Login,
-		// new String[] {"Username","password"}));
-		// sendCommand(new
-		// ClientServerCommand(ClientServerCommandType.ResumeSession, null));
-
-		// sendCommand(new ClientServerCommand(ClientServerCommandType.NewUser,
-		// new String[] {"Username","password"}));
-		// sendCommand(new ClientServerCommand(ClientServerCommandType.NewGame,
-		// null));
-		// sendCommand(new ClientServerCommand(ClientServerCommandType.NewUnit,
-		// new String[] {"Alice", "Rocket"}));
-		// sendCommand(new ClientServerCommand(ClientServerCommandType.NewUnit,
-		// new String[] {"Bob", "Melee"}));
-		// sendCommand(new ClientServerCommand(ClientServerCommandType.NewUnit,
-		// new String[] {"Charles", "Melee"}));
-		// sendCommand(new ClientServerCommand(ClientServerCommandType.NewUnit,
-		// new String[] {"Dan", "Melee"}));
-		// sendCommand(new ClientServerCommand(ClientServerCommandType.NewUnit,
-		// new String[] {"Eric", "Melee"}));
-		// sendCommand(new
-		// ClientServerCommand(ClientServerCommandType.NewComputerPlayer, new
-		// String[] {"1"}));
-		// sendCommand(new
-		// ClientServerCommand(ClientServerCommandType.StartGame, new String[]
-		// {"CTF"}));
-		//
+		
 		try {
 			sprites = ImageIO.read(new File("Sprites2.png"));
 		} catch (IOException e) {
@@ -183,7 +166,8 @@ public class GUI extends HumanPlayer {
 		gamePanel.add(useItemButton);
 
 		// login panel
-		newAccountButton.addActionListener(new AccountPanelListener());
+		//newAccountButton.addActionListener(new AccountPanelListener());
+		newAccountButton.addActionListener(new CreateAccountListener());
 		failedLoginPanel.add(tryNewUser);
 		failedLoginPanel.add(newAccountButton);
 		loginButton.addActionListener(new LoginListener());
@@ -310,6 +294,9 @@ public class GUI extends HumanPlayer {
 		
 		chatScrollPane.getVerticalScrollBar().addAdjustmentListener(new ScrollBarListener());
 		chatField.addKeyListener(new ChatFieldListener());
+		newGameRoomButton.addActionListener(new NewGameRoomListener());
+		joinGameRoomButton.addActionListener(new JoinGameRoomListener());
+		startGameButton.addActionListener(new StartGameListener());
 		mainFrame.addWindowListener(new WindowClosingListener());
 	}
 	public void login() {
@@ -345,41 +332,44 @@ public class GUI extends HumanPlayer {
 		}
 
 	}
+	
+	private void sendNewUnitCommands() {
+		ClientServerCommand com = null;
+		for (int i = 0; i < userUnitListModel.getSize(); i++) {
+			if (userUnitListModel.get(i) instanceof MeleeUnit) {
+				com = new ClientServerCommand(ClientServerCommandType.NewUnit, new String[] {"Unit " + i, "Melee" });
+			}
+			if (userUnitListModel.get(i) instanceof RocketUnit) {
+				com = new ClientServerCommand(ClientServerCommandType.NewUnit, new String[] {"Unit " + i, "Rocket" });
+			}
+			if (userUnitListModel.get(i) instanceof SoldierUnit) {
+				com = new ClientServerCommand(ClientServerCommandType.NewUnit, new String[] {"Unit " + i, "Soldier" });
+			}
+			if (userUnitListModel.get(i) instanceof DemolitionUnit) {
+				com = new ClientServerCommand(ClientServerCommandType.NewUnit, new String[] {"Unit " + i, "Demolition" });
+			}
+			if (userUnitListModel.get(i) instanceof EngineerUnit) {
+				com = new ClientServerCommand(ClientServerCommandType.NewUnit, new String[] {"Unit " + i, "Engineer" });
+			}
+			
+			sendCommand(com);
+		}
+	}
 
 	public class BeginAIGameListener implements ActionListener {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			if (userUnitListModel.getSize() == 5) {
-				ClientServerCommand com = null;
-
+				
 				sendCommand(new ClientServerCommand(
 						ClientServerCommandType.NewGame, null));
+				
+				sendNewUnitCommands();
 
-				for (int i = 0; i < userUnitListModel.getSize(); i++) {
-					if (userUnitListModel.get(i) instanceof MeleeUnit) {
-						com = new ClientServerCommand(ClientServerCommandType.NewUnit, new String[] {"Unit " + i, "Melee" });
-					}
-					if (userUnitListModel.get(i) instanceof RocketUnit) {
-						com = new ClientServerCommand(ClientServerCommandType.NewUnit, new String[] {"Unit " + i, "Rocket" });
-					}
-					if (userUnitListModel.get(i) instanceof SoldierUnit) {
-						com = new ClientServerCommand(ClientServerCommandType.NewUnit, new String[] {"Unit " + i, "Soldier" });
-					}
-					if (userUnitListModel.get(i) instanceof DemolitionUnit) {
-						com = new ClientServerCommand(ClientServerCommandType.NewUnit, new String[] {"Unit " + i, "Demolition" });
-					}
-					if (userUnitListModel.get(i) instanceof EngineerUnit) {
-						com = new ClientServerCommand(ClientServerCommandType.NewUnit, new String[] {"Unit " + i, "Engineer" });
-					}
-					
-					sendCommand(com);
-				}
-				sendCommand(new ClientServerCommand(ClientServerCommandType.NewComputerPlayer, new String[] { "3" }));
+				sendCommand(new ClientServerCommand(ClientServerCommandType.NewComputerPlayer, new String[] { "2" }));
 				sendCommand(new ClientServerCommand(ClientServerCommandType.StartGame, new String[] { "CTF" }));
-				mainPanel.removeAll();
-				mainPanel.add(gamePanel);
-				mainFrame.repaint();
+				showGamePanel();
 			}
 		}
 
@@ -399,13 +389,9 @@ public class GUI extends HumanPlayer {
 		removeUnitButton.addActionListener(new RemoveUnitListener());
 
 		JPanel possibleUnitsPanel = new JPanel();
-		// possibleUnitsPanel.setLayout(new BoxLayout(possibleUnitsPanel,
-		// BoxLayout.Y_AXIS));
 		possibleUnitsPanel.setPreferredSize(new Dimension(200, 500));
 
 		JPanel addUnitsPanel = new JPanel();
-		// addUnitsPanel.setLayout(new BoxLayout(addUnitsPanel,
-		// BoxLayout.Y_AXIS));
 		addUnitsPanel.setPreferredSize(new Dimension(200, 500));
 
 		JLabel possibleUnits = new JLabel("Select from here");
@@ -426,6 +412,8 @@ public class GUI extends HumanPlayer {
 
 		setUpUnitLists();
 		aiGamePanel.add(aiGameButton);
+		gameRoomLobbyButton.addActionListener((new GameRoomLobbyListener()));
+		aiGamePanel.add(gameRoomLobbyButton);
 		lobbyPanel.add(aiGamePanel, BorderLayout.SOUTH);
 		lobbyPanel.add(selectUnitsPanel, BorderLayout.CENTER);
 		mainPanel.removeAll();
@@ -435,18 +423,60 @@ public class GUI extends HumanPlayer {
 
 	}
 
-	private void setUpNewAccountPanel() {
-		// new account panel stuff
-		usernameHere.setText("New username");
-		passwordHere.setText("New password");
-		accountPanel.setPreferredSize(new Dimension(250, 200));
-		accountPanel.add(usernameHere);
-		accountPanel.add(username);
-		accountPanel.add(passwordHere);
-		accountPanel.add(password);
-		accountPanel.add(createButton);
-		createButton.addActionListener(new CreateAccountListener());
-		mainPanel.add(accountPanel);
+//	private void setUpNewAccountPanel() {
+//		// new account panel stuff
+//		usernameHere.setText("New username");
+//		passwordHere.setText("New password");
+//		accountPanel.setPreferredSize(new Dimension(250, 200));
+//		accountPanel.add(usernameHere);
+//		accountPanel.add(username);
+//		accountPanel.add(passwordHere);
+//		accountPanel.add(password);
+//		accountPanel.add(createButton);
+//		createButton.addActionListener(new CreateAccountListener());
+//		mainPanel.add(accountPanel);
+//	}
+	
+	public void setStartGameAvail() {
+		gameRoomLobbyPanel.add(startGameButton);
+	}
+	
+	private class StartGameListener implements ActionListener {
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			sendCommand(new ClientServerCommand(ClientServerCommandType.StartGame, 
+					new String[] { "CTF"} ));
+		}
+	}
+	
+	private class JoinGameRoomListener implements ActionListener {
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			if (gameRoomLobby.getSelectedValue() != null)
+				sendCommand(new ClientServerCommand(ClientServerCommandType.JoinGame,
+						new String[] {gameRoomLobby.getSelectedValue()}));
+		}
+	}
+	
+	private class NewGameRoomListener implements ActionListener {
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			sendCommand(new ClientServerCommand(ClientServerCommandType.NewGame, null));
+		}
+	}
+	
+	private void setupGameRoomLobby() {
+		gameRoomLobbyPanel.setPreferredSize(new Dimension(125, 250));
+		gameRoomLobbyPanel.add(newGameRoomButton, BorderLayout.NORTH);
+		gameRoomLobbyPanel.add(gameRoomLobbyLabel, BorderLayout.CENTER);
+		gameRoomLobbyPanel.add(gameRoomLobby, BorderLayout.CENTER);
+		gameRoomLobbyPanel.add(joinGameRoomButton, BorderLayout.SOUTH);
+		mainPanel.add(gameRoomLobbyPanel);
+		mainFrame.repaint();
+		mainFrame.revalidate();
 	}
 
 	public static void main(String[] args) {
@@ -509,6 +539,31 @@ public class GUI extends HumanPlayer {
 		}
 
 	}
+	
+	@Override
+	public void updateAvailGameRooms(ArrayList<String> names) {
+		for (String n : names) {
+			gameRoomModel.addElement(n);
+		}
+		gameRoomLobbyPanel.repaint();
+		gameRoomLobbyPanel.revalidate();
+		gameRoomLobbyPanel.updateUI();
+	}
+	
+	private class GameRoomLobbyListener implements ActionListener {
+		@Override
+		public void actionPerformed(ActionEvent arg0) {
+			if (userUnitListModel.getSize() == 5) {							
+				sendNewUnitCommands();
+				sendCommand(new ClientServerCommand(ClientServerCommandType.OpenGameRooms, null));
+				
+				mainPanel.removeAll();
+				setupGameRoomLobby();
+				mainFrame.repaint();
+				mainFrame.revalidate();
+			}
+		}
+	}
 
 	private class CreateAccountListener implements ActionListener {
 
@@ -523,22 +578,23 @@ public class GUI extends HumanPlayer {
 					ClientServerCommandType.NewUser, new String[] {
 							username.getText(), password });
 			sendCommand(com);
-			setUpLobbyPanel();
+			//setUpLobbyPanel();
 		}
 
 	}
 
-	private class AccountPanelListener implements ActionListener {
-
-		@Override
-		public void actionPerformed(ActionEvent arg0) {
-			mainPanel.removeAll();
-			setUpNewAccountPanel();
-			mainFrame.repaint();
-			mainFrame.revalidate();
-		}
-
-	}
+//	private class AccountPanelListener implements ActionListener {
+//
+//		@Override
+//		public void actionPerformed(ActionEvent arg0) {
+//			
+//			mainPanel.removeAll();
+//			setUpNewAccountPanel();
+//			mainFrame.repaint();
+//			mainFrame.revalidate();
+//		}
+//
+//	}
 
 	private class LoginListener implements ActionListener {
 
@@ -611,6 +667,12 @@ public class GUI extends HumanPlayer {
 
 		public void keyTyped(KeyEvent e) {
 		}
+	}
+	
+	public void showGamePanel() {
+		mainPanel.removeAll();
+		mainPanel.add(gamePanel);
+		mainFrame.repaint();
 	}
 
 	public void update() {
