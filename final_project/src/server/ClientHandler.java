@@ -64,7 +64,7 @@ public class ClientHandler implements Runnable {
 				sendCommand(new ClientServerCommand(ClientServerCommandType.IllegalOption, 
 						new String[] {"Cannot join game"}));
 			else {
-				server.userSetReady(playerName);
+				server.userSetReady(playerName);			// should be set independently
 				opponentName = playerJoining;
 				playerNumber = 1;
 				server.updateClientGameRoomStatus();
@@ -88,6 +88,12 @@ public class ClientHandler implements Runnable {
 			
 		case Logout:
 			System.out.println("logging out " + playerName);
+			server.logoutUser(playerName);
+			//disconnect();
+			break;
+			
+		case ClientExit:
+			System.out.println("killing client handler for  " + playerName);
 			server.logoutUser(playerName);
 			disconnect();
 			break;
@@ -116,7 +122,7 @@ public class ClientHandler implements Runnable {
 		case NewGame:
 			this.gameNumber = server.numGameRooms();
 			server.requestNewGameRoom(this);
-			server.userSetReady(playerName);
+			server.userSetReady(playerName);				// should be set independently
 			server.updateClientGameRoomStatus();
 			break;
 			
@@ -149,6 +155,9 @@ public class ClientHandler implements Runnable {
 			
 		case Ready:
 			server.userSetReady(playerName);
+			if (server.playersAreReady(playerName, opponentName)) {
+				server.sendCanStartGame(gameNumber);
+			}
 			break;
 			
 		case ResumeSession:

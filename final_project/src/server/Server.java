@@ -130,6 +130,14 @@ public class Server implements Runnable {
 		return database.getUnits(player);
 	}
 	
+	public void sendCanStartGame(int gameNumber) {
+		for (ClientHandler handler : gameRooms.get(gameNumber).players)  {
+			System.out.println("gameRoomSize: " + gameRooms.get(gameNumber).players.size());
+			handler.sendCommand(new ClientServerCommand(
+					ClientServerCommandType.StartGame, null));
+		}
+	}
+	
 	public boolean playersAreReady(String p1, String p2) {
 		return database.getUser(p1).isReady() &&
 		database.getUser(p2).isReady();

@@ -39,7 +39,8 @@ public class ClientServerCommand extends Command {
 		ResumeSession,
 		Logout,
 		OpenGameRooms,
-		UnitInfo
+		UnitInfo,
+		ClientExit
 	}
 	
 	public ArrayList<String> getData() {

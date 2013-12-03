@@ -28,6 +28,7 @@ import javax.swing.AbstractAction;
 import javax.swing.BoundedRangeModel;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
@@ -62,7 +63,7 @@ import commands.MoveCommand;
 import commands.UseAbilityCommand;
 import commands.UseItemCommand;
 
-public class GUI extends HumanPlayer {
+public class GUI_alt extends HumanPlayer {
 
 	boolean selected = false;
 	DefaultListModel<Item> itemListModel = new DefaultListModel<Item>();
@@ -83,6 +84,17 @@ public class GUI extends HumanPlayer {
 	JTextField chatField = new JTextField();
 	JTextArea chatArea = new JTextArea();
 	JScrollPane chatScrollPane = new JScrollPane(chatArea);
+	
+	JPanel mainOptionsPanel = new JPanel();
+	JButton multiplayerButton = new JButton("Multiplayer");
+	JButton singleplayerButton = new JButton("Singleplayer");
+	JButton resumeSessionButton = new JButton("ResumeSession");
+	JButton accountInfoButton = new JButton("Account Info");
+	JButton logoutButton = new JButton("Logout");
+	JPanel loadoutPanel = new JPanel();
+	String gameTypes[] = new String[] { "DeathMatch", "Demolition", "CTF"};
+	JComboBox<String> gameTypeComboBox = new JComboBox<String>(gameTypes);
+	JPanel startGameButs = new JPanel();
 	
 	JPopupMenu actionMenu = new JPopupMenu("Action");
 	JMenuItem moveItem = new JMenuItem("Move");
@@ -130,7 +142,7 @@ public class GUI extends HumanPlayer {
 	public static String baseDir = System.getProperty("user.dir")
 			+ System.getProperty("file.separator");
 
-	public GUI() {
+	public GUI_alt() {
 
 		super();
 		
@@ -166,7 +178,6 @@ public class GUI extends HumanPlayer {
 		gamePanel.add(useItemButton);
 
 		// login panel
-		//newAccountButton.addActionListener(new AccountPanelListener());
 		newAccountButton.addActionListener(new CreateAccountListener());
 		failedLoginPanel.add(tryNewUser);
 		failedLoginPanel.add(newAccountButton);
@@ -187,13 +198,15 @@ public class GUI extends HumanPlayer {
 
 		mainFrame.setResizable(false);
 		mainFrame.add(mainPanel);
-		mainFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+		mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		mainFrame.setSize(800, 800);
 		mainFrame.setVisible(true);
-		
-		
-	
+
 		setListeners();
+	}
+	
+	public static void main(String[] args) {
+		new GUI_alt();
 	}
 
 	@SuppressWarnings("serial")
@@ -294,15 +307,171 @@ public class GUI extends HumanPlayer {
 		
 		chatScrollPane.getVerticalScrollBar().addAdjustmentListener(new ScrollBarListener());
 		chatField.addKeyListener(new ChatFieldListener());
-		newGameRoomButton.addActionListener(new NewGameRoomListener());
-		joinGameRoomButton.addActionListener(new JoinGameRoomListener());
-		startGameButton.addActionListener(new StartGameListener());
-		mainFrame.addWindowListener(new WindowClosingListener());
+		//mainFrame.addWindowListener(new WindowClosingListener());
 	}
+	
 	public void login() {
-		setUpLobbyPanel();
+		setuploadoutPanel();
+		setupGameRoomLobby();
+		setupMainOptionsPanel();
 	}
+	
+	public void failLogin(ClientServerCommand com) {
+		String msg = com.getData().get(0);
+		tryNewUser.setText(msg + "\n");
+		tryNewUser.append("New user? Make a new account");
+	}
+	
+	private void setuploadoutPanel() {
+		JButton addUnitButton = new JButton("Add selected unit");
+		JButton removeUnitButton = new JButton("Remove selected unit");
+		JPanel selectUnitsPanel = new JPanel();
 
+		loadoutPanel.setLayout(new BorderLayout());
+
+		addUnitButton.addActionListener(new AddUnitListener());
+		removeUnitButton.addActionListener(new RemoveUnitListener());
+
+		JPanel possibleUnitsPanel = new JPanel();
+		possibleUnitsPanel.setPreferredSize(new Dimension(200, 500));
+
+		JPanel addUnitsPanel = new JPanel();
+		addUnitsPanel.setPreferredSize(new Dimension(200, 500));
+
+		JLabel possibleUnits = new JLabel("Select from here");
+		JLabel yourUnits = new JLabel("Your current units");
+
+		possibleUnitsPanel.add(possibleUnits);
+		possibleUnitsPanel.add(possibleUnitList);
+		possibleUnitsPanel.add(addUnitButton);
+
+		addUnitsPanel.add(yourUnits);
+		addUnitsPanel.add(userUnitList);
+		addUnitsPanel.add(removeUnitButton);
+
+		selectUnitsPanel.setPreferredSize(new Dimension(600, 600));
+		selectUnitsPanel.add(possibleUnitsPanel);
+		selectUnitsPanel.add(addUnitsPanel);
+
+		setUpUnitLists();
+		loadoutPanel.add(selectUnitsPanel, BorderLayout.CENTER);
+		JButton readyButton = new JButton("Ready");
+		startGameButs.add(readyButton);
+		loadoutPanel.add(startGameButs, BorderLayout.SOUTH);
+		
+		readyButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if (userUnitListModel.getSize() == 5) {
+					sendNewUnitCommands();
+					sendCommand(new ClientServerCommand(ClientServerCommandType.Ready, null));
+					userUnitList.setEnabled(false);
+				}
+			}	
+		});
+		
+		startGameButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if (userUnitListModel.getSize() == 5) {
+					sendCommand(new ClientServerCommand(ClientServerCommandType.StartGame, new String[] { "Deathmatch" } ));
+				}
+			}	
+		});
+	}
+	
+	private void setupGameRoomLobby() {
+		gameRoomLobbyPanel.setPreferredSize(new Dimension(300, 450));
+		gameRoomLobbyPanel.add(newGameRoomButton, BorderLayout.NORTH);
+		gameRoomLobbyPanel.add(gameTypeComboBox);
+		gameRoomLobbyPanel.add(gameRoomLobbyLabel, BorderLayout.CENTER);
+		gameRoomLobbyPanel.add(gameRoomLobby);
+		gameRoomLobbyPanel.add(joinGameRoomButton, BorderLayout.SOUTH);
+		
+		newGameRoomButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				String gameType = (String) gameTypeComboBox.getSelectedItem();
+				sendCommand(new ClientServerCommand(ClientServerCommandType.NewGame, new String[] {gameType}));
+				mainPanel.removeAll();
+				mainPanel.add(loadoutPanel);
+				mainFrame.repaint();
+				mainFrame.revalidate();
+			}
+		});
+		
+		joinGameRoomButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if (gameRoomLobby.getSelectedValue() != null)
+					sendCommand(new ClientServerCommand(ClientServerCommandType.JoinGame,
+							new String[] {gameRoomLobby.getSelectedValue()}));
+				mainPanel.removeAll();
+				mainPanel.add(loadoutPanel);
+				mainFrame.repaint();
+				mainFrame.revalidate();
+			}
+		});
+	}
+	
+	private void setupMainOptionsPanel() {
+		mainOptionsPanel.setLayout(new GridLayout(5, 1));
+		mainOptionsPanel.add(singleplayerButton);
+		mainOptionsPanel.add(multiplayerButton);
+		mainOptionsPanel.add(resumeSessionButton);
+		mainOptionsPanel.add(accountInfoButton);
+		mainOptionsPanel.add(logoutButton);
+		
+		singleplayerButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				sendCommand(new ClientServerCommand(ClientServerCommandType.NewGame, new String[] {"singleplayer" }));
+				sendCommand(new ClientServerCommand(ClientServerCommandType.NewComputerPlayer, new String[] { "3" }));
+				mainPanel.removeAll();
+				mainPanel.add(loadoutPanel);
+				mainFrame.repaint();
+				mainFrame.revalidate();
+			}
+		});
+		
+		multiplayerButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				sendCommand(new ClientServerCommand(ClientServerCommandType.OpenGameRooms, null));
+				mainPanel.removeAll();
+				mainPanel.add(gameRoomLobbyPanel);
+				mainFrame.repaint();
+				mainFrame.revalidate();
+				sendCommand(new ClientServerCommand(ClientServerCommandType.OpenGameRooms, null));
+			}
+		});
+		
+		/*resumeSessionButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				// send command to request resume session
+			}
+		});*/
+		
+		 /* accountInfoButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				mainPanel.removeAll();
+				mainPanel.add(accountInfoPanel);
+				mainFrame.repaint();
+				mainFrame.revalidate();
+			}
+		}); */
+		
+		logoutButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				sendCommand(new ClientServerCommand(
+						ClientServerCommandType.Logout, null));
+				mainPanel.removeAll();
+				mainPanel.add(logisticsPanel);
+				mainFrame.repaint();
+				mainFrame.revalidate();
+			}
+		});
+		
+		mainPanel.removeAll();
+		mainPanel.add(mainOptionsPanel);
+		mainFrame.repaint();
+		mainFrame.revalidate();
+	}
+	
 	private void setUpUnitLists() {
 		possibleUnitList.setPreferredSize(new Dimension(200, 87));
 		userUnitList.setPreferredSize(new Dimension(200, 87));
@@ -311,26 +480,19 @@ public class GUI extends HumanPlayer {
 		possibleUnitListModel.addElement(new SoldierUnit("Soldier unit"));
 		possibleUnitListModel.addElement(new EngineerUnit("Engineer unit"));
 		possibleUnitListModel.addElement(new DemolitionUnit("Demolition unit"));
-
 	}
 
 	public class AddUnitListener implements ActionListener {
-
-		@Override
 		public void actionPerformed(ActionEvent arg0) {
 			if (userUnitListModel.getSize() < 5 && possibleUnitList.getSelectedValue() != null)
 				userUnitListModel.addElement(possibleUnitList.getSelectedValue());
 		}
-
 	}
 
 	public class RemoveUnitListener implements ActionListener {
-
-		@Override
 		public void actionPerformed(ActionEvent e) {
 			userUnitListModel.removeElement(userUnitList.getSelectedValue());
 		}
-
 	}
 	
 	private void sendNewUnitCommands() {
@@ -355,132 +517,23 @@ public class GUI extends HumanPlayer {
 			sendCommand(com);
 		}
 	}
-
-	public class BeginAIGameListener implements ActionListener {
-
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			if (userUnitListModel.getSize() == 5) {
-				
-				sendCommand(new ClientServerCommand(
-						ClientServerCommandType.NewGame, null));
-				
-				sendNewUnitCommands();
-
-				sendCommand(new ClientServerCommand(ClientServerCommandType.NewComputerPlayer, new String[] { "3" }));
-				sendCommand(new ClientServerCommand(ClientServerCommandType.StartGame, new String[] { "Deathmatch" }));
-				showGamePanel();
-			}
+	
+	@Override
+	public void updateAvailGameRooms(ArrayList<String> names) {
+		gameRoomModel.removeAllElements();
+		for (String n : names) {
+			gameRoomModel.addElement(n);
 		}
-
+		gameRoomLobbyPanel.repaint();
+		gameRoomLobbyPanel.revalidate();
+		gameRoomLobbyPanel.updateUI();
 	}
-
-	private void setUpLobbyPanel() {
-		JPanel aiGamePanel = new JPanel();
-		JButton aiGameButton = new JButton("Begin AI game");
-		aiGameButton.addActionListener(new BeginAIGameListener());
-		JButton addUnitButton = new JButton("Add selected unit");
-		JButton removeUnitButton = new JButton("Remove selected unit");
-		JPanel selectUnitsPanel = new JPanel();
-
-		lobbyPanel.setLayout(new BorderLayout());
-
-		addUnitButton.addActionListener(new AddUnitListener());
-		removeUnitButton.addActionListener(new RemoveUnitListener());
-
-		JPanel possibleUnitsPanel = new JPanel();
-		possibleUnitsPanel.setPreferredSize(new Dimension(200, 500));
-
-		JPanel addUnitsPanel = new JPanel();
-		addUnitsPanel.setPreferredSize(new Dimension(200, 500));
-
-		JLabel possibleUnits = new JLabel("Select from here");
-		JLabel yourUnits = new JLabel("Your current units");
-
-		possibleUnitsPanel.add(possibleUnits);
-		possibleUnitsPanel.add(possibleUnitList);
-		possibleUnitsPanel.add(addUnitButton);
-
-		addUnitsPanel.add(yourUnits);
-		addUnitsPanel.add(userUnitList);
-		addUnitsPanel.add(removeUnitButton);
-
-		aiGamePanel.setPreferredSize(new Dimension(200, 400));
-		selectUnitsPanel.setPreferredSize(new Dimension(600, 600));
-		selectUnitsPanel.add(possibleUnitsPanel);
-		selectUnitsPanel.add(addUnitsPanel);
-
-		setUpUnitLists();
-		aiGamePanel.add(aiGameButton);
-		gameRoomLobbyButton.addActionListener((new GameRoomLobbyListener()));
-		aiGamePanel.add(gameRoomLobbyButton);
-		lobbyPanel.add(aiGamePanel, BorderLayout.SOUTH);
-		lobbyPanel.add(selectUnitsPanel, BorderLayout.CENTER);
-		mainPanel.removeAll();
-		mainPanel.add(lobbyPanel);
-		mainFrame.repaint();
-		mainFrame.revalidate();
-
-	}
-
-//	private void setUpNewAccountPanel() {
-//		// new account panel stuff
-//		usernameHere.setText("New username");
-//		passwordHere.setText("New password");
-//		accountPanel.setPreferredSize(new Dimension(250, 200));
-//		accountPanel.add(usernameHere);
-//		accountPanel.add(username);
-//		accountPanel.add(passwordHere);
-//		accountPanel.add(password);
-//		accountPanel.add(createButton);
-//		createButton.addActionListener(new CreateAccountListener());
-//		mainPanel.add(accountPanel);
-//	}
 	
 	public void setStartGameAvail() {
-		gameRoomLobbyPanel.add(startGameButton);
-	}
-	
-	private class StartGameListener implements ActionListener {
-
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			sendCommand(new ClientServerCommand(ClientServerCommandType.StartGame, 
-					new String[] { "Deathmatch" } ));
-		}
-	}
-	
-	private class JoinGameRoomListener implements ActionListener {
-
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			if (gameRoomLobby.getSelectedValue() != null)
-				sendCommand(new ClientServerCommand(ClientServerCommandType.JoinGame,
-						new String[] {gameRoomLobby.getSelectedValue()}));
-		}
-	}
-	
-	private class NewGameRoomListener implements ActionListener {
-
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			sendCommand(new ClientServerCommand(ClientServerCommandType.NewGame, null));
-		}
-	}
-	
-	private void setupGameRoomLobby() {
-		gameRoomLobbyPanel.setPreferredSize(new Dimension(125, 250));
-		gameRoomLobbyPanel.add(newGameRoomButton, BorderLayout.NORTH);
-		gameRoomLobbyPanel.add(gameRoomLobbyLabel, BorderLayout.CENTER);
-		gameRoomLobbyPanel.add(gameRoomLobby, BorderLayout.CENTER);
-		gameRoomLobbyPanel.add(joinGameRoomButton, BorderLayout.SOUTH);
-		mainPanel.add(gameRoomLobbyPanel);
-		mainFrame.repaint();
-		mainFrame.revalidate();
-	}
-
-	public static void main(String[] args) {
-		new GUI();
+		startGameButs.add(startGameButton);
+		startGameButs.repaint();
+		startGameButs.revalidate();
+		startGameButs.updateUI();
 	}
 
 	private class gameMouseListener implements MouseListener {
@@ -539,32 +592,6 @@ public class GUI extends HumanPlayer {
 		}
 
 	}
-	
-	@Override
-	public void updateAvailGameRooms(ArrayList<String> names) {
-		gameRoomModel.removeAllElements();
-		for (String n : names) {
-			gameRoomModel.addElement(n);
-		}
-		gameRoomLobbyPanel.repaint();
-		gameRoomLobbyPanel.revalidate();
-		gameRoomLobbyPanel.updateUI();
-	}
-	
-	private class GameRoomLobbyListener implements ActionListener {
-		@Override
-		public void actionPerformed(ActionEvent arg0) {
-			if (userUnitListModel.getSize() == 5) {							
-				sendNewUnitCommands();
-				sendCommand(new ClientServerCommand(ClientServerCommandType.OpenGameRooms, null));
-				
-				mainPanel.removeAll();
-				setupGameRoomLobby();
-				mainFrame.repaint();
-				mainFrame.revalidate();
-			}
-		}
-	}
 
 	private class CreateAccountListener implements ActionListener {
 
@@ -579,23 +606,8 @@ public class GUI extends HumanPlayer {
 					ClientServerCommandType.NewUser, new String[] {
 							username.getText(), password });
 			sendCommand(com);
-			//setUpLobbyPanel();
 		}
-
 	}
-
-//	private class AccountPanelListener implements ActionListener {
-//
-//		@Override
-//		public void actionPerformed(ActionEvent arg0) {
-//			
-//			mainPanel.removeAll();
-//			setUpNewAccountPanel();
-//			mainFrame.repaint();
-//			mainFrame.revalidate();
-//		}
-//
-//	}
 
 	private class LoginListener implements ActionListener {
 
@@ -626,8 +638,6 @@ public class GUI extends HumanPlayer {
 			case JOptionPane.NO_OPTION:
 				sendCommand(new ClientServerCommand(
 						ClientServerCommandType.Logout, null));
-				sendCommand(new ClientServerCommand(
-						ClientServerCommandType.ClientExit, null));
 				System.exit(0);
 				break;
 			case JOptionPane.DEFAULT_OPTION:
@@ -650,6 +660,12 @@ public class GUI extends HumanPlayer {
 				wasAtBottom = ((brm.getValue() + brm.getExtent()) == brm
 						.getMaximum());
 		}
+	}
+	
+	public void receiveMessage(ClientServerCommand com) {
+		String source = com.getData().get(0);
+		String msg = com.getData().get(2);
+		chatArea.append(source + ": " + msg + "\n");
 	}
 
 	private class ChatFieldListener implements KeyListener {
@@ -700,18 +716,6 @@ public class GUI extends HumanPlayer {
 		}
 		
 		boardPanel.repaint();
-	}
-
-	public void failLogin(ClientServerCommand com) {
-		String msg = com.getData().get(0);
-		tryNewUser.setText(msg + "\n");
-		tryNewUser.append("New user? Make a new account");
-	}
-
-	public void receiveMessage(ClientServerCommand com) {
-		String source = com.getData().get(0);
-		String msg = com.getData().get(2);
-		chatArea.append(source + ": " + msg + "\n");
 	}
 
 	@SuppressWarnings("serial")
