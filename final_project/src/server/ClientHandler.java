@@ -168,7 +168,7 @@ public class ClientHandler implements Runnable {
 			
 		case StartGame:
 			WinCondition condition = WinCondition.valueOf(com.getData().get(0));
-			if (isplayingComputer) {
+			if (isplayingComputer && server.playerIsReady(playerName)) {
 				ArrayList<Unit> userUnits = server.getUserUnits(playerName);
 				game = new Game(userUnits, ComputerPlayer.generateAIUnits(computerPlayerLevel), condition);
 				server.sendNewGame(game, gameNumber, playerName, computerPlayerLevel);

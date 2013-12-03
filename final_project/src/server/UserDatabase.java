@@ -36,8 +36,14 @@ public class UserDatabase {
 		return (loginAndPassword.containsKey(name) && loginAndPassword.get(name).equals(password));
 	}
 	
+	public boolean hasUser(String name) {
+		return database.containsKey(name);
+	}
+	
 	public UserAccount getUser(String name) {
-		return database.get(name);
+		if (hasUser(name))
+			return database.get(name);
+		else return null;
 	}
 	
 	public boolean isSavedGame(String name) {

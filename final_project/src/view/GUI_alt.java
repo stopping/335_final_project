@@ -196,6 +196,10 @@ public class GUI_alt extends HumanPlayer {
 		logisticsPanel.add(failedLoginPanel);
 		mainPanel.add(logisticsPanel);
 
+		setuploadoutPanel();
+		setupGameRoomLobby();
+		setupMainOptionsPanel();
+		
 		mainFrame.setResizable(false);
 		mainFrame.add(mainPanel);
 		mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -311,9 +315,14 @@ public class GUI_alt extends HumanPlayer {
 	}
 	
 	public void login() {
-		setuploadoutPanel();
-		setupGameRoomLobby();
-		setupMainOptionsPanel();
+		showPanel(mainOptionsPanel);
+	}
+	
+	private void showPanel(JPanel p) {
+		mainPanel.removeAll();
+		mainPanel.add(p);
+		mainFrame.repaint();
+		mainFrame.revalidate();
 	}
 	
 	public void failLogin(ClientServerCommand com) {
@@ -390,10 +399,7 @@ public class GUI_alt extends HumanPlayer {
 			public void actionPerformed(ActionEvent e) {
 				String gameType = (String) gameTypeComboBox.getSelectedItem();
 				sendCommand(new ClientServerCommand(ClientServerCommandType.NewGame, new String[] {gameType}));
-				mainPanel.removeAll();
-				mainPanel.add(loadoutPanel);
-				mainFrame.repaint();
-				mainFrame.revalidate();
+				showPanel(loadoutPanel);
 			}
 		});
 		
@@ -402,10 +408,7 @@ public class GUI_alt extends HumanPlayer {
 				if (gameRoomLobby.getSelectedValue() != null)
 					sendCommand(new ClientServerCommand(ClientServerCommandType.JoinGame,
 							new String[] {gameRoomLobby.getSelectedValue()}));
-				mainPanel.removeAll();
-				mainPanel.add(loadoutPanel);
-				mainFrame.repaint();
-				mainFrame.revalidate();
+				showPanel(loadoutPanel);
 			}
 		});
 	}
@@ -465,11 +468,6 @@ public class GUI_alt extends HumanPlayer {
 				mainFrame.revalidate();
 			}
 		});
-		
-		mainPanel.removeAll();
-		mainPanel.add(mainOptionsPanel);
-		mainFrame.repaint();
-		mainFrame.revalidate();
 	}
 	
 	private void setUpUnitLists() {

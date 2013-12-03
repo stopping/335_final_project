@@ -138,9 +138,17 @@ public class Server implements Runnable {
 		}
 	}
 	
+	public boolean playerIsReady(String p1) {
+		if (database.hasUser(p1))
+			return database.getUser(p1).isReady();
+		else return false;
+	}	
+	
 	public boolean playersAreReady(String p1, String p2) {
-		return database.getUser(p1).isReady() &&
-		database.getUser(p2).isReady();
+		if (database.hasUser(p1) && database.hasUser(p2))
+			return database.getUser(p1).isReady() &&
+					database.getUser(p2).isReady();
+		else return false;
 	}	
 	
 	public boolean modifyUnit(String player, String unit, Attribute a) {
