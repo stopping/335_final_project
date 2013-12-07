@@ -1,11 +1,14 @@
 package shared;
 
+import game_commands.GameCommand;
+
 import java.awt.Point;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import commands.*;
+import client_commands.*;
+
 import shared.GameSquare.Terrain;
 import unit.Unit;
 

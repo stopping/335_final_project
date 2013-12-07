@@ -1,19 +1,19 @@
 package client;
 
+import game_commands.GameCommand;
+
 import java.util.ArrayList;
+import java.util.HashMap;
 
-import commands.*;
-
+import shared.Command;
 import shared.Game;
+import unit.Unit;
 
-public class HumanPlayer implements Player {
+public abstract class HumanPlayer {
 
+	protected ArrayList<Unit> units;
 	protected Game game;
 	protected Client client;
-	
-	public static void main(String args[]) {
-		new HumanPlayer();
-	}
 	
 	public HumanPlayer() {
 		client = new Client("localhost", 4009, this);
@@ -21,46 +21,36 @@ public class HumanPlayer implements Player {
 		t.start();
 	}
 	
-	@Override
-	public boolean parseAndExecuteCommand(GameCommand com) {
+	public boolean executeGameCommand(GameCommand com) {
 		boolean ret = game.executeCommand(com);
 		System.out.println(ret);
 		return ret;
 	}
-
+	
 	public void update() {
 		System.out.println(game.toString());
 	}
 
-	@Override
 	public void setGame(Game g) {
 		this.game = g;
 	}
-
-	@Override
+	
 	public void sendCommand(Command com) {
 		client.sendCommand(com);
 	}
+	
+	public abstract void login();
+	
+	public abstract void failLogin();
+	
+	public abstract void canStartGame();
+	
+	public abstract void receiveMessage(String source, String message);
+	
+	public abstract void updateAvailGameRooms(HashMap<String, Integer> rooms);
 
-	@Override
-	public void receiveMessage(ClientServerCommand com) {}
-
-	@Override
-	public void failLogin(ClientServerCommand com) {}
-
-	@Override
-	public void login() {}
-
-	@Override
-	public void updateAvailGameRooms(ArrayList<String> names) {}
-
-	@Override
-	public void setStartGameAvail() {}
-
-	@Override
-	public void showGamePanel() {}
-
-	@Override
-	public void updateUnitInfo(ArrayList<String> info) {}
+	public void showGamePanel() {		
+	}
+	
 
 }

@@ -1,9 +1,15 @@
 package shared;
 
+import game_commands.AttackCommand;
+import game_commands.EndTurnCommand;
+import game_commands.GameCommand;
+import game_commands.MoveCommand;
+
 import java.util.ArrayList;
 import java.util.Scanner;
 
-import commands.*;
+import client_commands.*;
+
 import shared.Game.WinCondition;
 import unit.Unit;
 

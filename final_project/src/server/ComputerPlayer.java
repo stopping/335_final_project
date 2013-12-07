@@ -1,5 +1,10 @@
 package server;
 
+import game_commands.AttackCommand;
+import game_commands.EndTurnCommand;
+import game_commands.GameCommand;
+import game_commands.MoveCommand;
+
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -8,16 +13,19 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import commands.*;
-import commands.ClientServerCommand.ClientServerCommandType;
-import client.Player;
+import shared.Command;
+import client_commands.*;
+import server_commands.ComputerTurn;
+import server_commands.IllegalOption;
+import server_commands.SendingGame;
+import server_commands.ServerCommand;
 import shared.Attribute;
 import shared.Game;
 import shared.Occupant;
 import unit.*;
 import shared.GameSquare;
 
-public class ComputerPlayer implements Player, Runnable {
+public class ComputerPlayer implements Runnable {
 
 	private ObjectOutputStream output;
 	private ObjectInputStream input;
@@ -25,7 +33,7 @@ public class ComputerPlayer implements Player, Runnable {
 	private int difficulty;
 	private List<Unit> units;
 
-	public ComputerPlayer(String opponent, int difficultyLevel) {
+	public ComputerPlayer(int gameRoom, int difficultyLevel) {
 		System.out.println("Computer player created");
 		Socket sock = null;
 		this.difficulty = difficultyLevel;
@@ -33,9 +41,7 @@ public class ComputerPlayer implements Player, Runnable {
 			sock = new Socket("localhost", 4009);				
 			this.output = new ObjectOutputStream(sock.getOutputStream());
 			this.input = new ObjectInputStream(sock.getInputStream());
-			output.writeObject(new ClientServerCommand(
-					ClientServerCommandType.ComputerPlayerJoin, 
-					new String[] {opponent}));
+			output.writeObject(new ComputerPlayerJoin(gameRoom));
 			
 		} catch (Exception e) {
 	      e.printStackTrace();
@@ -63,8 +69,7 @@ public class ComputerPlayer implements Player, Runnable {
 		return units;
 	}
 
-	@Override
-	public boolean parseAndExecuteCommand(GameCommand c) {	
+	public boolean executeGameCommand(GameCommand c) {	
 		return game.executeCommand(c);
 	}
 	
@@ -90,19 +95,19 @@ public class ComputerPlayer implements Player, Runnable {
 	
 	private boolean tryMove(Unit u, int[] source, int[] dest) {
 		if(u.canMoveTo(dest[0], dest[1])) {
-			MoveCommand c = new MoveCommand(source, dest);
+			Command c = new MoveCommand(source, dest);
 			sendCommand(c);
 			
 			try {
 				Command ret = (Command) input.readObject();
-				if (ret instanceof ClientServerCommand) {
-					if (((ClientServerCommand) ret).getType() ==
-						(ClientServerCommandType.IllegalOption))
+				if (ret instanceof ServerCommand) {
+					ServerCommand com = (ServerCommand)ret;
+					if (com instanceof IllegalOption)
 						return false;
 				}
 				else {
 					GameCommand com = (GameCommand) ret;
-					return parseAndExecuteCommand(com);
+					return executeGameCommand(com);
 					}
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -129,14 +134,14 @@ public class ComputerPlayer implements Player, Runnable {
 			sendCommand(c);
 			try {
 				Command ret = (Command) input.readObject();
-				if (ret instanceof ClientServerCommand) {
-					if (((ClientServerCommand) ret).getType() ==
-							(ClientServerCommandType.IllegalOption))
+				if (ret instanceof ServerCommand) {
+					ServerCommand com = (ServerCommand)ret;
+					if (com instanceof IllegalOption)
 						return false;
 				}
 				else {
 					GameCommand com = (GameCommand) ret;
-					return parseAndExecuteCommand(com);
+					return executeGameCommand(com);
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -279,7 +284,7 @@ public class ComputerPlayer implements Player, Runnable {
 	}
 
 	private void doComputerTurn() {
-		//System.out.println("Beginning computer turn");
+		System.out.println("Beginning computer turn");
 		units = game.getBlueUnitList();
 
 		for (Unit u : units) {	
@@ -308,16 +313,16 @@ public class ComputerPlayer implements Player, Runnable {
 				}
 			}
 		}
+		System.out.println("Ending computer turn");
+
 		sendCommand(new EndTurnCommand());
 	}
 	
-	@Override
 	public void setGame(Game g) {
 		this.game = g;
 	}
 
 	
-	@Override
 	public void sendCommand(Command com) {
 		try {
 			this.output.writeObject(com);
@@ -338,21 +343,16 @@ public class ComputerPlayer implements Player, Runnable {
 				com = (Command) input.readObject();			
 				System.out.println("Computer Player: Object read");
 				
-				if (com instanceof ClientServerCommand) {
-					ClientServerCommand c = (ClientServerCommand)com;
-					switch (c.getType()) {
-					
-						case Message: 
-							break;
-							
-						case ComputerTurn:
+				if (com instanceof ServerCommand) {
+					ServerCommand c = (ServerCommand)com;
+
+						if (c instanceof ComputerTurn) {				
 							isAiTurn = true;
 							doComputerTurn();
 							isAiTurn = false;
-							break;
-						
-						case SendingGame:
-							System.out.println("Game received");
+						}
+						else if (c instanceof SendingGame) {
+							System.out.println("Game received by CopmuterPlayer");
 							Game g = null;
 							
 							try {
@@ -362,14 +362,11 @@ public class ComputerPlayer implements Player, Runnable {
 							}
 	
 							setGame(g);
-							break;
-						default:
-							break;
+						}
 					}
-				}
 				
 				else if (com instanceof GameCommand && !isAiTurn) {
-					parseAndExecuteCommand((GameCommand)com);
+					executeGameCommand((GameCommand)com);
 				}
 			}
 		} catch (Exception e) {
@@ -377,31 +374,4 @@ public class ComputerPlayer implements Player, Runnable {
 		}
 	}
 
-	@Override
-	public void receiveMessage(ClientServerCommand com) {
-	}
-
-	@Override
-	public void failLogin(ClientServerCommand com) {
-	}
-
-	@Override
-	public void login() {
-	}
-
-	@Override
-	public void updateAvailGameRooms(ArrayList<String> names) {
-	}
-
-	@Override
-	public void setStartGameAvail() {
-	}
-
-	@Override
-	public void showGamePanel() {
-	}
-
-	@Override
-	public void updateUnitInfo(ArrayList<String> info) {
-	}
 }

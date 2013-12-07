@@ -17,7 +17,7 @@ public class UserAccount {
 		this.credits = 1000;		// new user starting credits
 	}
 	
-	public void addUnit(String name, UnitClass type) {
+	public boolean addUnit(String name, UnitClass type) {
 		switch (type) {
 		case Melee:
 			units.add(new MeleeUnit(name));
@@ -36,6 +36,7 @@ public class UserAccount {
 			break;
 		}
 		System.out.println("added new unit: " + name);
+		return true;
 	}
 	
 	public ArrayList<Unit> getUnits() {

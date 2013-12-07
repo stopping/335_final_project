@@ -1,29 +1,25 @@
 package server;
 
+import game_commands.GameCommand;
+
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
-import java.util.Deque;
+import java.util.HashMap;
 
-import commands.*;
-import commands.ClientServerCommand.ClientServerCommandType;
-import shared.Attribute;
+import server_commands.*;
 import shared.Game;
-import shared.Occupant;
-import unit.*;
+import shared.Game.WinCondition;
+import unit.Unit;
 import unit.Unit.UnitClass;
 
-/**
- * Class:	Server
- * Purpose:	Wait for new clients and start in new threads. Send
- * 				Commands to all clients when player ends turn.
- */
 public class Server implements Runnable {
 	
 	public static final int PORT_NUMBER = 4009;
 	public static final int MAX_PLAYERS = 2;
-	private ArrayList<GameRoom> gameRooms;
 	private UserDatabase database;
+	private HashMap<String, ClientHandler> playerMap;
+	private HashMap<Integer, GameRoom> gamerooms;
 	
 	public static void main(String[] args) {
 		Server server = new Server();
@@ -34,7 +30,8 @@ public class Server implements Runnable {
 	
 	private Server() {
 		database = new UserDatabase();
-		gameRooms = new ArrayList<GameRoom>();
+		playerMap = new HashMap<String, ClientHandler>();
+		gamerooms = new HashMap<Integer, GameRoom>();
 	}
 
 	@Override
@@ -58,204 +55,134 @@ public class Server implements Runnable {
 			e.printStackTrace();
 		}
 	}
-		
-	public int joinGame(String player, ClientHandler c) {
-		for (int i=0 ; i<gameRooms.size() ; i++)
-			if (gameRooms.get(i).waitingForOpponent())
-				if (gameRooms.get(i).players.get(0).playerName.equals(player)) {
-					gameRooms.get(i).addPlayer(c);
-					System.out.println("joining game with " + player);
-					gameRooms.get(i).players.get(0).sendCommand(
-							new ClientServerCommand(ClientServerCommandType.StartGame, null));
-					gameRooms.get(i).players.get(1).sendCommand(
-							new ClientServerCommand(ClientServerCommandType.StartGame, null));
-					return i;
-				}
-		return -1;
-	}
 	
-	public boolean processUser(String name, String password) {
+	public boolean login(String source, String name, String password, ClientHandler ch) {
 		if (!database.isValidUser(name, password)) 
 			return false;
 		else if (database.getUser(name).isLoggedOn())
 			return false;
 		else {
 			database.getUser(name).setLoggedOn(true);
+			ch.setPlayerName(source);
+			ch.sendCommand(new ValidLogin());
 			return true;
 		}
 	}
-	
-	public void logoutUser(String name) {
-		if (database.getUser(name).isLoggedOn())
-			database.getUser(name).setLoggedOn(false);
-	}
-	
-	public boolean newUser(String name, String password) {
-		return database.addUser(name, password);
-	}
-	
-	public int numGameRooms() {
-		return this.gameRooms.size();
-	}
-	
-	public void requestNewGameRoom(ClientHandler c) {
-		GameRoom g = new GameRoom();
-		g.addPlayer(c);
-		gameRooms.add(g);
-	}
-	
-	public String[] getUnitInfo(String player) {
-		String ret[] = new String[10];
-		ArrayList<Unit> units = database.getUnits(player);
-		int i = 0;
-		for (Unit u: units) {
-			ret[i] = u.getName();
-			ret[i+1] = u.toString();
-			i+=2;
+
+	public boolean setupNewUser(String source, String password, ClientHandler ch) {
+		boolean ret = database.addUser(source, password);
+		if (ret) {
+			ch.setPlayerName(source);
+			ch.sendCommand(new ValidLogin());
 		}
 		return ret;
 	}
-	
-	public void playerForfeit(int game, ClientHandler c) {
-		gameRooms.get(game).removePlayer(c);
-//		runningGames.get(gameNumber).players.get(0).sendCommand(
-//				new ClientServerCommand(ClientServerCommandType.OpponentForfeit, null);
+
+	public boolean userJoinGame(int gr, ClientHandler ch) {
+		return gamerooms.get(gr).addPlayer(ch, gr);
 	}
 	
-	public void userSetReady(String player) {
-		database.getUser(player).setIsReady(true);
-	}
-	
-	public ArrayList<Unit> getUserUnits(String player) {
-		return database.getUnits(player);
-	}
-	
-	public void sendCanStartGame(int gameNumber) {
-		for (ClientHandler handler : gameRooms.get(gameNumber).players)  {
-			System.out.println("gameRoomSize: " + gameRooms.get(gameNumber).players.size());
-			handler.sendCommand(new ClientServerCommand(
-					ClientServerCommandType.StartGame, null));
+	public boolean logout(String source, int gr, ClientHandler ch) {
+		if (database.getUser(source).isLoggedOn()) {
+			database.getUser(source).setLoggedOn(false);
+			database.getUser(source).setIsReady(false);
 		}
+		return true;
 	}
 	
-	public boolean playerIsReady(String p1) {
-		if (database.hasUser(p1))
-			return database.getUser(p1).isReady();
-		else return false;
-	}	
-	
-	public boolean playersAreReady(String p1, String p2) {
-		if (database.hasUser(p1) && database.hasUser(p2))
-			return database.getUser(p1).isReady() &&
-					database.getUser(p2).isReady();
-		else return false;
-	}	
-	
-	public boolean modifyUnit(String player, String unit, Attribute a) {
-		UserAccount user = database.getUser(player);
-		for (Unit u : user.getUnits() ) {
-			Occupant o = (Occupant)u;
-			if (o.getName().equals(unit)) {
-				// if (user.getNumCredits() ) 	TODO: decide cost for things, how we check it & how to inform the player
-				return true;
-			}
-		}
-		return false;
+	public boolean removeClient(String source, int gr, ClientHandler ch) {
+		playerMap.remove(source);
+		gamerooms.get(gr).removePlayer(ch);
+		ch.disconnect();
+		return true;
 	}
 	
-	public void newUnit(String player, String unit, UnitClass type) {
-		UserAccount user = database.getUser(player);
-		user.addUnit(unit, type);
-	}
-	
-	// send chat message to all members in game room
-	public void sendMessage(int gameNumber, String player, ClientServerCommand com, String playerNumber) {
-		for (int i =0 ; i < gameRooms.get(gameNumber).players.size() ; i++)
-			gameRooms.get(gameNumber).players.get(i).sendCommand(new ClientServerCommand(
-					ClientServerCommandType.Message, new String[] { player,  playerNumber, com.getData().get(0) }));
-	}
-	
-	// store the user's game session
-	public void saveGameSession(String name, Game g) {
-		database.saveGameSesseion(name, g);
-	}
-	
-	public Game getGameSession(String name) {
-		if (database.isSavedGame(name))
-			return database.getSavedGame(name);
-		else
-			return null;
-	}
-	
-	// starts a new ComputerPlayer in its own thread
-	public void addComputerPlayer(String player, int computerPlayerLevel) {
-		ComputerPlayer p = new ComputerPlayer(player, computerPlayerLevel);
+	public boolean newComputerPlayer(int gr, int level) {
+		gamerooms.get(gr).setComputerPlayerGame(true);
+		ComputerPlayer p = new ComputerPlayer(gr, level);
 		Thread t = new Thread(p);
 		t.start();
+		return true;
 	}
 	
-	public String[] getOpenGameRooms() {
-		String ret[] = new String[gameRooms.size()];
-		int index = 0;
-		for (GameRoom g : gameRooms)
-			if (g.waitingForOpponent()) {
-				ret[index] = g.players.get(0).playerName;
-				index++;
-			}
-		return ret;
-	}
-	
-	public void updateClientGameRoomStatus() {
-		for (GameRoom g : gameRooms)
-			for (ClientHandler handler : g.players)  {
-				handler.sendCommand(new ClientServerCommand(
-						ClientServerCommandType.OpenGameRooms, getOpenGameRooms()));
-			}
-			
-	}
-	
-	// send the opponent commands in FIFO. if playing the AI, passes him his turn
-	public void updateClients( int gameNumber, int playerNumber,  Deque<GameCommand> playerCommands, boolean isAIGame) {
+	public boolean computerPlayerJoin(int gr, ClientHandler ch) {
 		
-		int playerToSendCommandsTo = playerNumber % 2 == 0 ? playerNumber+1 : playerNumber-1;
-		ClientHandler client = gameRooms.get(gameNumber).players.get(playerToSendCommandsTo);
-
-		while (!playerCommands.isEmpty()) {
-			client.sendCommand(playerCommands.removeFirst());
-		}
 		
-		if (isAIGame && playerToSendCommandsTo == 1) 
-			client.sendCommand(new ClientServerCommand(ClientServerCommandType.ComputerTurn, null));
+		return gamerooms.get(gr).addPlayer(ch, gr);
 	}
 	
-	// send the clients the starting game
-	public void sendNewGame(Game g, int gameNumber, String player, int computerPlayerLevel) {	
-		System.out.println("gameRoomSize: " + gameRooms.get(gameNumber).players.size());
-		System.out.println("Sending game to gameRoom: " + gameNumber);
+	public boolean createNewGameRoom(ClientHandler ch) {
+		GameRoom g = new GameRoom();
+		int index = gamerooms.size();
+		gamerooms.put(index, g);
+		return gamerooms.get(index).addPlayer(ch, index);
+	}
+	
+	public boolean newUnit(String source, String name, UnitClass type) {
+		return database.getUser(source).addUnit(name, type);
+	}
+	
+	public boolean sendMessage(String source, int gr, String message) {
+//		for (ClientHandler ch : gamerooms.get(gr).players)
+//			ch.sendCommand(new PlayerMessage(source, message));
+		return true;
+	}
+	
+	public boolean setReady(String source, ClientHandler ch) {
+		if (database.hasUser(source)) {
+			database.getUser(source).setIsReady(true);
+			ch.sendCommand(new CanStartGame());
+			return true;
+		}
+		else return false;
+	}
+	
+	public boolean getOpenGameRooms(ClientHandler ch) {
+		HashMap<Integer, String> openGameRooms = new HashMap<Integer, String>();
+		for (int i=0 ; i <gamerooms.size() ; i++)
+			if (gamerooms.get(i).waitingForOpponent())
+				openGameRooms.put(i, gamerooms.get(i).playerOne);
+		//ch.sendCommand(new OpenGameRooms(openGameRooms));		
+		return true;	
+	}
+	
+	public boolean suspendSession(String source, ClientHandler ch) {
+//		while (!ch.playerCommands.isEmpty()) {
+//			ch.game.executeCommand((ch.playerCommands.removeFirst()));
+//		}
+//		database.saveGameSesseion(source, ch.game);
+		System.out.println("saved session for " + source);
+		return true;
+	}
+	
+	public boolean resumeSession(String source, ClientHandler ch) {
+		if (database.isSavedGame(source)) {
+			Game g = database.getSavedGame(source);
+			ch.sendCommand(new SendingGame());
+			ch.sendGame(g);
+			return true;
+		}
+		else return false;
+	}
+	
+	public boolean startGame(String source, int gr, WinCondition wc) {
+		ArrayList<Unit> player1Units = database.getUnits(source);
+		ArrayList<Unit> player2Units;
 		
-		// wait until the room is full -- This is a hasty avoidance of possibly a race condition
-		if (!gameRooms.get(gameNumber).isFull()) {
-			addComputerPlayer(player, computerPlayerLevel);
-			try {
-				Thread.sleep(500);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+		if (gamerooms.get(gr).isComputerPlayerGame) 
+			player2Units = ComputerPlayer.generateAIUnits(3);
+		
+		else {
+			String playerTwo = gamerooms.get(gr).playerTwo;
+			player2Units = database.getUnits(playerTwo);
 		}
-
-		try {
-			Thread.sleep(3000);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-		for (ClientHandler handler : gameRooms.get(gameNumber).players)  {
-			System.out.println("gameRoomSize: " + gameRooms.get(gameNumber).players.size());
-			handler.sendCommand(new ClientServerCommand(
-					ClientServerCommandType.SendingGame, null));
-			handler.sendGame(g);
-		}
+		
+		Game g = new Game(player1Units, player2Units, wc);
+		System.out.println("Sending game to gameRoom: " + gr);
+		return gamerooms.get(gr).sendNewGame(g);
+	}
+	
+	public void executeGameCommand(int gameRoom, ClientHandler ch, GameCommand gc) {
+		gamerooms.get(gameRoom).executeCommand(ch, gc);
 	}
 }
