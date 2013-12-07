@@ -26,7 +26,6 @@ import java.awt.event.WindowEvent;
 import java.awt.geom.Rectangle2D;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -50,13 +49,13 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
-import server_commands.ServerCommand;
 import shared.Command;
+import shared.Game.WinCondition;
 import shared.GameSquare;
 import shared.Item;
 import shared.Obstacle;
+import shared.ObstacleMap;
 import shared.Occupant;
-import shared.Game.WinCondition;
 import unit.DemolitionUnit;
 import unit.EngineerUnit;
 import unit.MeleeUnit;
@@ -65,7 +64,18 @@ import unit.SoldierUnit;
 import unit.Unit;
 import unit.Unit.UnitClass;
 import client.HumanPlayer;
-import client_commands.*;
+import client_commands.JoinGame;
+import client_commands.Login;
+import client_commands.Logout;
+import client_commands.NewComputerPlayer;
+import client_commands.NewGame;
+import client_commands.NewUnit;
+import client_commands.NewUser;
+import client_commands.PlayerMessage;
+import client_commands.PlayerReady;
+import client_commands.RequestGameRooms;
+import client_commands.StartGame;
+import client_commands.SuspendSession;
 
 
 public class GUI extends HumanPlayer {
@@ -387,7 +397,7 @@ public class GUI extends HumanPlayer {
 				if (userUnitListModel.getSize() == 5) {
 					String gameType = (String) gameTypeComboBox.getSelectedItem();
 					WinCondition cond = WinCondition.valueOf(gameType);
-					sendCommand(new StartGame(cond));
+					sendCommand(new StartGame(cond, new ObstacleMap()));
 				}
 			}	
 		});

@@ -24,21 +24,9 @@ public class Game implements Serializable {
 	int currentPlayer;
 	
 	
-	public Game(ArrayList<Unit> redUnits, ArrayList<Unit> blueUnits, WinCondition condition) {
+	public Game(ArrayList<Unit> redUnits, ArrayList<Unit> blueUnits, WinCondition condition, MapBehavior map) {
 		
-		char[][] fieldArray = {
-				{'R','R','R','X',' ',' ',' ',' ',' ',' ',' ',' '},
-				{' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' '},
-				{' ','R','R','X',' ',' ','X','X','X','X',' ',' '},
-				{' ','X','X','X',' ',' ',' ',' ',' ','X',' ',' '},
-				{' ',' ','X',' ',' ',' ',' ',' ',' ','X',' ',' '},
-				{' ',' ','X',' ',' ',' ',' ',' ',' ','X',' ',' '},
-				{'X',' ','X',' ',' ',' ',' ',' ',' ',' ',' ',' '},
-				{' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' '},
-				{' ',' ','X',' ',' ',' ',' ',' ','X','X',' ','X'},
-				{' ',' ','X','X',' ','X','X','X','X','B',' ','B'},
-				{' ',' ',' ',' ',' ',' ',' ',' ','X','B',' ','B'},
-				{' ',' ',' ',' ',' ','X',' ',' ',' ',' ',' ','B'} };
+		char[][] fieldArray = map.getMap();
 		
 		int rows = fieldArray.length;
 		int cols = fieldArray[0].length;

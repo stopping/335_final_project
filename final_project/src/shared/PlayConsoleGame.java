@@ -34,7 +34,7 @@ public class PlayConsoleGame {
 		list2.add(new Unit("Will"));
 		list2.add(new Unit("Van"));
 		
-		Game game = new Game(list1,list2,WinCondition.Deathmatch);
+		Game game = new Game(list1,list2,WinCondition.Deathmatch, new ObstacleMap());
 		
 		Scanner input = new Scanner( System.in );
 		int[] src = new int[2];
