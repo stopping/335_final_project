@@ -56,6 +56,7 @@ import shared.Item;
 import shared.Obstacle;
 import shared.ObstacleMap;
 import shared.Occupant;
+import shared.StandardMap;
 import unit.DemolitionUnit;
 import unit.EngineerUnit;
 import unit.MeleeUnit;
@@ -397,7 +398,8 @@ public class GUI extends HumanPlayer {
 				if (userUnitListModel.getSize() == 5) {
 					String gameType = (String) gameTypeComboBox.getSelectedItem();
 					WinCondition cond = WinCondition.valueOf(gameType);
-					sendCommand(new StartGame(cond, new ObstacleMap()));
+					//sendCommand(new StartGame(cond, new ObstacleMap()));
+					sendCommand(new StartGame(cond, new StandardMap()));
 				}
 			}	
 		});

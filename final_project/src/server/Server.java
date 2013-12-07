@@ -172,7 +172,6 @@ public class Server implements Runnable {
 		
 		if (gamerooms.get(gr).isComputerPlayerGame) {
 			player2Units = ComputerPlayer.generateAIUnits(3);
-			System.out.println("Computer units generated");
 		} else {
 			String playerTwo = gamerooms.get(gr).playerTwo;
 			player2Units = database.getUnits(playerTwo);

@@ -19,7 +19,6 @@ public class NewUser extends ClientCommand {
 	@Override
 	public boolean executeOn(Server s) {
 		if(s.setupNewUser(name, password, ch)) {
-			//ch.setPlayerName(name);
 			UserAccount account = s.getUserInfo(name);
 			ch.sendCommand(new SendingUserInfo( account.getUnits(), account.getNumCredits() ));
 			return true;

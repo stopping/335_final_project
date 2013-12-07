@@ -18,8 +18,8 @@ public class Game implements Serializable {
 	 */
 	private static final long serialVersionUID = 2029788461691510050L;
 	GameSquare[][] board;
-	List<Unit> unitListRed;
-	List<Unit> unitListBlue;
+	List<Unit> unitListRed = new ArrayList<Unit>();
+	List<Unit> unitListBlue = new ArrayList<Unit>();
 	WinCondition victoryCondition;
 	
 	int winner = -1;
@@ -47,16 +47,15 @@ public class Game implements Serializable {
 			}
 		}
 		
-		unitListRed = redUnits;
-		unitListBlue = blueUnits;
-		
-		for(int i = 0; i < unitListRed.size(); i++) {
-			unitListRed.get(i).setGame(this);
-			unitListRed.get(i).setBoard();
+		for(Unit u : redUnits) {
+			unitListRed.add(u);
+			u.setGame(this);
+			u.setBoard();
 		}
-		for(int i = 0; i < unitListBlue.size(); i++) {
-			unitListBlue.get(i).setGame(this);
-			unitListBlue.get(i).setBoard();
+		for(Unit u : blueUnits) {
+			unitListBlue.add(u);
+			u.setGame(this);
+			u.setBoard();
 		}
 		
 		currentPlayer = 0;
