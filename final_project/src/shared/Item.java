@@ -48,6 +48,10 @@ public class Item implements Serializable {
 	/**
 	 * This method may exist solely to be overwritten by items inheriting this class 
 	 */
+	
+	public void remove() {
+		
+	}
 	public void use() {
 		
 	}

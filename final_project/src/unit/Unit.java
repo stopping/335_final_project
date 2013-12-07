@@ -144,6 +144,7 @@ public class Unit extends Occupant {
 	
 	public boolean removeItem(Item i) {
 		if(itemList.contains(i)) {
+			i.remove();
 			itemList.remove(i);
 			return true;
 		}
