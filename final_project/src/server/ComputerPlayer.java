@@ -5,21 +5,19 @@ import game_commands.EndTurnCommand;
 import game_commands.GameCommand;
 import game_commands.MoveCommand;
 
-import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
 import shared.Command;
 import client_commands.*;
 import server_commands.ComputerTurn;
+import server_commands.ComputerDifficultySet;
 import server_commands.IllegalOption;
 import server_commands.SendingGame;
 import server_commands.ServerCommand;
-import shared.Attribute;
 import shared.Game;
 import shared.Occupant;
 import shared.Player;
@@ -32,10 +30,10 @@ public class ComputerPlayer extends Player implements Runnable {
 	private ObjectInputStream input;
 	private int difficulty;
 
-	public ComputerPlayer(int gameRoom, int difficultyLevel) {
+	public ComputerPlayer(int gameRoom) {
 		System.out.println("Computer player created");
 		Socket sock = null;
-		this.difficulty = difficultyLevel;
+		difficulty = 0;
 		try {
 			sock = new Socket("localhost", 4009);				
 			this.output = new ObjectOutputStream(sock.getOutputStream());
@@ -47,25 +45,8 @@ public class ComputerPlayer extends Player implements Runnable {
 	    }
 	}
 	
-	// returns ComputerPlayer units based on selected difficulty level
-	public static ArrayList<Unit> generateAIUnits(int level) {
-		ArrayList<Unit> units = new ArrayList<Unit>();
-		units.add(new SoldierUnit("Zander"));
-		units.add(new SoldierUnit("Yvonne"));
-		units.add(new SoldierUnit("Xavier"));
-		units.add(new SoldierUnit("Will"));
-		units.add(new SoldierUnit("Van"));
-		double modifier = level * 0.5;
-		if (modifier > 0.0) {
-			for (Unit u : units) {
-				u.upgrade(Attribute.Strength, modifier);
-				u.upgrade(Attribute.Defense, modifier);
-				u.upgrade(Attribute.MaxActionPoints, modifier*2);
-				u.upgrade(Attribute.MaxHitPoints, modifier*2);
-			}
-		}
-		System.out.println("AI difficulty: " + modifier);
-		return units;
+	public void setLevel(int level) {
+		this.difficulty = level;
 	}
 
 	public boolean executeGameCommand(GameCommand c) {	
@@ -353,6 +334,11 @@ public class ComputerPlayer extends Player implements Runnable {
 						else if (c instanceof SendingGame) {
 							System.out.println("Game received by CopmuterPlayer");
 							setGame(((SendingGame) c).getGame());
+						}
+						else if (c instanceof ComputerDifficultySet) {
+							ComputerDifficultySet levelcom = (ComputerDifficultySet)c;
+							System.out.println("Set difficulty level: " + levelcom.level);
+							setLevel(levelcom.level);
 						}
 					}
 				

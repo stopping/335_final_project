@@ -56,7 +56,7 @@ public abstract class HumanPlayer extends Player {
 	
 	public abstract void receiveMessage(String source, String message);
 	
-	public abstract void updateAvailGameRooms(HashMap<String, Integer> rooms);
+	public abstract void updateAvailGameRooms(HashMap<Integer, String> rooms);
 
 	public void showGamePanel() {		
 	

@@ -39,6 +39,12 @@ public class UserAccount {
 		return true;
 	}
 	
+	public boolean addUnit(Unit u) {
+		System.out.println("added new unit: " + u.getName());
+		units.add(u);
+		return true;
+	}
+	
 	public ArrayList<Unit> getUnits() {
 		return this.units;
 	}

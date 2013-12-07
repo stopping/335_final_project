@@ -9,7 +9,6 @@ import client_commands.ClientCommand;
 import game_commands.GameCommand;
 import server_commands.ServerCommand;
 import shared.Command;
-import shared.Game;
 
 public class ClientHandler implements Runnable {
 
@@ -64,14 +63,6 @@ public class ClientHandler implements Runnable {
 	public void setGameRoom(int gr) {
 		this.gameRoom = gr;
 	}
-	
-//	public void sendGame(Game g) {
-//		try {
-//			output.writeObject(g);
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//		}
-//	}
 	
 	public void sendCommand(ServerCommand c) {
 		try {

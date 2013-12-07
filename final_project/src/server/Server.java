@@ -8,8 +8,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import server_commands.*;
+import shared.Attribute;
 import shared.Game;
 import shared.Game.WinCondition;
+import unit.DemolitionUnit;
+import unit.EngineerUnit;
+import unit.MeleeUnit;
+import unit.RocketUnit;
+import unit.SoldierUnit;
 import unit.Unit;
 import unit.Unit.UnitClass;
 
@@ -99,18 +105,20 @@ public class Server implements Runnable {
 		return true;
 	}
 	
-	public boolean newComputerPlayer(int gr, int level) {
+	public boolean newComputerPlayer(int gr) {
 		gamerooms.get(gr).setComputerPlayerGame(true);
-		ComputerPlayer p = new ComputerPlayer(gr, level);
+		ComputerPlayer p = new ComputerPlayer(gr);
 		Thread t = new Thread(p);
 		t.start();
 		return true;
 	}
 	
 	public boolean computerPlayerJoin(int gr, ClientHandler ch) {
-		
-		
 		return gamerooms.get(gr).addPlayer(ch, gr);
+	}
+	
+	public boolean setComputerPlayerDifficulty(int gr, int level) {
+		return gamerooms.get(gr).setComputerPlayerLevel(level);
 	}
 	
 	public boolean createNewGameRoom(ClientHandler ch) {
@@ -121,12 +129,24 @@ public class Server implements Runnable {
 	}
 	
 	public boolean newUnit(String source, String name, UnitClass type) {
-		return database.getUser(source).addUnit(name, type);
+		
+		if (type == UnitClass.Melee)
+			return database.getUser(source).addUnit(new MeleeUnit(name));
+		else if (type == UnitClass.Rocket)
+			return database.getUser(source).addUnit(new RocketUnit(name));
+		else if (type == UnitClass.Engineer)
+			return database.getUser(source).addUnit(new EngineerUnit(name));
+		else if (type == UnitClass.Demolition)
+			return database.getUser(source).addUnit(new DemolitionUnit(name));
+		else if (type == UnitClass.Soldier)
+			return database.getUser(source).addUnit(new SoldierUnit(name));
+		else
+			return false;
 	}
 	
 	public boolean sendMessage(String source, int gr, String message) {
-//		for (ClientHandler ch : gamerooms.get(gr).players)
-//			ch.sendCommand(new PlayerMessage(source, message));
+		for (ClientHandler ch : gamerooms.get(gr).players)
+			ch.sendCommand(new PlayerMessage(source, message));
 		return true;
 	}
 	
@@ -144,7 +164,7 @@ public class Server implements Runnable {
 		for (int i=0 ; i <gamerooms.size() ; i++)
 			if (gamerooms.get(i).waitingForOpponent())
 				openGameRooms.put(i, gamerooms.get(i).playerOne);
-		//ch.sendCommand(new OpenGameRooms(openGameRooms));		
+		ch.sendCommand(new OpenGameRooms(openGameRooms));		
 		return true;	
 	}
 	
@@ -166,12 +186,33 @@ public class Server implements Runnable {
 		else return false;
 	}
 	
+	// returns ComputerPlayer units based on selected difficulty level
+	public ArrayList<Unit> generateComputerUnits(int level) {
+		ArrayList<Unit> units = new ArrayList<Unit>();
+		units.add(new SoldierUnit("Zander"));
+		units.add(new SoldierUnit("Yvonne"));
+		units.add(new SoldierUnit("Xavier"));
+		units.add(new SoldierUnit("Will"));
+		units.add(new SoldierUnit("Van"));
+		double modifier = level * 0.5;
+		
+		if (modifier > 0.0) {
+			for (Unit u : units) {
+				u.upgrade(Attribute.Strength, modifier);
+				u.upgrade(Attribute.Defense, modifier);
+				u.upgrade(Attribute.MaxActionPoints, modifier*2);
+				u.upgrade(Attribute.MaxHitPoints, modifier*2);
+			}
+		}
+		return units;
+	}
+	
 	public boolean startGame(String source, int gr, WinCondition wc) {
 		ArrayList<Unit> player1Units = database.getUnits(source);
 		ArrayList<Unit> player2Units;
 		
 		if (gamerooms.get(gr).isComputerPlayerGame) 
-			player2Units = ComputerPlayer.generateAIUnits(3);
+			player2Units = generateComputerUnits(gamerooms.get(gr).computerPlayerLevel);
 		
 		else {
 			String playerTwo = gamerooms.get(gr).playerTwo;

@@ -47,6 +47,7 @@ import javax.swing.JPopupMenu;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
+import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
@@ -125,12 +126,18 @@ public class GUI extends HumanPlayer {
 	
 	JButton gameRoomLobbyButton = new JButton("Go To Lobby");
 	JPanel gameRoomLobbyPanel = new JPanel();
-	DefaultListModel<String> gameRoomModel = new DefaultListModel<String>();
-	JList<String> gameRoomLobby = new JList<String>(gameRoomModel);
+	//DefaultListModel<String> gameRoomModel = new DefaultListModel<String>();
+	//JList<String> gameRoomLobby = new JList<String>(gameRoomModel);
+	JTable gameRoomsTable = new JTable();
 	JButton newGameRoomButton = new JButton("New GameRoom");
 	JLabel gameRoomLobbyLabel = new JLabel("Open GameRooms");
 	JButton joinGameRoomButton = new JButton("Join");
 	JButton startGameButton = new JButton("Start Game!");
+	JPanel startGameOptionsPanel = new JPanel();
+	
+	JLabel AILabel = new JLabel("AI level: ");
+	Integer AIDifficultyLevels[] = new Integer[] { 1, 2, 3};
+	final JComboBox<Integer> AILevelComboBox = new JComboBox<Integer>(AIDifficultyLevels);
 
 	JButton endTurnButton = new JButton("End Turn");
 	JButton useItemButton = new JButton("Use Item");
@@ -369,13 +376,22 @@ public class GUI extends HumanPlayer {
 		setUpUnitLists();
 		loadoutPanel.add(selectUnitsPanel, BorderLayout.CENTER);
 		JButton readyButton = new JButton("Ready");
-		startGameButs.add(readyButton);
-		loadoutPanel.add(startGameButs, BorderLayout.SOUTH);
+		
+		startGameOptionsPanel.setLayout(new GridLayout(3,2));
+		startGameOptionsPanel.add(AILabel);
+		startGameOptionsPanel.add(AILevelComboBox);
+		startGameOptionsPanel.add(new JLabel("Game Type: "));
+		startGameOptionsPanel.add(gameTypeComboBox);
+		startGameOptionsPanel.add(readyButton);
+		startGameButton.setEnabled(false);
+		startGameOptionsPanel.add(startGameButton);
+		loadoutPanel.add(startGameOptionsPanel, BorderLayout.SOUTH);
 		
 		readyButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if (userUnitListModel.getSize() == 5) {
 					sendNewUnitCommands();
+					sendCommand(new ComputerDifficultySet(AILevelComboBox.getSelectedIndex()));
 					sendCommand(new PlayerReady());
 					userUnitList.setEnabled(false);
 				}
@@ -394,12 +410,12 @@ public class GUI extends HumanPlayer {
 	}
 	
 	private void setupGameRoomLobby() {
-		gameRoomLobbyPanel.setPreferredSize(new Dimension(300, 450));
-		gameRoomLobbyPanel.add(newGameRoomButton, BorderLayout.NORTH);
-		gameRoomLobbyPanel.add(gameTypeComboBox);
-		gameRoomLobbyPanel.add(gameRoomLobbyLabel, BorderLayout.CENTER);
-		gameRoomLobbyPanel.add(gameRoomLobby);
-		gameRoomLobbyPanel.add(joinGameRoomButton, BorderLayout.SOUTH);
+		gameRoomLobbyPanel.setLayout(new GridLayout(3, 2));
+		//gameRoomLobbyPanel.setPreferredSize(new Dimension(300, 450));
+		gameRoomLobbyPanel.add(gameRoomLobbyLabel);
+		gameRoomLobbyPanel.add(gameRoomsTable);
+		gameRoomLobbyPanel.add(newGameRoomButton);
+		gameRoomLobbyPanel.add(joinGameRoomButton);
 		
 		newGameRoomButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -410,8 +426,8 @@ public class GUI extends HumanPlayer {
 		
 		joinGameRoomButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if (gameRoomLobby.getSelectedValue() != null)
-				sendCommand(new JoinGame(gameRoomLobby.getSelectedIndex()));
+				if (gameRoomsTable.getSelectedRow() >= 0)
+				sendCommand(new JoinGame(gameRoomsTable.getSelectedRow()));
 				showPanel(loadoutPanel);
 			}
 		});
@@ -420,7 +436,7 @@ public class GUI extends HumanPlayer {
 	private void setupMainOptionsPanel() {
 		welcomeLabel.setText("Welcome! You have " + credits + " credits.");
 		
-		mainOptionsPanel.setLayout(new GridLayout(5, 1));
+		mainOptionsPanel.setLayout(new GridLayout(6, 1));
 		mainOptionsPanel.add(welcomeLabel);
 		mainOptionsPanel.add(singleplayerButton);
 		mainOptionsPanel.add(multiplayerButton);
@@ -431,11 +447,8 @@ public class GUI extends HumanPlayer {
 		singleplayerButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				sendCommand(new NewGame());
-				sendCommand(new NewComputerPlayer(3));
-				mainPanel.removeAll();
-				mainPanel.add(loadoutPanel);
-				mainFrame.repaint();
-				mainFrame.revalidate();
+				sendCommand(new NewComputerPlayer());
+				showPanel(loadoutPanel);
 			}
 		});
 		
@@ -443,9 +456,9 @@ public class GUI extends HumanPlayer {
 			public void actionPerformed(ActionEvent e) {
 				sendCommand(new RequestGameRooms());
 				mainPanel.removeAll();
-				mainPanel.add(gameRoomLobbyPanel);
-				mainFrame.repaint();
-				mainFrame.revalidate();
+				startGameOptionsPanel.remove(AILabel);
+				startGameOptionsPanel.remove(AILevelComboBox);
+				showPanel(gameRoomLobbyPanel);
 			}
 		});
 		
@@ -467,10 +480,7 @@ public class GUI extends HumanPlayer {
 		logoutButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				sendCommand(new Logout());
-				mainPanel.removeAll();
-				mainPanel.add(logisticsPanel);
-				mainFrame.repaint();
-				mainFrame.revalidate();
+				showPanel(logisticsPanel);
 			}
 		});
 	}
@@ -517,19 +527,25 @@ public class GUI extends HumanPlayer {
 	}
 	
 	@Override
-	public void updateAvailGameRooms(HashMap<String, Integer> rooms) {
-//		gameRoomModel.removeAllElements();
-//		for (String n : names) {
-//			gameRoomModel.addElement(n);
-//		}
-//		gameRoomLobbyPanel.repaint();
-//		gameRoomLobbyPanel.revalidate();
-//		gameRoomLobbyPanel.updateUI();
+	public void updateAvailGameRooms(HashMap<Integer, String> rooms) {
+		gameRoomLobbyPanel.remove(gameRoomsTable);
+		String[] columnnames = new String[] { "Room", "Player" };
+		Object[][] data = new Object[rooms.size()][2];
+		for (int i= 0 ; i < rooms.size() ; i++) {
+			data[i][0] = new Integer(i);
+			data[i][1] = rooms.get(i);
+		}
+		gameRoomsTable = new JTable(data, columnnames);
+		gameRoomLobbyPanel.add(gameRoomsTable);
+		gameRoomLobbyPanel.repaint();
+		gameRoomLobbyPanel.revalidate();
+		gameRoomLobbyPanel.updateUI();
+		System.out.println("received open gamerooms");
 	}
 	
 	@Override
 	public void canStartGame() {
-		startGameButs.add(startGameButton);
+		startGameButton.setEnabled(true);
 		startGameButs.repaint();
 		startGameButs.revalidate();
 		startGameButs.updateUI();

@@ -1,6 +1,5 @@
 package client_commands;
 
-import server.ClientHandler;
 import server.Server;
 import shared.Attribute;
 

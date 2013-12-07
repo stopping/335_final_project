@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Deque;
 import java.util.LinkedList;
 
+import server_commands.ComputerDifficultySet;
 import server_commands.ComputerTurn;
 import server_commands.IllegalOption;
 import server_commands.SendingGame;
@@ -25,6 +26,7 @@ public class GameRoom {
 	protected String playerTwo;
 	protected Game game;
 	private int whoseTurn;
+	protected int computerPlayerLevel;
 	protected boolean isComputerPlayerGame;
 	
 	public GameRoom() {
@@ -54,6 +56,15 @@ public class GameRoom {
 		return false;
 	}
 	
+	public boolean setComputerPlayerLevel(int level) {
+		if (isComputerPlayerGame) {
+			computerPlayerLevel = level;
+			players.get(1).sendCommand(new ComputerDifficultySet(level));
+			return true;
+		}
+		return false;
+	}
+	
 	public boolean isFull() {
 		return players.size() == Server.MAX_PLAYERS ? true : false;
 	}	
@@ -70,8 +81,6 @@ public class GameRoom {
 		this.game = g;
 		for (ClientHandler ch : players )
 			ch.sendCommand(new SendingGame(g));
-//		for (ClientHandler ch : players )
-//			ch.sendGame(g);
 		return true;
 	}
 	
