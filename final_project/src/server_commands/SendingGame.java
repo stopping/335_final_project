@@ -5,10 +5,22 @@ import client.HumanPlayer;
 
 @SuppressWarnings("serial")
 public class SendingGame extends ServerCommand {
-
+	
+	private Game game;
+	
+	public SendingGame( Game g ) {
+		game = g;
+	}
 	
 	@Override
-	public void executeOn(HumanPlayer p) {
-
+	public void executeOn(HumanPlayer player) {
+		player.showGamePanel();
+		player.setGame(game);
+		player.update();
+		System.out.println("Game received");
+	}
+	
+	public Game getGame() {
+		return game;
 	}
 }

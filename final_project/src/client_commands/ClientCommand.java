@@ -17,7 +17,7 @@ public abstract class ClientCommand extends Command {
 	// the name of the player.
 	protected String source;
 	
-	// the ganeRoom they are in
+	// the gameRoom they are in
 	protected int gameRoom;
 	
 	// the client handler that received the request

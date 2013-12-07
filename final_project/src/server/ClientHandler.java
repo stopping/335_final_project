@@ -65,13 +65,13 @@ public class ClientHandler implements Runnable {
 		this.gameRoom = gr;
 	}
 	
-	public void sendGame(Game g) {
-		try {
-			output.writeObject(g);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
+//	public void sendGame(Game g) {
+//		try {
+//			output.writeObject(g);
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
+//	}
 	
 	public void sendCommand(ServerCommand c) {
 		try {
@@ -98,5 +98,8 @@ public class ClientHandler implements Runnable {
 			e1.printStackTrace();
 		}
 	}
-
+	
+	public String getName() {
+		return playerName;
+	}
 }

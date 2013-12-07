@@ -69,9 +69,9 @@ public class GameRoom {
 	public boolean sendNewGame(Game g) {
 		this.game = g;
 		for (ClientHandler ch : players )
-			ch.sendCommand(new SendingGame());
-		for (ClientHandler ch : players )
-			ch.sendGame(g);
+			ch.sendCommand(new SendingGame(g));
+//		for (ClientHandler ch : players )
+//			ch.sendGame(g);
 		return true;
 	}
 	

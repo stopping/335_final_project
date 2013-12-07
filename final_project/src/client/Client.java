@@ -9,8 +9,8 @@ import java.net.ConnectException;
 import java.net.Socket;
 
 import client_commands.ClientCommand;
-
 import server_commands.SendingGame;
+import server_commands.SendingUserInfo;
 import server_commands.ServerCommand;
 import shared.Command;
 import shared.Game;
@@ -45,18 +45,21 @@ public class Client implements Runnable {
 				
 				if (com instanceof ServerCommand) {
 					ServerCommand c = (ServerCommand)com;
-					if (c instanceof SendingGame) {
-						Game g = (Game) input.readObject();
-						System.out.println("Game received");
-						player.showGamePanel();
-						player.setGame(g);
-						player.update();
-					}
-					else  {
-						System.out.println("executing command " + com.hashCode());
-						((ServerCommand)com).executeOn(player);
-
-					}
+//					if (c instanceof SendingGame) {
+//						Game g = (Game) input.readObject();
+//						System.out.println("Game received");
+//						player.showGamePanel();
+//						player.setGame(g);
+//						player.update();
+//					}
+//					else  {
+//						System.out.println("executing command " + com.hashCode());
+//						((ServerCommand)com).executeOn(player);
+//
+//					}
+					
+					System.out.println("executing command " + com.hashCode());
+					((ServerCommand)com).executeOn(player);
 					
 				}
 				

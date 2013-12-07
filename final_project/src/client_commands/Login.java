@@ -1,6 +1,9 @@
 package client_commands;
 
+import server.ClientHandler;
 import server.Server;
+import server.UserAccount;
+import server_commands.SendingUserInfo;
 
 @SuppressWarnings("serial")
 public class Login extends ClientCommand {
@@ -14,6 +17,12 @@ public class Login extends ClientCommand {
 	}
 	
 	public boolean executeOn(Server s) {
-		return s.login(source, name, password, ch);
+		if(s.login(source, name, password, ch)) {
+			ch.setPlayerName(name);
+			UserAccount account = s.getUserInfo(name);
+			ch.sendCommand(new SendingUserInfo( account.getUnits(), account.getNumCredits() ));
+			return true;
+		}
+		return false;
 	}
 }
