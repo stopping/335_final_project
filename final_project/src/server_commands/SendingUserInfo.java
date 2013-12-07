@@ -19,7 +19,7 @@ public class SendingUserInfo extends ServerCommand {
 	@Override
 	public void executeOn(HumanPlayer p) {
 		System.out.println("Sending user info");
-		p.setUnits(units);
+		//p.setUnits(units);
 		p.setCredits(credits);
 		p.update();
 	}

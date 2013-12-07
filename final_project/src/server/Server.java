@@ -160,8 +160,7 @@ public class Server implements Runnable {
 	public boolean resumeSession(String source, ClientHandler ch) {
 		if (database.isSavedGame(source)) {
 			Game g = database.getSavedGame(source);
-			ch.sendCommand(new SendingGame());
-			ch.sendGame(g);
+			ch.sendCommand(new SendingGame(g));
 			return true;
 		}
 		else return false;

@@ -7,13 +7,13 @@ import java.util.HashMap;
 
 import shared.Command;
 import shared.Game;
+import shared.Player;
 import unit.Unit;
 
-public abstract class HumanPlayer {
+public abstract class HumanPlayer extends Player {
 	
 	protected int credits;
-	protected ArrayList<Unit> units;
-	protected Game game;
+	protected ArrayList<Unit> gameUnits;
 	protected Client client;
 	
 	public HumanPlayer() {
@@ -38,7 +38,6 @@ public abstract class HumanPlayer {
 	
 	public void setUnits(ArrayList<Unit> u) {
 		units = u;
-		
 	}
 
 	public void setCredits(int c) {

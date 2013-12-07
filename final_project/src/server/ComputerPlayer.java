@@ -22,16 +22,15 @@ import server_commands.ServerCommand;
 import shared.Attribute;
 import shared.Game;
 import shared.Occupant;
+import shared.Player;
 import unit.*;
 import shared.GameSquare;
 
-public class ComputerPlayer implements Runnable {
+public class ComputerPlayer extends Player implements Runnable {
 
 	private ObjectOutputStream output;
 	private ObjectInputStream input;
-	private Game game;
 	private int difficulty;
-	private List<Unit> units;
 
 	public ComputerPlayer(int gameRoom, int difficultyLevel) {
 		System.out.println("Computer player created");
@@ -353,15 +352,7 @@ public class ComputerPlayer implements Runnable {
 						}
 						else if (c instanceof SendingGame) {
 							System.out.println("Game received by CopmuterPlayer");
-							Game g = null;
-							
-							try {
-								g = (Game) input.readObject();
-							} catch (ClassNotFoundException | IOException e) {
-								e.printStackTrace();
-							}
-	
-							setGame(g);
+							setGame(((SendingGame) c).getGame());
 						}
 					}
 				
