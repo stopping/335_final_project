@@ -24,11 +24,13 @@ import shared.Player;
 import unit.*;
 import shared.GameSquare;
 
-public class ComputerPlayer extends Player implements Runnable {
+public class ComputerPlayer implements Runnable {
 
 	private ObjectOutputStream output;
 	private ObjectInputStream input;
 	private int difficulty;
+	protected Game game;
+	protected List<Unit> units;
 
 	public ComputerPlayer(int gameRoom) {
 		System.out.println("Computer player created");

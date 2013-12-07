@@ -7,38 +7,28 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import client_commands.*;
-
 import shared.GameSquare.Terrain;
 import unit.Unit;
 
-@SuppressWarnings("serial")
+
 public class Game implements Serializable {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 2029788461691510050L;
 	GameSquare[][] board;
-	ArrayList<Unit> unitListRed = new ArrayList<Unit>();
-	ArrayList<Unit> unitListBlue = new ArrayList<Unit>();
+	List<Unit> unitListRed = new ArrayList<Unit>();
+	List<Unit> unitListBlue = new ArrayList<Unit>();
 	WinCondition victoryCondition;
 	
 	int winner = -1;
 	int currentPlayer;
 	
 	
-	public Game(ArrayList<Unit> redUnits, ArrayList<Unit> blueUnits, WinCondition condition) {
+	public Game(ArrayList<Unit> redUnits, ArrayList<Unit> blueUnits, WinCondition condition, MapBehavior map) {
 		
-		char[][] fieldArray = {
-				{'R','R','R','X',' ',' ',' ',' ',' ',' ',' ',' '},
-				{' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' '},
-				{' ','R','R','X',' ',' ','X','X','X','X',' ',' '},
-				{' ','X','X','X',' ',' ',' ',' ',' ','X',' ',' '},
-				{' ',' ','X',' ',' ',' ',' ',' ',' ','X',' ',' '},
-				{' ',' ','X',' ',' ',' ',' ',' ',' ','X',' ',' '},
-				{'X',' ','X',' ',' ',' ',' ',' ',' ',' ',' ',' '},
-				{' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' '},
-				{' ',' ','X',' ',' ',' ',' ',' ','X','X',' ','X'},
-				{' ',' ','X','X',' ','X','X','X','X','B',' ','B'},
-				{' ',' ',' ',' ',' ',' ',' ',' ','X','B',' ','B'},
-				{' ',' ',' ',' ',' ','X',' ',' ',' ',' ',' ','B'} };
+		char[][] fieldArray = map.getMap();
 		
 		int rows = fieldArray.length;
 		int cols = fieldArray[0].length;
@@ -57,16 +47,15 @@ public class Game implements Serializable {
 			}
 		}
 		
-		unitListRed = redUnits;
-		unitListBlue = blueUnits;
-		
-		for(int i = 0; i < unitListRed.size(); i++) {
-			unitListRed.get(i).setGame(this);
-			unitListRed.get(i).setBoard();
+		for(Unit u : redUnits) {
+			unitListRed.add(u);
+			u.setGame(this);
+			u.setBoard();
 		}
-		for(int i = 0; i < unitListBlue.size(); i++) {
-			unitListBlue.get(i).setGame(this);
-			unitListBlue.get(i).setBoard();
+		for(Unit u : blueUnits) {
+			unitListBlue.add(u);
+			u.setGame(this);
+			u.setBoard();
 		}
 		
 		currentPlayer = 0;

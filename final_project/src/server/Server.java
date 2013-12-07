@@ -7,6 +7,7 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+
 import server_commands.*;
 import shared.Attribute;
 import shared.Game;
@@ -16,6 +17,14 @@ import unit.EngineerUnit;
 import unit.MeleeUnit;
 import unit.RocketUnit;
 import unit.SoldierUnit;
+
+import server_commands.CanStartGame;
+import server_commands.SendingGame;
+import server_commands.ValidLogin;
+import shared.Game;
+import shared.Game.WinCondition;
+import shared.MapBehavior;
+
 import unit.Unit;
 import unit.Unit.UnitClass;
 
@@ -98,7 +107,6 @@ public class Server implements Runnable {
 	}
 	
 	public boolean removeClient(String source, int gr, ClientHandler ch) {
-		System.out.println(">>>>>> Client being removed");
 		playerMap.remove(source);
 		gamerooms.get(gr).removePlayer(ch);
 		ch.disconnect();
@@ -207,7 +215,9 @@ public class Server implements Runnable {
 		return units;
 	}
 	
-	public boolean startGame(String source, int gr, WinCondition wc) {
+
+
+	public boolean startGame(String source, int gr, WinCondition wc, MapBehavior map) {
 		ArrayList<Unit> player1Units = database.getUnits(source);
 		ArrayList<Unit> player2Units;
 		
@@ -219,7 +229,7 @@ public class Server implements Runnable {
 			player2Units = database.getUnits(playerTwo);
 		}
 		
-		Game g = new Game(player1Units, player2Units, wc);
+		Game g = new Game(player1Units, player2Units, wc, map);
 		System.out.println("Sending game to gameRoom: " + gr);
 		return gamerooms.get(gr).sendNewGame(g);
 	}

@@ -40,7 +40,9 @@ public class Client implements Runnable {
 			this.input = new ObjectInputStream(sock.getInputStream());
 			
 			while (true) {
-				Command com = (Command) input.readObject();
+				Object o = input.readObject();
+				System.out.println(o.toString());
+				Command com = (Command) o;
 				System.out.println("Client: Object read");
 				
 				if (com instanceof ServerCommand) {
@@ -58,8 +60,8 @@ public class Client implements Runnable {
 //
 //					}
 					
-					System.out.println("executing command " + com.hashCode());
-					((ServerCommand)com).executeOn(player);
+					System.out.println("executing command " + c.hashCode());
+					c.executeOn(player);
 					
 				}
 				
