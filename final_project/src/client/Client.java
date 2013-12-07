@@ -58,8 +58,8 @@ public class Client implements Runnable {
 //
 //					}
 					
-					System.out.println("executing command " + com.hashCode());
-					((ServerCommand)com).executeOn(player);
+					System.out.println("executing command " + c.hashCode());
+					c.executeOn(player);
 					
 				}
 				

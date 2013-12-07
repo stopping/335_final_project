@@ -4,17 +4,20 @@ import game_commands.GameCommand;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import shared.Command;
 import shared.Game;
 import shared.Player;
 import unit.Unit;
 
-public abstract class HumanPlayer extends Player {
+public abstract class HumanPlayer {
 	
 	protected int credits;
 	protected ArrayList<Unit> gameUnits;
 	protected Client client;
+	protected Game game;
+	protected List<Unit> units;
 	
 	public HumanPlayer() {
 		client = new Client("localhost", 4009, this);

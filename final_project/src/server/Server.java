@@ -92,7 +92,6 @@ public class Server implements Runnable {
 	}
 	
 	public boolean removeClient(String source, int gr, ClientHandler ch) {
-		System.out.println(">>>>>> Client being removed");
 		playerMap.remove(source);
 		gamerooms.get(gr).removePlayer(ch);
 		ch.disconnect();
@@ -108,8 +107,6 @@ public class Server implements Runnable {
 	}
 	
 	public boolean computerPlayerJoin(int gr, ClientHandler ch) {
-		
-		
 		return gamerooms.get(gr).addPlayer(ch, gr);
 	}
 	
@@ -170,10 +167,10 @@ public class Server implements Runnable {
 		ArrayList<Unit> player1Units = database.getUnits(source);
 		ArrayList<Unit> player2Units;
 		
-		if (gamerooms.get(gr).isComputerPlayerGame) 
+		if (gamerooms.get(gr).isComputerPlayerGame) {
 			player2Units = ComputerPlayer.generateAIUnits(3);
-		
-		else {
+			System.out.println("Computer units generated");
+		} else {
 			String playerTwo = gamerooms.get(gr).playerTwo;
 			player2Units = database.getUnits(playerTwo);
 		}

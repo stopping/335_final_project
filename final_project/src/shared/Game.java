@@ -7,17 +7,19 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import client_commands.*;
-
 import shared.GameSquare.Terrain;
 import unit.Unit;
 
-@SuppressWarnings("serial")
+
 public class Game implements Serializable {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 2029788461691510050L;
 	GameSquare[][] board;
-	ArrayList<Unit> unitListRed = new ArrayList<Unit>();
-	ArrayList<Unit> unitListBlue = new ArrayList<Unit>();
+	List<Unit> unitListRed;
+	List<Unit> unitListBlue;
 	WinCondition victoryCondition;
 	
 	int winner = -1;

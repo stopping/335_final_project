@@ -18,7 +18,7 @@ public class Login extends ClientCommand {
 	
 	public boolean executeOn(Server s) {
 		if(s.login(source, name, password, ch)) {
-			ch.setPlayerName(name);
+			//ch.setPlayerName(name);
 			UserAccount account = s.getUserInfo(name);
 			ch.sendCommand(new SendingUserInfo( account.getUnits(), account.getNumCredits() ));
 			return true;

@@ -19,10 +19,8 @@ public class NewUser extends ClientCommand {
 	@Override
 	public boolean executeOn(Server s) {
 		if(s.setupNewUser(name, password, ch)) {
-			ch.setPlayerName(name);
+			//ch.setPlayerName(name);
 			UserAccount account = s.getUserInfo(name);
-			if(account == null) System.out.println("account is null");
-			if(ch == null) System.out.println("handler is null");
 			ch.sendCommand(new SendingUserInfo( account.getUnits(), account.getNumCredits() ));
 			return true;
 		}

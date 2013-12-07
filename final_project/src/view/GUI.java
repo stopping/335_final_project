@@ -686,7 +686,7 @@ public class GUI extends HumanPlayer {
 		welcomeLabel.setText("Welcome! You have " + credits + " credits.");
 		
 		if(game != null) {
-			GameSquare gs = game.getBoard()[leftClickRow][leftClickCol];
+			GameSquare gs = game.getGameSquareAt(leftClickRow, leftClickCol);
 			if(game.getWinner() != -1) {
 				if(game.isCurrentPlayer(game.getWinner()))
 					gameInfo.setText("You won!");

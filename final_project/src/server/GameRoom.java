@@ -11,6 +11,7 @@ import server_commands.ComputerTurn;
 import server_commands.IllegalOption;
 import server_commands.SendingGame;
 import shared.Game;
+import unit.Unit;
 
 /**
  * Class: GameRoom
@@ -68,10 +69,10 @@ public class GameRoom {
 	
 	public boolean sendNewGame(Game g) {
 		this.game = g;
+		
 		for (ClientHandler ch : players )
 			ch.sendCommand(new SendingGame(g));
-//		for (ClientHandler ch : players )
-//			ch.sendGame(g);
+		
 		return true;
 	}
 	
