@@ -10,7 +10,8 @@ import shared.Game;
 import unit.Unit;
 
 public abstract class HumanPlayer {
-
+	
+	protected int credits;
 	protected ArrayList<Unit> units;
 	protected Game game;
 	protected Client client;
@@ -35,6 +36,15 @@ public abstract class HumanPlayer {
 		this.game = g;
 	}
 	
+	public void setUnits(ArrayList<Unit> u) {
+		units = u;
+		
+	}
+
+	public void setCredits(int c) {
+		credits = c;
+	}
+	
 	public void sendCommand(Command com) {
 		client.sendCommand(com);
 	}
@@ -50,7 +60,7 @@ public abstract class HumanPlayer {
 	public abstract void updateAvailGameRooms(HashMap<String, Integer> rooms);
 
 	public void showGamePanel() {		
-	}
 	
+	}
 
 }

@@ -91,6 +91,7 @@ public class GUI extends HumanPlayer {
 	JScrollPane chatScrollPane = new JScrollPane(chatArea);
 	
 	JPanel mainOptionsPanel = new JPanel();
+	JLabel welcomeLabel = new JLabel();
 	JButton multiplayerButton = new JButton("Multiplayer");
 	JButton singleplayerButton = new JButton("Singleplayer");
 	JButton resumeSessionButton = new JButton("ResumeSession");
@@ -106,7 +107,6 @@ public class GUI extends HumanPlayer {
 	JMenuItem attackItem = new JMenuItem("Attack");
 	JMenuItem specialItem = new JMenuItem("Special");
 	JMenuItem cancelItem = new JMenuItem("Cancel");
-
 
 	JPanel lobbyPanel = new JPanel();
 	JPanel failedLoginPanel = new JPanel();
@@ -418,7 +418,10 @@ public class GUI extends HumanPlayer {
 	}
 	
 	private void setupMainOptionsPanel() {
+		welcomeLabel.setText("Welcome! You have " + credits + " credits.");
+		
 		mainOptionsPanel.setLayout(new GridLayout(5, 1));
+		mainOptionsPanel.add(welcomeLabel);
 		mainOptionsPanel.add(singleplayerButton);
 		mainOptionsPanel.add(multiplayerButton);
 		mainOptionsPanel.add(resumeSessionButton);
@@ -680,27 +683,31 @@ public class GUI extends HumanPlayer {
 	}
 
 	public void update() {
-		GameSquare gs = game.getBoard()[leftClickRow][leftClickCol];
-		if(game.getWinner() != -1) {
-			if(game.isCurrentPlayer(game.getWinner()))
-				gameInfo.setText("You won!");
-			else
-				gameInfo.setText("You lost.");
-		} else if (gs.hasOccupant()) {
-			Occupant o = gs.getOccupant();
-			gameInfo.setText(o.toString());
-			itemListModel.removeAllElements();
-			if (o instanceof Unit) {
-				List<Item> list = ((Unit) o).getItemList();
-				for (Item i : list) {
-					itemListModel.addElement(i);
-				}
-			}
-		} else {
-			gameInfo.setText("Empty");
-		}
+		welcomeLabel.setText("Welcome! You have " + credits + " credits.");
 		
-		boardPanel.repaint();
+		if(game != null) {
+			GameSquare gs = game.getBoard()[leftClickRow][leftClickCol];
+			if(game.getWinner() != -1) {
+				if(game.isCurrentPlayer(game.getWinner()))
+					gameInfo.setText("You won!");
+				else
+					gameInfo.setText("You lost.");
+			} else if (gs.hasOccupant()) {
+				Occupant o = gs.getOccupant();
+				gameInfo.setText(o.toString());
+				itemListModel.removeAllElements();
+				if (o instanceof Unit) {
+					List<Item> list = ((Unit) o).getItemList();
+					for (Item i : list) {
+						itemListModel.addElement(i);
+					}
+				}
+			} else {
+				gameInfo.setText("Empty");
+			}
+			
+			boardPanel.repaint();
+		}
 	}
 
 	@SuppressWarnings("serial")

@@ -46,9 +46,10 @@ public class Server implements Runnable {
 			while(true) {	
 				clientHandle = sockServer.accept();		
 				ClientHandler newClient = new ClientHandler(clientHandle, this);
+				addClientHandler(newClient);
 				Thread newThread = new Thread(newClient);
 				System.out.println("New Socket Opened");
-				newThread.start();		
+				newThread.start();	
 			}
 			
 		} catch (Exception e) {
@@ -91,6 +92,7 @@ public class Server implements Runnable {
 	}
 	
 	public boolean removeClient(String source, int gr, ClientHandler ch) {
+		System.out.println(">>>>>> Client being removed");
 		playerMap.remove(source);
 		gamerooms.get(gr).removePlayer(ch);
 		ch.disconnect();
@@ -184,5 +186,20 @@ public class Server implements Runnable {
 	
 	public void executeGameCommand(int gameRoom, ClientHandler ch, GameCommand gc) {
 		gamerooms.get(gameRoom).executeCommand(ch, gc);
+	}
+	
+	public ClientHandler getClientHandler( String player ) {
+		return playerMap.get(player);
+	}
+	
+	public boolean addClientHandler( ClientHandler ch ) {
+		playerMap.put(ch.getName(), ch);
+		if(playerMap.get(ch.getName()) == null) System.out.println("Unsuccessful");
+		else System.out.println("Successful");
+		return true;
+	}
+	
+	public UserAccount getUserInfo( String username ) {
+		return database.getUser( username );
 	}
 }

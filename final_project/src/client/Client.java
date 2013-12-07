@@ -9,8 +9,8 @@ import java.net.ConnectException;
 import java.net.Socket;
 
 import client_commands.ClientCommand;
-
 import server_commands.SendingGame;
+import server_commands.SendingUserInfo;
 import server_commands.ServerCommand;
 import shared.Command;
 import shared.Game;

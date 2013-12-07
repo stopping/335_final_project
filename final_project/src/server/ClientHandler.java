@@ -98,5 +98,8 @@ public class ClientHandler implements Runnable {
 			e1.printStackTrace();
 		}
 	}
-
+	
+	public String getName() {
+		return playerName;
+	}
 }
