@@ -37,12 +37,12 @@ public class GameRoom {
 	public boolean addPlayer(ClientHandler p, int gameRoom) {
 		if (!isFull()) {
 			players.add(p);
-			if (!isFull())
+			if (players.size() == 1)
 				playerOne = p.playerName;
 			else 
 				playerTwo = p.playerName;
 			p.setGameRoom(gameRoom);
-			System.out.println("new player goined game room " + gameRoom);
+			System.out.println("new player joined game room " + gameRoom);
 			return true;
 		}
 		return false;
@@ -120,6 +120,12 @@ public class GameRoom {
 		ClientHandler opp = players.get(i);
 		while(!playerCommands.isEmpty()) {
 			opp.sendCommand(playerCommands.removeFirst());
+			if (!isComputerPlayerGame || (isComputerPlayerGame &&whoseTurn == 1))
+			try {
+				Thread.sleep(500);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
 		}
 		if (isComputerPlayerGame && whoseTurn == 0)
 			opp.sendCommand(new ComputerTurn());

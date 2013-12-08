@@ -55,7 +55,7 @@ public class Server implements Runnable {
 			while(true) {	
 				clientHandle = sockServer.accept();		
 				ClientHandler newClient = new ClientHandler(clientHandle, this);
-				addClientHandler(newClient);
+				//addClientHandler(newClient);
 				Thread newThread = new Thread(newClient);
 				System.out.println("New Socket Opened");
 				newThread.start();	
@@ -80,11 +80,11 @@ public class Server implements Runnable {
 		}
 	}
 
-	public boolean setupNewUser(String source, String password, ClientHandler ch) {
-		boolean ret = database.addUser(source, password);
+	public boolean setupNewUser(String name, String password, ClientHandler ch) {
+		boolean ret = database.addUser(name, password);
 		if (ret) {
-			ch.setPlayerName(source);
-			playerMap.put(source, ch);
+			ch.setPlayerName(name);
+			playerMap.put(name, ch);
 			ch.sendCommand(new ValidLogin());
 		}
 		return ret;
@@ -224,19 +224,21 @@ public class Server implements Runnable {
 
 	public boolean startGame(String source, int gr, WinCondition wc, MapBehavior map) {
 		
-		ArrayList<Unit> player1Units = database.getUnits(source);
+		ArrayList<Unit> player1Units;
 		ArrayList<Unit> player2Units;
 		
 		if (gamerooms.get(gr).isComputerPlayerGame) {
+			player1Units = database.getUser(source).getUnits();
 			player2Units = generateComputerUnits(gamerooms.get(gr).computerPlayerLevel);
 		}
-		
 		else {
+			String playerOne = gamerooms.get(gr).playerOne;
 			String playerTwo = gamerooms.get(gr).playerTwo;
-			if (!playersAreReady(source, playerTwo)) {
+			if (!playersAreReady(playerOne, playerTwo)) {
 				System.out.println("both players must be ready!");
 				return false;
 			}
+			player1Units = database.getUnits(playerOne);
 			player2Units = database.getUnits(playerTwo);
 		}
 		
@@ -253,12 +255,12 @@ public class Server implements Runnable {
 		return playerMap.get(player);
 	}
 	
-	public boolean addClientHandler( ClientHandler ch ) {
-		playerMap.put(ch.getName(), ch);
-		if(playerMap.get(ch.getName()) == null) System.out.println("Unsuccessful");
-		else System.out.println("Successful");
-		return true;
-	}
+//	public boolean addClientHandler( ClientHandler ch ) {
+//		playerMap.put(ch.getName(), ch);
+//		if(playerMap.get(ch.getName()) == null) System.out.println("Unsuccessful");
+//		else System.out.println("Successful");
+//		return true;
+//	}
 	
 	public UserAccount getUserInfo( String username ) {
 		return database.getUser( username );

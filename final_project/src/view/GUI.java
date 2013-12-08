@@ -29,6 +29,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Random;
 import java.util.Set;
 
 import javax.imageio.ImageIO;
@@ -154,6 +155,11 @@ public class GUI extends HumanPlayer {
 	
 	String maps[] = new String[] { "Standard", "Obstacle"};
 	final JComboBox<String> mapTypeComboBox = new JComboBox<String>(maps);
+	
+	final String[] unitNames = new String[] { "Alice", "Bob", "Carrie", "Dick", "Elaine", "Farley", "Gavelle", 
+		"Hellena", "Ivan", "Jaque", "Kio", "Leon", "Marge", "Noip", "Otus", "Pete", "Quixote", "Rob", "Stella",
+		"Timmy", "Umpa", "Vanessa", "W", "X", "Y", "Z" };
+
 
 	JButton endTurnButton = new JButton("End Turn");
 	JButton useItemButton = new JButton("Use Item");
@@ -534,6 +540,7 @@ public class GUI extends HumanPlayer {
 	}
 	
 	private void sendNewUnitCommands() {
+		Random rand = new Random();
 		for (int i = 0; i < userUnitListModel.getSize(); i++) {
 			UnitClass uc = null;
 			if (userUnitListModel.get(i) instanceof MeleeUnit) 
@@ -546,8 +553,8 @@ public class GUI extends HumanPlayer {
 				uc = UnitClass.Demolition;			
 			else if (userUnitListModel.get(i) instanceof EngineerUnit) 
 				uc = UnitClass.Engineer;			
-			
-			sendCommand(new NewUnit("unit", uc));
+			int r = rand.nextInt(26);
+			sendCommand(new NewUnit(unitNames[r], uc));
 		}
 	}
 	
