@@ -15,6 +15,7 @@ public class UserAccount {
 	public UserAccount() {
 		this.units = new ArrayList<Unit>();
 		this.credits = 1000;		// new user starting credits
+		this.isReady = false;
 	}
 	
 	public boolean addUnit(String name, UnitClass type) {
@@ -62,6 +63,7 @@ public class UserAccount {
 	}
 	
 	public void setIsReady(boolean status) {
+		System.out.println("set is ready for player ");
 		this.isReady = status;
 	}
 	

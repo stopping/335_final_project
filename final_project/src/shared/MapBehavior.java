@@ -6,4 +6,5 @@ public interface MapBehavior extends Serializable {
 
 	
 	public char[][] getMap();
+	
 }

@@ -7,7 +7,9 @@ public class NewGame extends ClientCommand {
 
 	@Override
 	public boolean executeOn(Server s) {
-		return s.createNewGameRoom(ch);
+		boolean ret = s.createNewGameRoom(ch);
+		s.updateOpenGameRooms();
+		return ret;
 	}
 
 }

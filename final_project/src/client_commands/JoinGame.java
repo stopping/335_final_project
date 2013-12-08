@@ -12,6 +12,8 @@ public class JoinGame extends ClientCommand {
 	}
 	
 	public boolean executeOn(Server s) {
-		return s.userJoinGame(gameToJoin, ch);
+		boolean ret =  s.userJoinGame(gameToJoin, ch);
+		s.updateOpenGameRooms();
+		return ret;
 	}
 }

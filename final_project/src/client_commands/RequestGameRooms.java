@@ -7,7 +7,8 @@ public class RequestGameRooms extends ClientCommand {
 
 	@Override
 	public boolean executeOn(Server s) {
-		return s.getOpenGameRooms(ch);
+		s.updateOpenGameRooms();
+		return true;
 	}
 
 }

@@ -1,13 +1,11 @@
 package server;
 
-import game_commands.GameCommand;
-
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-
+import game_commands.GameCommand;
 import server_commands.*;
 import shared.Attribute;
 import shared.Game;
@@ -17,14 +15,10 @@ import unit.EngineerUnit;
 import unit.MeleeUnit;
 import unit.RocketUnit;
 import unit.SoldierUnit;
-
 import server_commands.CanStartGame;
 import server_commands.SendingGame;
 import server_commands.ValidLogin;
-import shared.Game;
-import shared.Game.WinCondition;
 import shared.MapBehavior;
-
 import unit.Unit;
 import unit.Unit.UnitClass;
 
@@ -72,14 +66,15 @@ public class Server implements Runnable {
 		}
 	}
 	
-	public boolean login(String source, String name, String password, ClientHandler ch) {
+	public boolean login(String name, String password, ClientHandler ch) {
 		if (!database.isValidUser(name, password)) 
 			return false;
 		else if (database.getUser(name).isLoggedOn())
 			return false;
 		else {
 			database.getUser(name).setLoggedOn(true);
-			ch.setPlayerName(source);
+			playerMap.put(name, ch);
+			ch.setPlayerName(name);
 			ch.sendCommand(new ValidLogin());
 			return true;
 		}
@@ -89,6 +84,7 @@ public class Server implements Runnable {
 		boolean ret = database.addUser(source, password);
 		if (ret) {
 			ch.setPlayerName(source);
+			playerMap.put(source, ch);
 			ch.sendCommand(new ValidLogin());
 		}
 		return ret;
@@ -167,13 +163,19 @@ public class Server implements Runnable {
 		else return false;
 	}
 	
-	public boolean getOpenGameRooms(ClientHandler ch) {
+	public void updateOpenGameRooms() {
+		System.out.println("updating game rooms");
+		for (ClientHandler ch : playerMap.values()) {
+			ch.sendCommand(new OpenGameRooms(openGameRooms()));
+		}
+	}
+	
+	public HashMap<Integer, String> openGameRooms() {
 		HashMap<Integer, String> openGameRooms = new HashMap<Integer, String>();
 		for (int i=0 ; i <gamerooms.size() ; i++)
 			if (gamerooms.get(i).waitingForOpponent())
-				openGameRooms.put(i, gamerooms.get(i).playerOne);
-		ch.sendCommand(new OpenGameRooms(openGameRooms));		
-		return true;	
+				openGameRooms.put(i, gamerooms.get(i).playerOne);	
+		return openGameRooms;	
 	}
 	
 	public boolean suspendSession(String source, ClientHandler ch) {
@@ -215,17 +217,26 @@ public class Server implements Runnable {
 		return units;
 	}
 	
-
+	public boolean playersAreReady(String playerOne, String playerTwo) {
+		return database.getUser(playerTwo).isReady() &&
+		database.getUser(playerOne).isReady();
+	}
 
 	public boolean startGame(String source, int gr, WinCondition wc, MapBehavior map) {
+		
 		ArrayList<Unit> player1Units = database.getUnits(source);
 		ArrayList<Unit> player2Units;
 		
-		if (gamerooms.get(gr).isComputerPlayerGame) 
+		if (gamerooms.get(gr).isComputerPlayerGame) {
 			player2Units = generateComputerUnits(gamerooms.get(gr).computerPlayerLevel);
+		}
 		
 		else {
 			String playerTwo = gamerooms.get(gr).playerTwo;
+			if (!playersAreReady(source, playerTwo)) {
+				System.out.println("both players must be ready!");
+				return false;
+			}
 			player2Units = database.getUnits(playerTwo);
 		}
 		

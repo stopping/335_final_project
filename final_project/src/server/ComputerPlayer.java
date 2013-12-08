@@ -36,8 +36,10 @@ public class ComputerPlayer implements Runnable {
 		System.out.println("Computer player created");
 		Socket sock = null;
 		difficulty = 0;
+
 		try {
-			sock = new Socket("localhost", 4009);				
+			sock = new Socket("localhost", 4009);		
+			//sock.setSoTimeout(4000);
 			this.output = new ObjectOutputStream(sock.getOutputStream());
 			this.input = new ObjectInputStream(sock.getInputStream());
 			output.writeObject(new ComputerPlayerJoin(gameRoom));
@@ -253,12 +255,14 @@ public class ComputerPlayer implements Runnable {
 		int dest[] = getAttackableCoords(options, true);
 
 		if (dest != null) {
-			Unit uToAttack = (Unit)game.getGameSquareAt(dest[0], dest[1]).getOccupant();
+			if (game.getGameSquareAt(dest[0], dest[1]).getOccupant() instanceof Unit) {
+				Unit uToAttack = (Unit)game.getGameSquareAt(dest[0], dest[1]).getOccupant();
 		
-			if (units.contains(uToAttack))
-				doRandomMove(u, source, options);
-			else {
-				tryAttack(u, source, dest);
+				if (units.contains(uToAttack))
+					doRandomMove(u, source, options);
+		
+				else 
+					tryAttack(u, source, dest);
 			}
 		}
 		else 

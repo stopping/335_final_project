@@ -26,8 +26,10 @@ import java.awt.event.WindowEvent;
 import java.awt.geom.Rectangle2D;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 
 import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
@@ -54,6 +56,7 @@ import shared.Command;
 import shared.Game.WinCondition;
 import shared.GameSquare;
 import shared.Item;
+import shared.MapBehavior;
 import shared.Obstacle;
 import shared.ObstacleMap;
 import shared.Occupant;
@@ -138,8 +141,6 @@ public class GUI extends HumanPlayer {
 	
 	JButton gameRoomLobbyButton = new JButton("Go To Lobby");
 	JPanel gameRoomLobbyPanel = new JPanel();
-	//DefaultListModel<String> gameRoomModel = new DefaultListModel<String>();
-	//JList<String> gameRoomLobby = new JList<String>(gameRoomModel);
 	JTable gameRoomsTable = new JTable();
 	JButton newGameRoomButton = new JButton("New GameRoom");
 	JLabel gameRoomLobbyLabel = new JLabel("Open GameRooms");
@@ -148,8 +149,11 @@ public class GUI extends HumanPlayer {
 	JPanel startGameOptionsPanel = new JPanel();
 	
 	JLabel AILabel = new JLabel("AI level: ");
-	Integer AIDifficultyLevels[] = new Integer[] { 1, 2, 3};
-	final JComboBox<Integer> AILevelComboBox = new JComboBox<Integer>(AIDifficultyLevels);
+	String AIDifficultyLevels[] = new String[] { "Friendly", "Normal", "Destructive", "Insane"};
+	final JComboBox<String> AILevelComboBox = new JComboBox<String>(AIDifficultyLevels);
+	
+	String maps[] = new String[] { "Standard", "Obstacle"};
+	final JComboBox<String> mapTypeComboBox = new JComboBox<String>(maps);
 
 	JButton endTurnButton = new JButton("End Turn");
 	JButton useItemButton = new JButton("Use Item");
@@ -389,11 +393,13 @@ public class GUI extends HumanPlayer {
 		loadoutPanel.add(selectUnitsPanel, BorderLayout.CENTER);
 		JButton readyButton = new JButton("Ready");
 		
-		startGameOptionsPanel.setLayout(new GridLayout(3,2));
+		startGameOptionsPanel.setLayout(new GridLayout(4,2));
 		startGameOptionsPanel.add(AILabel);
 		startGameOptionsPanel.add(AILevelComboBox);
-		startGameOptionsPanel.add(new JLabel("Game Type: "));
+		startGameOptionsPanel.add(new JLabel("Win Condition: "));
 		startGameOptionsPanel.add(gameTypeComboBox);
+		startGameOptionsPanel.add(new JLabel("Map: "));
+		startGameOptionsPanel.add(mapTypeComboBox);
 		startGameOptionsPanel.add(readyButton);
 		startGameButton.setEnabled(false);
 		startGameOptionsPanel.add(startGameButton);
@@ -412,24 +418,30 @@ public class GUI extends HumanPlayer {
 		
 		startGameButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if (userUnitListModel.getSize() == 5) {
 					String gameType = (String) gameTypeComboBox.getSelectedItem();
 					WinCondition cond = WinCondition.valueOf(gameType);
-					//sendCommand(new StartGame(cond, new ObstacleMap()));
-					sendCommand(new StartGame(cond, new StandardMap()));
+					MapBehavior map = null;
+					switch (mapTypeComboBox.getSelectedIndex()) {
+					case 0:
+						map = new StandardMap();
+						break;
+					case 1:
+						map = new ObstacleMap();
+						break;
+					}
+					sendCommand(new StartGame(cond, map));
 				}
-			}	
+			
 		});
 	}
 	
 	private void setupGameRoomLobby() {
-		gameRoomLobbyPanel.setLayout(new GridLayout(3, 2));
-		//gameRoomLobbyPanel.setPreferredSize(new Dimension(300, 450));
-		gameRoomLobbyPanel.add(gameRoomLobbyLabel);
-		gameRoomLobbyPanel.add(gameRoomsTable);
+		gameRoomLobbyPanel.setLayout(new GridLayout(2, 2));
 		gameRoomLobbyPanel.add(newGameRoomButton);
 		gameRoomLobbyPanel.add(joinGameRoomButton);
-		
+		gameRoomLobbyPanel.add(gameRoomLobbyLabel);
+		gameRoomLobbyPanel.add(gameRoomsTable);
+
 		newGameRoomButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				sendCommand(new NewGame());
