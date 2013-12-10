@@ -234,7 +234,7 @@ public class Unit extends Occupant {
 		return false;
 	}
 
-	private boolean canGiveItem(int row, int col, Item i) {
+	public boolean canGiveItem(int row, int col, Item i) {
 		GameSquare gs = game.getGameSquareAt(row, col);
 		if(!gs.hasOccupant()) return false;
 		Occupant o = gs.getOccupant();

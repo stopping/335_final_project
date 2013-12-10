@@ -180,11 +180,9 @@ public class Server implements Runnable {
 		return openGameRooms;	
 	}
 	
-	public boolean suspendSession(String source, ClientHandler ch) {
-//		while (!ch.playerCommands.isEmpty()) {
-//			ch.game.executeCommand((ch.playerCommands.removeFirst()));
-//		}
-//		database.saveGameSesseion(source, ch.game);
+	public boolean suspendSession(String source, int gr, ClientHandler ch) {
+		database.saveGameSesseion(source, gamerooms.get(gr).game);
+		gamerooms.get(gr).cleanOutGameRoom();
 		System.out.println("saved session for " + source);
 		return true;
 	}

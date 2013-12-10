@@ -2,6 +2,7 @@ package view;
 
 import game_commands.AttackCommand;
 import game_commands.EndTurnCommand;
+import game_commands.GiveItemCommand;
 import game_commands.MoveCommand;
 import game_commands.UseAbilityCommand;
 import game_commands.UseItemCommand;
@@ -38,6 +39,7 @@ import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
+import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -123,6 +125,7 @@ public class GUI extends HumanPlayer {
 	JMenuItem attackItem = new JMenuItem("Attack");
 	JMenuItem specialItem = new JMenuItem("Special");
 	JMenuItem cancelItem = new JMenuItem("Cancel");
+	JMenu giveItemMenu = new JMenu("Give Item");
 
 	JPanel lobbyPanel = new JPanel();
 	JPanel failedLoginPanel = new JPanel();
@@ -657,6 +660,29 @@ public class GUI extends HumanPlayer {
 					if(performer.canAttack(rightClickRow, rightClickCol)) actionMenu.add(attackItem);
 					if(performer.canMoveTo(rightClickRow, rightClickCol)) actionMenu.add(moveItem);
 					if(performer.canUseAbility(rightClickRow, rightClickCol)) actionMenu.add(specialItem);
+					if (((Unit)performer).getItemList().size() > 0) {
+						if (performer.canGiveItem(rightClickRow, rightClickCol, performer.getItemList().get(0))) {
+							giveItemMenu.removeAll();
+							actionMenu.add(giveItemMenu);
+							for (int i =0 ; i< itemListModel.getSize() ; i++) {
+								JMenuItem item = new JMenuItem(itemListModel.get(i).getName());
+								giveItemMenu.add(item);
+								final int j = i;
+								item.addActionListener(new ActionListener() {
+									@Override
+									public void actionPerformed(ActionEvent e) {
+										GiveItemCommand c = new GiveItemCommand(new int[] 
+												{leftClickRow, leftClickCol},new int[] {rightClickRow, rightClickCol}, itemListModel.get(j));
+										sendCommand(c);
+										itemListModel.removeElementAt(j);
+										selected = false;
+										actionMenu.setVisible(false);
+										update();
+									}
+								});
+							}
+						}
+					}
 					actionMenu.add(cancelItem);
 					
 					actionMenu.show(arg0.getComponent(), rightClickCol*32+16, rightClickRow*32+16);
