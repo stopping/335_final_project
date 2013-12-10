@@ -3,13 +3,11 @@ package client_commands;
 import server.Server;
 
 @SuppressWarnings("serial")
-public class PlayerForfeit extends ClientCommand {
-
+public class Surrender extends ClientCommand {
 
 	@Override
 	public boolean executeOn(Server s) {
-		// TODO Auto-generated method stub
-		return false;
+		return s.playerSurrender(source, gameRoom, ch);
 	}
 
 }

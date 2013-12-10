@@ -55,7 +55,6 @@ public class Server implements Runnable {
 			while(true) {	
 				clientHandle = sockServer.accept();		
 				ClientHandler newClient = new ClientHandler(clientHandle, this);
-				//addClientHandler(newClient);
 				Thread newThread = new Thread(newClient);
 				System.out.println("New Socket Opened");
 				newThread.start();	
@@ -91,7 +90,9 @@ public class Server implements Runnable {
 	}
 
 	public boolean userJoinGame(int gr, ClientHandler ch) {
-		return gamerooms.get(gr).addPlayer(ch, gr);
+		if (gamerooms.containsKey(gr))
+			return gamerooms.get(gr).addPlayer(ch, gr);
+		return false;
 	}
 	
 	public boolean logout(String source, int gr, ClientHandler ch) {
@@ -172,9 +173,10 @@ public class Server implements Runnable {
 	
 	public HashMap<Integer, String> openGameRooms() {
 		HashMap<Integer, String> openGameRooms = new HashMap<Integer, String>();
-		for (int i=0 ; i <gamerooms.size() ; i++)
-			if (gamerooms.get(i).waitingForOpponent())
-				openGameRooms.put(i, gamerooms.get(i).playerOne);	
+		for (int i=0 ; i <gamerooms.size() ; i++) {
+			if (gamerooms.containsKey(i) && gamerooms.get(i).waitingForOpponent())
+				openGameRooms.put(i, gamerooms.get(i).playerOne);	 
+		}
 		return openGameRooms;	
 	}
 	
@@ -223,6 +225,8 @@ public class Server implements Runnable {
 	}
 
 	public boolean startGame(String source, int gr, WinCondition wc, MapBehavior map) {
+		if (!gamerooms.containsKey(gr))
+			return false;
 		
 		ArrayList<Unit> player1Units;
 		ArrayList<Unit> player2Units;
@@ -230,6 +234,10 @@ public class Server implements Runnable {
 		if (gamerooms.get(gr).isComputerPlayerGame) {
 			player1Units = database.getUser(source).getUnits();
 			player2Units = generateComputerUnits(gamerooms.get(gr).computerPlayerLevel);
+			
+			Game g = new Game(player1Units, player2Units, wc, map);
+			System.out.println("Sending game to gameRoom: " + gr);
+			return gamerooms.get(gr).sendNewGame(g);
 		}
 		else {
 			String playerOne = gamerooms.get(gr).playerOne;
@@ -240,29 +248,32 @@ public class Server implements Runnable {
 			}
 			player1Units = database.getUnits(playerOne);
 			player2Units = database.getUnits(playerTwo);
+			
+			Game g = new Game(player1Units, player2Units, wc, map);
+			System.out.println("Sending game to gameRoom: " + gr);
+			return gamerooms.get(gr).sendNewGame(g);
 		}
-		
-		Game g = new Game(player1Units, player2Units, wc, map);
-		System.out.println("Sending game to gameRoom: " + gr);
-		return gamerooms.get(gr).sendNewGame(g);
 	}
 	
 	public void executeGameCommand(int gameRoom, ClientHandler ch, GameCommand gc) {
-		gamerooms.get(gameRoom).executeCommand(ch, gc);
+		if (gamerooms.containsKey(gameRoom))
+			gamerooms.get(gameRoom).executeCommand(ch, gc);
 	}
 	
 	public ClientHandler getClientHandler( String player ) {
 		return playerMap.get(player);
 	}
 	
-//	public boolean addClientHandler( ClientHandler ch ) {
-//		playerMap.put(ch.getName(), ch);
-//		if(playerMap.get(ch.getName()) == null) System.out.println("Unsuccessful");
-//		else System.out.println("Successful");
-//		return true;
-//	}
-	
 	public UserAccount getUserInfo( String username ) {
 		return database.getUser( username );
+	}
+	
+	public boolean playerSurrender(String source, int gr, ClientHandler ch) {
+		if (gamerooms.containsKey(gr)) {
+			boolean ret = gamerooms.get(gr).playerSurrender(source, ch);
+			gamerooms.remove(gr);
+			return ret;
+		}
+		return false;
 	}
 }

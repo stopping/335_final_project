@@ -64,5 +64,7 @@ public abstract class HumanPlayer {
 	public void showGamePanel() {		
 	
 	}
+	
+	public abstract void playerSurrendered(String name);
 
 }

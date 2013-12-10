@@ -188,7 +188,7 @@ public class ComputerPlayer implements Runnable {
 	}
 	
 	private void doSeekAndDestroy(Unit u, int[] source, int[][] opt) {
-		
+		System.out.println("starting seek and destroy for unit: " + u.getName());
 		if (attackThyNeighboor(u, source, opt))
 			return;
 		

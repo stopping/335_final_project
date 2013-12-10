@@ -26,12 +26,9 @@ import java.awt.event.WindowEvent;
 import java.awt.geom.Rectangle2D;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
-import java.util.Set;
-
 import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
 import javax.swing.BoundedRangeModel;
@@ -52,6 +49,7 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.SwingConstants;
 
 import shared.Command;
 import shared.Game.WinCondition;
@@ -82,6 +80,7 @@ import client_commands.PlayerMessage;
 import client_commands.PlayerReady;
 import client_commands.RequestGameRooms;
 import client_commands.StartGame;
+import client_commands.Surrender;
 import client_commands.SuspendSession;
 
 
@@ -148,8 +147,10 @@ public class GUI extends HumanPlayer {
 	JButton joinGameRoomButton = new JButton("Join");
 	JButton startGameButton = new JButton("Start Game!");
 	JPanel startGameOptionsPanel = new JPanel();
+	JButton surrenderButton = new JButton("Surrender");
+	JButton returnToMenuButton = new JButton("Exit to Menu");
 	
-	JLabel AILabel = new JLabel("AI level: ");
+	JLabel AILabel = new JLabel("AI level: ",  SwingConstants.RIGHT);
 	String AIDifficultyLevels[] = new String[] { "Friendly", "Normal", "Destructive", "Insane"};
 	final JComboBox<String> AILevelComboBox = new JComboBox<String>(AIDifficultyLevels);
 	
@@ -159,7 +160,6 @@ public class GUI extends HumanPlayer {
 	final String[] unitNames = new String[] { "Alice", "Bob", "Carrie", "Dick", "Elaine", "Farley", "Gavelle", 
 		"Hellena", "Ivan", "Jaque", "Kio", "Leon", "Marge", "Noip", "Otus", "Pete", "Quixote", "Rob", "Stella",
 		"Timmy", "Umpa", "Vanessa", "W", "X", "Y", "Z" };
-
 
 	JButton endTurnButton = new JButton("End Turn");
 	JButton useItemButton = new JButton("Use Item");
@@ -210,6 +210,7 @@ public class GUI extends HumanPlayer {
 		gamePanel.add(endTurnButton);
 		gamePanel.add(itemList);
 		gamePanel.add(useItemButton);
+		gamePanel.add(surrenderButton);
 
 		// login panel
 		newAccountButton.addActionListener(new CreateAccountListener());
@@ -343,6 +344,35 @@ public class GUI extends HumanPlayer {
 			
 		});
 		
+		surrenderButton.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				switch (JOptionPane.showConfirmDialog(null, "Surrender to your opponent?")) {
+				case JOptionPane.YES_OPTION:
+					sendCommand(new Surrender());
+					gameInfo.setText("you lost.");
+					gamePanel.add(returnToMenuButton);
+					break;
+				default:
+					break;
+				}
+			}
+		});
+			
+		returnToMenuButton.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				userUnitList.setEnabled(true);
+				gameTypeComboBox.setEnabled(true);
+				mapTypeComboBox.setEnabled(true);
+				AILabel.setEnabled(true);
+				AILevelComboBox.setEnabled(true);
+				showPanel(mainOptionsPanel);
+			}
+		});
+		
 		chatScrollPane.getVerticalScrollBar().addAdjustmentListener(new ScrollBarListener());
 		chatField.addKeyListener(new ChatFieldListener());
 		//mainFrame.addWindowListener(new WindowClosingListener());
@@ -391,7 +421,7 @@ public class GUI extends HumanPlayer {
 		addUnitsPanel.add(userUnitList);
 		addUnitsPanel.add(removeUnitButton);
 
-		selectUnitsPanel.setPreferredSize(new Dimension(600, 600));
+		selectUnitsPanel.setPreferredSize(new Dimension(500, 300));
 		selectUnitsPanel.add(possibleUnitsPanel);
 		selectUnitsPanel.add(addUnitsPanel);
 
@@ -402,13 +432,14 @@ public class GUI extends HumanPlayer {
 		startGameOptionsPanel.setLayout(new GridLayout(4,2));
 		startGameOptionsPanel.add(AILabel);
 		startGameOptionsPanel.add(AILevelComboBox);
-		startGameOptionsPanel.add(new JLabel("Win Condition: "));
+		startGameOptionsPanel.add(new JLabel("Win Condition: ", SwingConstants.RIGHT));
 		startGameOptionsPanel.add(gameTypeComboBox);
-		startGameOptionsPanel.add(new JLabel("Map: "));
+		startGameOptionsPanel.add(new JLabel("Map: ", SwingConstants.RIGHT));
 		startGameOptionsPanel.add(mapTypeComboBox);
 		startGameOptionsPanel.add(readyButton);
 		startGameButton.setEnabled(false);
 		startGameOptionsPanel.add(startGameButton);
+		loadoutPanel.setPreferredSize(new Dimension(500, 300));
 		loadoutPanel.add(startGameOptionsPanel, BorderLayout.SOUTH);
 		
 		readyButton.addActionListener(new ActionListener() {
@@ -417,7 +448,10 @@ public class GUI extends HumanPlayer {
 					sendNewUnitCommands();
 					sendCommand(new ComputerDifficultySet(AILevelComboBox.getSelectedIndex()));
 					sendCommand(new PlayerReady());
+					AILevelComboBox.setEnabled(false);
 					userUnitList.setEnabled(false);
+					gameTypeComboBox.setEnabled(false);
+					mapTypeComboBox.setEnabled(false);
 				}
 			}	
 		});
@@ -457,9 +491,10 @@ public class GUI extends HumanPlayer {
 		
 		joinGameRoomButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if (gameRoomsTable.getSelectedRow() >= 0)
-				sendCommand(new JoinGame(gameRoomsTable.getSelectedRow()));
-				showPanel(loadoutPanel);
+				if (gameRoomsTable.getSelectedRow() >= 0) {
+					sendCommand(new JoinGame(gameRoomsTable.getSelectedRow()));
+					showPanel(loadoutPanel);
+				}
 			}
 		});
 	}
@@ -487,8 +522,8 @@ public class GUI extends HumanPlayer {
 			public void actionPerformed(ActionEvent e) {
 				sendCommand(new RequestGameRooms());
 				mainPanel.removeAll();
-				startGameOptionsPanel.remove(AILabel);
-				startGameOptionsPanel.remove(AILevelComboBox);
+				AILabel.setEnabled(false);
+				AILevelComboBox.setEnabled(false);
 				showPanel(gameRoomLobbyPanel);
 			}
 		});
@@ -728,6 +763,12 @@ public class GUI extends HumanPlayer {
 		mainPanel.removeAll();
 		mainPanel.add(gamePanel);
 		mainFrame.repaint();
+	}
+	
+	@Override
+	public void playerSurrendered(String name) {
+		gameInfo.setText(name + " surrendered. You won!");
+		gamePanel.add(returnToMenuButton);
 	}
 
 	public void update() {

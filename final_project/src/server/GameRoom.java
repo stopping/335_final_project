@@ -11,6 +11,7 @@ import server_commands.ComputerDifficultySet;
 import server_commands.ComputerTurn;
 import server_commands.IllegalOption;
 import server_commands.SendingGame;
+import server_commands.Surrender;
 import shared.Game;
 
 /**
@@ -37,7 +38,7 @@ public class GameRoom {
 	public boolean addPlayer(ClientHandler p, int gameRoom) {
 		if (!isFull()) {
 			players.add(p);
-			if (players.size() == 1)
+			if (players.size() <= 1)
 				playerOne = p.playerName;
 			else 
 				playerTwo = p.playerName;
@@ -63,6 +64,10 @@ public class GameRoom {
 			return true;
 		}
 		return false;
+	}
+	
+	public boolean isEmpty() {
+		return players.size() == 0;
 	}
 	
 	public boolean isFull() {
@@ -132,6 +137,19 @@ public class GameRoom {
 		
 		whoseTurn = whoseTurn == 0 ? 1 : 0;
 		System.out.println("sent updates to player " + whoseTurn);
+	}
+	
+	public boolean playerSurrender(String playerSurrendering, ClientHandler ch) {
+		for (ClientHandler c : players)
+			if (!c.equals(ch))
+				c.sendCommand(new Surrender(playerSurrendering));
+		cleanOutGameRoom();		
+		return true;
+	}
+	
+	public void cleanOutGameRoom() {
+		for (ClientHandler ch : players)
+			players.remove(ch);
 	}
 
 }
