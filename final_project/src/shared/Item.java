@@ -12,13 +12,15 @@ public class Item implements Serializable {
 	protected double modifier;
 	protected int cost;
 	protected Unit owner;
+	protected ItemType type;
 	
-	public Item (String newName, Attribute newAttribute, double newModifier, int newCost, Unit newUnit ) {
+	public Item (String newName, Attribute newAttribute, double newModifier, int newCost, Unit newUnit, ItemType type) {
 		name = newName;
 		attribute = newAttribute;
 		modifier = newModifier;
 		cost = newCost;
 		owner = newUnit;
+		this.type = type;
 	}
 	
 	public Attribute getAttribute() {
@@ -56,7 +58,15 @@ public class Item implements Serializable {
 		
 	}
 	
+	public ItemType getType() {
+		return this.type;
+	}
+	
 	public String toString() {
 		return name;
+	}
+	
+	public enum ItemType {
+		HealthItem
 	}
 }

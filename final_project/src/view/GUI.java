@@ -126,6 +126,7 @@ public class GUI extends HumanPlayer {
 	JMenuItem specialItem = new JMenuItem("Special");
 	JMenuItem cancelItem = new JMenuItem("Cancel");
 	JMenu giveItemMenu = new JMenu("Give Item");
+	JMenu useItemMenu = new JMenu("Use Item");
 
 	JPanel lobbyPanel = new JPanel();
 	JPanel failedLoginPanel = new JPanel();
@@ -661,6 +662,26 @@ public class GUI extends HumanPlayer {
 					if(performer.canMoveTo(rightClickRow, rightClickCol)) actionMenu.add(moveItem);
 					if(performer.canUseAbility(rightClickRow, rightClickCol)) actionMenu.add(specialItem);
 					if (((Unit)performer).getItemList().size() > 0) {
+						for (int i =0 ; i< itemListModel.getSize() ; i++) {
+							JMenuItem item = new JMenuItem(itemListModel.get(i).getName());
+							useItemMenu.removeAll();
+							useItemMenu.add(item);
+							final int j = i;
+							item.addActionListener(new ActionListener() {
+								@Override
+								public void actionPerformed(ActionEvent e) {
+									UseItemCommand c = new UseItemCommand(new int[] 
+											{leftClickRow, leftClickCol},new int[] {rightClickRow, rightClickCol}, j);
+									sendCommand(c);
+									itemListModel.removeElementAt(j);
+									selected = false;
+									actionMenu.setVisible(false);
+									update();
+								}
+							});
+						}
+						actionMenu.add(useItemMenu);
+						
 						if (performer.canGiveItem(rightClickRow, rightClickCol, performer.getItemList().get(0))) {
 							giveItemMenu.removeAll();
 							actionMenu.add(giveItemMenu);
@@ -682,6 +703,7 @@ public class GUI extends HumanPlayer {
 								});
 							}
 						}
+						
 					}
 					actionMenu.add(cancelItem);
 					

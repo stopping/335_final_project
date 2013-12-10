@@ -143,11 +143,12 @@ public class Unit extends Occupant {
 	}
 	
 	public boolean removeItem(Item i) {
-		if(itemList.contains(i)) {
-			i.remove();
-			itemList.remove(i);
-			return true;
-		}
+		for (Item itm : itemList)
+			if(itm.getType() == i.getType()) {
+				i.remove();
+				itemList.remove(itm);
+				return true;
+			}
 		return false;
 	}
 	
@@ -231,6 +232,14 @@ public class Unit extends Occupant {
 			i.setOwner(receiver);
 			return true;
 		}
+		System.out.println("cant give item");
+		return false;
+	}
+	
+	public boolean hasItem(Item i) {
+		for (Item itm : itemList)
+			if (itm.getType() == i.getType())
+				return true;
 		return false;
 	}
 
@@ -240,7 +249,7 @@ public class Unit extends Occupant {
 		Occupant o = gs.getOccupant();
 		if(!(o instanceof Unit)) return false;
 		Unit receiver = (Unit) o;
-		return itemList.contains(i) && receiver.inventoryHasRoom() && lineOfSightExists( row, col ) && isInRange( row, col, 1.5 );
+		return hasItem(i) && receiver.inventoryHasRoom() && lineOfSightExists( row, col ) && isInRange( row, col, 1.5 );
 	}
 
 	private boolean inventoryHasRoom() {

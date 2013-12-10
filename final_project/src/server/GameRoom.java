@@ -91,7 +91,7 @@ public class GameRoom {
 	
 	public void executeCommand(ClientHandler ch, GameCommand gc) {
 		
-		if (!game.isWon() && game.isCurrentPlayer(whoseTurn)) {
+		if (!game.isWon() && ch.equals(players.get(whoseTurn))) {
 
 			if (gc instanceof EndTurnCommand) {
 				gc.executeOn(game);
