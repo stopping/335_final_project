@@ -20,8 +20,14 @@ public class UserDatabase {
 		savedGames = new HashMap<String, Game>();
 	}
 	
+	public boolean startsAlpha(String firstLetter) {
+	    return firstLetter.matches("[a-zA-Z]+");
+	}
+	
 	public boolean addUser(String name, String password) {
 		if (database.containsKey(name))
+			return false;
+		if (!startsAlpha(name.substring(0, 1)))
 			return false;
 		database.put(name, new UserAccount());
 		loginAndPassword.put(name, password);

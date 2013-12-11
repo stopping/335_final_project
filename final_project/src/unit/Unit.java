@@ -290,6 +290,21 @@ public class Unit extends Occupant {
 		abilityCoolDownToGo -= 1;
 		abilityCoolDownToGo = abilityCoolDownToGo < 0 ? 0 : abilityCoolDownToGo ;
 	}
-
+	
+	public Unit cloneUnit(Unit u) {
+		Unit clone = new Unit(u.getName());
+		clone.strength = u.strength;
+		clone.defense = u.defense;
+		clone.maxHitPoints = u.maxHitPoints;
+		clone.actionPoints = u.actionPoints;
+		clone.speed = u.speed;
+		clone.attackRange = u.attackRange;
+		clone.abilityRange = u.abilityRange;
+		clone.itemList = new ArrayList<Item>();
+		clone.abilityCoolDown = u.abilityCoolDown;
+		clone.abilityCoolDownToGo = 0;
+		clone.addItem(new HealthItem("Stimpack", 5.0, 1, this));
+		return clone;
+	}
 }
 

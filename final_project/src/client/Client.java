@@ -47,22 +47,8 @@ public class Client implements Runnable {
 				
 				if (com instanceof ServerCommand) {
 					ServerCommand c = (ServerCommand)com;
-//					if (c instanceof SendingGame) {
-//						Game g = (Game) input.readObject();
-//						System.out.println("Game received");
-//						player.showGamePanel();
-//						player.setGame(g);
-//						player.update();
-//					}
-//					else  {
-//						System.out.println("executing command " + com.hashCode());
-//						((ServerCommand)com).executeOn(player);
-//
-//					}
-					
 					System.out.println("executing command " + c.hashCode());
-					c.executeOn(player);
-					
+					c.executeOn(player);	
 				}
 				
 				else if (com instanceof GameCommand) {

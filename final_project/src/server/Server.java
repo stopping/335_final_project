@@ -50,7 +50,7 @@ public class Server implements Runnable {
 		
 		try {
 			sockServer = new ServerSocket(PORT_NUMBER);
-			System.out.println("Server started");
+			System.out.println("Server started, waiting for connections on port " + PORT_NUMBER);
 
 			while(true) {	
 				clientHandle = sockServer.accept();		
@@ -218,6 +218,8 @@ public class Server implements Runnable {
 	}
 	
 	public boolean playersAreReady(String playerOne, String playerTwo) {
+		if (!(database.hasUser(playerOne) && database.hasUser(playerTwo)))
+			return false;
 		return database.getUser(playerTwo).isReady() &&
 		database.getUser(playerOne).isReady();
 	}

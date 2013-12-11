@@ -374,6 +374,7 @@ public class GUI extends HumanPlayer {
 				AILabel.setEnabled(true);
 				AILevelComboBox.setEnabled(true);
 				showPanel(mainOptionsPanel);
+				gamePanel.remove(returnToMenuButton);
 			}
 		});
 		
@@ -605,6 +606,7 @@ public class GUI extends HumanPlayer {
 		for (int i= 0 ; i < rooms.size() ; i++) {
 			data[i][0] = new Integer(i);
 			data[i][1] = rooms.get(i);
+			System.out.println("gameroom: " + i + "player: " + "[" + rooms.get(i) + "]"); 
 		}
 		gameRoomsTable = new JTable(data, columnnames);
 		gameRoomLobbyPanel.add(gameRoomsTable);

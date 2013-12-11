@@ -11,10 +11,11 @@ public class ComputerPlayerJoin extends ClientCommand {
 		this.roomToJoin = g;
 	}
 	
-	
 	@Override
 	public boolean executeOn(Server s) {
-		return s.computerPlayerJoin(roomToJoin, ch);
+		boolean ret= s.computerPlayerJoin(roomToJoin, ch);
+		s.updateOpenGameRooms();
+		return ret;
 	}
 
 }

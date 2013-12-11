@@ -2,6 +2,7 @@ package shared;
 
 import unit.Unit;
 
+@SuppressWarnings("serial")
 public class MaxAttributeItem extends Item {
 
 	public MaxAttributeItem(String newName, Attribute newAttribute, double newModifier, int newCost, Unit newUnit) {

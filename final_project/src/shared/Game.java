@@ -38,28 +38,32 @@ public class Game implements Serializable {
 		int redCount = 0;
 		int blueCount = 0;
 		
+		for(Unit u : redUnits) 
+			unitListRed.add(u.cloneUnit(u));
+		
+		for(Unit u : blueUnits) 
+			unitListBlue.add(u.cloneUnit(u));
+		
+		for(Unit u : unitListRed) {
+			u.setGame(this);
+			u.setBoard();
+		}
+		
+		for(Unit u : unitListBlue) {
+			u.setGame(this);
+			u.setBoard();
+		}
+		
 		for(int r = 0; r < rows; r++) {
 			for(int c = 0; c < cols; c++) {
 				board[r][c] = new GameSquare( Terrain.Grass, r, c );
 				if(fieldArray[r][c] == 'X') board[r][c].setOccupant(new Obstacle());
-				if(fieldArray[r][c] == 'R') board[r][c].setOccupant(redUnits.get(redCount++));
-				if(fieldArray[r][c] == 'B') board[r][c].setOccupant(blueUnits.get(blueCount++));
+				if(fieldArray[r][c] == 'R') board[r][c].setOccupant(unitListRed.get(redCount++));
+				if(fieldArray[r][c] == 'B') board[r][c].setOccupant(unitListBlue.get(blueCount++));
 			}
 		}
 		
-		for(Unit u : redUnits) {
-			unitListRed.add(u);
-			u.setGame(this);
-			u.setBoard();
-		}
-		for(Unit u : blueUnits) {
-			unitListBlue.add(u);
-			u.setGame(this);
-			u.setBoard();
-		}
-		
 		currentPlayer = 0;
-		
 		victoryCondition = condition;
 		
 	}
@@ -361,6 +365,5 @@ public class Game implements Serializable {
 	public boolean isWon() {
 		return winner >= 0;
 	}
-	
 }
 

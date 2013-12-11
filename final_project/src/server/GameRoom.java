@@ -75,7 +75,7 @@ public class GameRoom {
 	}	
 	
 	public boolean waitingForOpponent() {
-		return players.size() == 1;
+		return players.size() == 1 && !isComputerPlayerGame;
 	}
 	
 	public void setComputerPlayerGame(boolean value) {
