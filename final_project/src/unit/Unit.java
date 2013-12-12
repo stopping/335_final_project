@@ -284,7 +284,26 @@ public class Unit extends Occupant {
 	}
 	
 	public Unit cloneUnit(Unit u) {
-		Unit clone = new Unit(u.getName());
+		UnitClass cl = u.unitClass;
+		Unit clone = null;
+		switch (cl) {
+		case Melee:
+			clone = new MeleeUnit(u.getName());
+			break;
+		case Soldier:
+			clone = new SoldierUnit(u.getName());
+			break;
+		case Demolition:
+			clone = new DemolitionUnit(u.getName());
+			break;
+		case Engineer:
+			clone = new EngineerUnit(u.getName());
+			break;
+		case Rocket:
+			clone = new RocketUnit(u.getName());
+			break;
+		}
+		
 		clone.strength = u.strength;
 		clone.defense = u.defense;
 		clone.maxHitPoints = u.maxHitPoints;

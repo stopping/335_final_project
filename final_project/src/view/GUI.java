@@ -97,7 +97,8 @@ public class GUI extends HumanPlayer {
 	JPanel possibleUnitsPanel = new JPanel();
 	JLabel possibleUnits = new JLabel("Select from here");
 	JButton addUnitButton = new JButton("Add selected unit");
-	boolean newUser = true;
+	JPanel unitInfoPanel = new JPanel();
+	JTextArea unitInfoArea = new JTextArea();
 
 	JFrame mainFrame = new JFrame();
 	JPanel mainPanel = new JPanel();
@@ -429,6 +430,9 @@ public class GUI extends HumanPlayer {
 		addUnitsPanel.add(yourUnits);
 		addUnitsPanel.add(userUnitList);
 		addUnitsPanel.add(removeUnitButton);
+		
+		unitInfoArea.setPreferredSize(new Dimension());
+		loadoutPanel.add(unitInfoPanel);
 
 		selectUnitsPanel.setPreferredSize(new Dimension(500, 300));
 		selectUnitsPanel.add(possibleUnitsPanel);
@@ -480,6 +484,7 @@ public class GUI extends HumanPlayer {
 						break;
 					}
 					sendCommand(new StartGame(cond, map));
+					startGameButton.setEnabled(false);
 				}
 			
 		});
@@ -581,6 +586,16 @@ public class GUI extends HumanPlayer {
 		}
 		possibleUnitList.repaint();
 		possibleUnitList.revalidate();
+	}
+	
+	public class PossibleUnitListener implements ActionListener {
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			//possibleUnitList.get
+		}
+		
+		
 	}
 
 	public class AddUnitListener implements ActionListener {
