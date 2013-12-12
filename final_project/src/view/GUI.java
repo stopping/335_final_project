@@ -30,6 +30,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
+
 import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
 import javax.swing.BoundedRangeModel;
@@ -58,12 +59,15 @@ import shared.Game.WinCondition;
 import shared.GameSquare;
 import shared.Item;
 import shared.MapBehavior;
+import shared.MineObstacle;
 import shared.Obstacle;
 import shared.ObstacleMap;
 import shared.Occupant;
 import shared.StandardMap;
+import shared.WallObstacle;
 import unit.DemolitionUnit;
 import unit.EngineerUnit;
+import unit.ExplosivesUnit;
 import unit.MeleeUnit;
 import unit.RocketUnit;
 import unit.SoldierUnit;
@@ -240,7 +244,7 @@ public class GUI extends HumanPlayer {
 		logisticsPanel.add(failedLoginPanel);
 		mainPanel.add(logisticsPanel);
 		
-		possibleUnitList.setPreferredSize(new Dimension(200, 87));
+		possibleUnitList.setPreferredSize(new Dimension(200, 104));
 		userUnitList.setPreferredSize(new Dimension(200, 87));
 
 		setuploadoutPanel();
@@ -579,6 +583,7 @@ public class GUI extends HumanPlayer {
 			possibleUnitListModel.addElement(new SoldierUnit("-----"));
 			possibleUnitListModel.addElement(new EngineerUnit("-----"));
 			possibleUnitListModel.addElement(new DemolitionUnit("-----"));
+			possibleUnitListModel.addElement(new ExplosivesUnit("-----"));
 		}
 		else {
 			for (Unit u : units)
@@ -618,6 +623,8 @@ public class GUI extends HumanPlayer {
 	  					userUnitListModel.addElement(new DemolitionUnit(name));
 					else if (possibleUnitList.getSelectedValue() instanceof EngineerUnit) 
 	  					userUnitListModel.addElement(new EngineerUnit(name));
+					else if (possibleUnitList.getSelectedValue() instanceof ExplosivesUnit) 
+	  					userUnitListModel.addElement(new ExplosivesUnit(name));
 				}
 				else 
 					userUnitListModel.addElement(possibleUnitList.getSelectedValue());
@@ -912,8 +919,12 @@ public class GUI extends HumanPlayer {
 					int left = c*size;
 					Rectangle2D square = new Rectangle2D.Double( left, upper, size, size );
 					g2.draw(square);
-					g2.setColor( map[r][c].getOccupant() instanceof Obstacle ? Color.black : Color.gray );
+					g2.setColor( map[r][c].getOccupant() instanceof WallObstacle ? Color.black : Color.gray );
 					if(leftClickRow == r && leftClickCol == c && selected ) g2.setColor(Color.yellow);
+					if ( map[r][c].getOccupant() instanceof MineObstacle) {
+						g2.setColor(Color.red);
+						g2.draw(new Rectangle2D.Double( left/2, upper/2, size/2, size/2 ));
+					}
 					g2.fill(square);
 					
 					GameSquare srcSquare = game.getGameSquareAt(leftClickRow,leftClickCol);

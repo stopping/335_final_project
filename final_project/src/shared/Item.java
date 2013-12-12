@@ -68,6 +68,7 @@ public class Item implements Serializable {
 	
 	public enum ItemType {
 		HealthItem,
-		MaxAttributeItem
+		MaxAttributeItem,
+		MineItem
 	}
 }

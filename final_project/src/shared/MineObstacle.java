@@ -1,13 +1,13 @@
 package shared;
 
 @SuppressWarnings("serial")
-public abstract class Obstacle extends Occupant {
+public class MineObstacle extends Obstacle {
 	
-	public Obstacle(String type) {
-		super(type);
+	public MineObstacle () {
+		super("Mine");
 		maxHitPoints = 10;
 		hitPoints = maxHitPoints;
 		defense = 0;
 	}
-	
+
 }

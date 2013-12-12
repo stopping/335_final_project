@@ -12,6 +12,7 @@ import shared.Game;
 import shared.Game.WinCondition;
 import unit.DemolitionUnit;
 import unit.EngineerUnit;
+import unit.ExplosivesUnit;
 import unit.MeleeUnit;
 import unit.RocketUnit;
 import unit.SoldierUnit;
@@ -146,6 +147,8 @@ public class Server implements Runnable {
 			return database.getUser(source).addUnit(new DemolitionUnit(name));
 		else if (type == UnitClass.Soldier)
 			return database.getUser(source).addUnit(new SoldierUnit(name));
+		else if (type == UnitClass.Explosives)
+			return database.getUser(source).addUnit(new ExplosivesUnit(name));
 		else
 			return false;
 		}

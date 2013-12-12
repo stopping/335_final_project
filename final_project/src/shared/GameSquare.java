@@ -9,6 +9,7 @@ public class GameSquare implements Serializable {
 	Occupant occupant;
 	int rowLocation;
 	int colLocation;
+	boolean hasMine;
 	
 	public GameSquare( Terrain newTerrain, int rowLoc, int colLoc ) {
 		terrain = newTerrain;
@@ -47,4 +48,11 @@ public class GameSquare implements Serializable {
 		return colLocation;
 	}
 	
+	public void setHasMine(boolean hasMine) {
+		this.hasMine = hasMine;
+	}
+	
+	public boolean hasMine() {
+		return this.hasMine;
+	}
 }

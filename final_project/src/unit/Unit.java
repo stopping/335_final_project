@@ -266,7 +266,8 @@ public class Unit extends Occupant {
 		Melee,
 		Rocket,
 		Engineer,
-		Demolition
+		Demolition,
+		Explosives
 	}
 	
 	public double getModifier(Attribute a) {

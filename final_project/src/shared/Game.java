@@ -57,7 +57,7 @@ public class Game implements Serializable {
 		for(int r = 0; r < rows; r++) {
 			for(int c = 0; c < cols; c++) {
 				board[r][c] = new GameSquare( Terrain.Grass, r, c );
-				if(fieldArray[r][c] == 'X') board[r][c].setOccupant(new Obstacle());
+				if(fieldArray[r][c] == 'X') board[r][c].setOccupant(new WallObstacle());
 				if(fieldArray[r][c] == 'R') board[r][c].setOccupant(unitListRed.get(redCount++));
 				if(fieldArray[r][c] == 'B') board[r][c].setOccupant(unitListBlue.get(blueCount++));
 			}
