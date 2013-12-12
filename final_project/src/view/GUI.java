@@ -619,14 +619,21 @@ public class GUI extends HumanPlayer {
 					else if (possibleUnitList.getSelectedValue() instanceof EngineerUnit) 
 	  					userUnitListModel.addElement(new EngineerUnit(name));
 				}
-				else 
-					userUnitListModel.addElement(possibleUnitList.getSelectedValue());
+				else {
+					
+					if (!userUnitListModel.contains(possibleUnitList.getSelectedValue())) {
+						userUnitListModel.addElement(possibleUnitList.getSelectedValue());
+						possibleUnitListModel.removeElement(possibleUnitList.getSelectedValue());
+					}
+					
+				}
 			}
 		}
 	}
 
 	public class RemoveUnitListener implements ActionListener {
 		public void actionPerformed(ActionEvent e) {
+			possibleUnitListModel.addElement(userUnitList.getSelectedValue());
 			userUnitListModel.removeElement(userUnitList.getSelectedValue());
 		}
 	}
