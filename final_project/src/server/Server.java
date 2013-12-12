@@ -17,6 +17,7 @@ import unit.RocketUnit;
 import unit.SoldierUnit;
 import server_commands.CanStartGame;
 import server_commands.SendingGame;
+import server_commands.SendingUserInfo;
 import server_commands.ValidLogin;
 import shared.MapBehavior;
 import unit.Unit;
@@ -147,7 +148,7 @@ public class Server implements Runnable {
 			return database.getUser(source).addUnit(new SoldierUnit(name));
 		else
 			return false;
-	}
+		}
 	
 	public boolean sendMessage(String source, int gr, String message) {
 		for (ClientHandler ch : gamerooms.get(gr).players)
@@ -199,11 +200,11 @@ public class Server implements Runnable {
 	// returns ComputerPlayer units based on selected difficulty level
 	public ArrayList<Unit> generateComputerUnits(int level) {
 		ArrayList<Unit> units = new ArrayList<Unit>();
-		units.add(new SoldierUnit("Zander"));
-		units.add(new SoldierUnit("Yvonne"));
-		units.add(new SoldierUnit("Xavier"));
-		units.add(new SoldierUnit("Will"));
-		units.add(new SoldierUnit("Van"));
+		units.add(new SoldierUnit("AA4-001"));
+		units.add(new SoldierUnit("B03-222"));
+		units.add(new SoldierUnit("C35-3-3"));
+		units.add(new SoldierUnit("D49-440"));
+		units.add(new SoldierUnit("E0E-555"));
 		double modifier = level * 0.5;
 		
 		if (modifier > 0.0) {

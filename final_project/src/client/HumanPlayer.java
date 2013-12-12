@@ -20,6 +20,7 @@ public abstract class HumanPlayer {
 	protected List<Unit> units;
 	
 	public HumanPlayer() {
+		units = new ArrayList<Unit>();
 		client = new Client("localhost", 4009, this);
 		Thread t = new Thread(client);
 		t.start();
@@ -40,7 +41,9 @@ public abstract class HumanPlayer {
 	}
 	
 	public void setUnits(ArrayList<Unit> u) {
-		units = u;
+		units.clear();
+		for (Unit unit : u)
+			units.add(unit.cloneUnit(unit));
 	}
 
 	public void setCredits(int c) {

@@ -25,6 +25,7 @@ public class Unit extends Occupant {
 	protected double abilityRange;
 	protected Game game = null;
 	protected GameSquare[][] board = null;
+	protected UnitClass unitClass;
 	
 	public Unit(String newName) {
 		super(newName);
@@ -256,15 +257,6 @@ public class Unit extends Occupant {
 		return itemList.size() < 3;
 	}
 	
-	@Override
-	public String toString() {
-		return "Name: " + name + "\n" +
-				"HP: " + (int) hitPoints + "/" + (int) maxHitPoints + "\n" +
-				"AP: " + (int) actionPoints + "/" + (int) maxActionPoints + "\n" +
-				"Cooldown Remaining: " + abilityCoolDownToGo / 2 + " turns\n";
-				
-	}
-	
 	public List<Item> getItemList() {
 		return itemList;
 	}
@@ -305,6 +297,17 @@ public class Unit extends Occupant {
 		clone.abilityCoolDownToGo = 0;
 		clone.addItem(new HealthItem("Stimpack", 5.0, 1, this));
 		return clone;
+	}
+	
+	public String getInfo() {
+		return "Name: " + name + "\n" +
+				"HP: " + (int) hitPoints + "/" + (int) maxHitPoints + "\n" +
+				"AP: " + (int) actionPoints + "/" + (int) maxActionPoints + "\n" +
+				"Cooldown Remaining: " + abilityCoolDownToGo / 2 + " turns\n";
+	}
+	
+	public UnitClass getUnitClass() {
+		return this.unitClass;
 	}
 }
 

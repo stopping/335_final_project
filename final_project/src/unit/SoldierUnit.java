@@ -21,6 +21,12 @@ public class SoldierUnit extends Unit {
 		abilityRange = 5.0;
 		itemList = new ArrayList<Item>();
 		addItem(new HealthItem("Stimpack",5.0,1,this));
+		unitClass = UnitClass.Soldier;
+	}
+	
+	@Override
+	public String toString() {
+		return "Name: " + this.name + "(Soldier)";
 	}
 
 }

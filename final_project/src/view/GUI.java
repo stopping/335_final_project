@@ -94,6 +94,10 @@ public class GUI extends HumanPlayer {
 	DefaultListModel<Unit> userUnitListModel = new DefaultListModel<Unit>();
 	JList<Unit> possibleUnitList = new JList<Unit>(possibleUnitListModel);
 	JList<Unit> userUnitList = new JList<Unit>(userUnitListModel);
+	JPanel possibleUnitsPanel = new JPanel();
+	JLabel possibleUnits = new JLabel("Select from here");
+	JButton addUnitButton = new JButton("Add selected unit");
+	boolean newUser = true;
 
 	JFrame mainFrame = new JFrame();
 	JPanel mainPanel = new JPanel();
@@ -161,9 +165,9 @@ public class GUI extends HumanPlayer {
 	String maps[] = new String[] { "Standard", "Obstacle"};
 	final JComboBox<String> mapTypeComboBox = new JComboBox<String>(maps);
 	
-	final String[] unitNames = new String[] { "Alice", "Bob", "Carrie", "Dick", "Elaine", "Farley", "Gavelle", 
-		"Hellena", "Ivan", "Jaque", "Kio", "Leon", "Marge", "Noip", "Otus", "Pete", "Quixote", "Rob", "Stella",
-		"Timmy", "Umpa", "Vanessa", "W", "X", "Y", "Z" };
+//	final String[] unitNames = new String[] { "Alice", "Bob", "Carrie", "Dick", "Elaine", "Farley", "Gavelle", 
+//		"Hellena", "Ivan", "Jaque", "Kio", "Leon", "Marge", "Noip", "Otus", "Pete", "Quixote", "Rob", "Stella",
+//		"Timmy", "Umpa", "Vanessa", "Winchester", "Xavier", "Yogi", "Zayn" };
 
 	JButton endTurnButton = new JButton("End Turn");
 	JButton useItemButton = new JButton("Use Item");
@@ -234,6 +238,9 @@ public class GUI extends HumanPlayer {
 		logisticsPanel.add(loginButtonPanel);
 		logisticsPanel.add(failedLoginPanel);
 		mainPanel.add(logisticsPanel);
+		
+		possibleUnitList.setPreferredSize(new Dimension(200, 87));
+		userUnitList.setPreferredSize(new Dimension(200, 87));
 
 		setuploadoutPanel();
 		setupGameRoomLobby();
@@ -388,6 +395,7 @@ public class GUI extends HumanPlayer {
 	}
 	
 	private void showPanel(JPanel p) {
+		setUpUnitLists();
 		mainPanel.removeAll();
 		mainPanel.add(p);
 		mainFrame.repaint();
@@ -400,7 +408,6 @@ public class GUI extends HumanPlayer {
 	}
 	
 	private void setuploadoutPanel() {
-		JButton addUnitButton = new JButton("Add selected unit");
 		JButton removeUnitButton = new JButton("Remove selected unit");
 		JPanel selectUnitsPanel = new JPanel();
 
@@ -409,13 +416,10 @@ public class GUI extends HumanPlayer {
 		addUnitButton.addActionListener(new AddUnitListener());
 		removeUnitButton.addActionListener(new RemoveUnitListener());
 
-		JPanel possibleUnitsPanel = new JPanel();
 		possibleUnitsPanel.setPreferredSize(new Dimension(200, 500));
 
 		JPanel addUnitsPanel = new JPanel();
 		addUnitsPanel.setPreferredSize(new Dimension(200, 500));
-
-		JLabel possibleUnits = new JLabel("Select from here");
 		JLabel yourUnits = new JLabel("Your current units");
 
 		possibleUnitsPanel.add(possibleUnits);
@@ -450,7 +454,8 @@ public class GUI extends HumanPlayer {
 		readyButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if (userUnitListModel.getSize() == 5) {
-					sendNewUnitCommands();
+					if (units.size() == 0) 
+						sendNewUnits();
 					sendCommand(new ComputerDifficultySet(AILevelComboBox.getSelectedIndex()));
 					sendCommand(new PlayerReady());
 					AILevelComboBox.setEnabled(false);
@@ -552,24 +557,56 @@ public class GUI extends HumanPlayer {
 			public void actionPerformed(ActionEvent e) {
 				sendCommand(new Logout());
 				showPanel(logisticsPanel);
+				setUpUnitLists();
 			}
 		});
 	}
 	
 	private void setUpUnitLists() {
-		possibleUnitList.setPreferredSize(new Dimension(200, 87));
-		userUnitList.setPreferredSize(new Dimension(200, 87));
-		possibleUnitListModel.addElement(new MeleeUnit("Melee unit"));
-		possibleUnitListModel.addElement(new RocketUnit("Rocket unit"));
-		possibleUnitListModel.addElement(new SoldierUnit("Soldier unit"));
-		possibleUnitListModel.addElement(new EngineerUnit("Engineer unit"));
-		possibleUnitListModel.addElement(new DemolitionUnit("Demolition unit"));
+		possibleUnitList.removeAll();
+		possibleUnitListModel.removeAllElements();
+		userUnitListModel.removeAllElements();
+		userUnitList.removeAll();
+		System.out.println("units size: " + units.size());
+		if (units.size() == 0) {
+			possibleUnitListModel.addElement(new MeleeUnit("-----"));
+			possibleUnitListModel.addElement(new RocketUnit("-----"));
+			possibleUnitListModel.addElement(new SoldierUnit("-----"));
+			possibleUnitListModel.addElement(new EngineerUnit("-----"));
+			possibleUnitListModel.addElement(new DemolitionUnit("-----"));
+		}
+		else {
+			for (Unit u : units)
+				possibleUnitListModel.addElement(u);
+		}
+		possibleUnitList.repaint();
+		possibleUnitList.revalidate();
 	}
 
 	public class AddUnitListener implements ActionListener {
 		public void actionPerformed(ActionEvent arg0) {
-			if (userUnitListModel.getSize() < 5 && possibleUnitList.getSelectedValue() != null)
-				userUnitListModel.addElement(possibleUnitList.getSelectedValue());
+			if (userUnitListModel.getSize() < 5 && possibleUnitList.getSelectedValue() != null) {
+				if (possibleUnitList.getSelectedValue().getName().equals("-----")) {
+					String name = "";
+			      while (name.equals("") || name.equals("-----")) {
+			      	name = (String)JOptionPane.showInputDialog(
+			                 mainFrame, "Name for this unit: ","", JOptionPane.PLAIN_MESSAGE,
+			                null, null, "");
+			      }
+					if (possibleUnitList.getSelectedValue() instanceof MeleeUnit) 
+	  					userUnitListModel.addElement(new MeleeUnit(name));
+					else if (possibleUnitList.getSelectedValue() instanceof RocketUnit) 
+	  					userUnitListModel.addElement(new RocketUnit(name));
+					else if (possibleUnitList.getSelectedValue() instanceof SoldierUnit) 
+	  					userUnitListModel.addElement(new SoldierUnit(name));
+					else if (possibleUnitList.getSelectedValue() instanceof DemolitionUnit) 
+	  					userUnitListModel.addElement(new DemolitionUnit(name));
+					else if (possibleUnitList.getSelectedValue() instanceof EngineerUnit) 
+	  					userUnitListModel.addElement(new EngineerUnit(name));
+				}
+				else 
+					userUnitListModel.addElement(possibleUnitList.getSelectedValue());
+			}
 		}
 	}
 
@@ -579,22 +616,11 @@ public class GUI extends HumanPlayer {
 		}
 	}
 	
-	private void sendNewUnitCommands() {
-		Random rand = new Random();
+	private void sendNewUnits() {
 		for (int i = 0; i < userUnitListModel.getSize(); i++) {
-			UnitClass uc = null;
-			if (userUnitListModel.get(i) instanceof MeleeUnit) 
-				uc = UnitClass.Melee;
-			else if (userUnitListModel.get(i) instanceof RocketUnit) 
-				uc = UnitClass.Rocket;			
-			else if (userUnitListModel.get(i) instanceof SoldierUnit) 
-				uc = UnitClass.Soldier;			
-			else if (userUnitListModel.get(i) instanceof DemolitionUnit) 
-				uc = UnitClass.Demolition;			
-			else if (userUnitListModel.get(i) instanceof EngineerUnit) 
-				uc = UnitClass.Engineer;			
-			int r = rand.nextInt(26);
-			sendCommand(new NewUnit(unitNames[r], uc));
+			Unit u = userUnitListModel.get(i);
+			System.out.println(u.toString());
+			sendCommand(new NewUnit(u.getName(), u.getUnitClass()));
 		}
 	}
 	
@@ -833,7 +859,12 @@ public class GUI extends HumanPlayer {
 					gameInfo.setText("You lost.");
 			} else if (gs.hasOccupant()) {
 				Occupant o = gs.getOccupant();
-				gameInfo.setText(o.toString());
+				if (o instanceof Unit) {
+					Unit u = (Unit)o;
+					gameInfo.setText(u.getInfo());
+				}
+				else
+					gameInfo.setText(o.toString());
 				itemListModel.removeAllElements();
 				if (o instanceof Unit) {
 					List<Item> list = ((Unit) o).getItemList();

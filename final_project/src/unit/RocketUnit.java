@@ -24,6 +24,7 @@ public class RocketUnit extends Unit {
 		abilityRange = 5.0;
 		itemList = new ArrayList<Item>();
 		addItem(new HealthItem("Stimpack",5.0,1,this));
+		unitClass = UnitClass.Rocket;
 	}
 	
 	public boolean attack( int row, int col ) {
@@ -49,6 +50,11 @@ public class RocketUnit extends Unit {
 
 	public boolean canAttack( int row, int col ) {
 		return isInRange( row, col, attackRange ) && actionPoints >= 2.0 && lineOfSightExists(row,col);
+	}
+	
+	@Override
+	public String toString() {
+		return "Name: " + this.name + "(Rocket)";
 	}
 
 }

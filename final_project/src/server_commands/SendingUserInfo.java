@@ -12,7 +12,10 @@ public class SendingUserInfo extends ServerCommand {
 	private int credits;
 	
 	public SendingUserInfo( ArrayList<Unit> u, int c ) {
-		units = u;
+		units = new ArrayList<Unit>();
+		System.out.println("sending user info units size: " + u.size());
+		for (Unit un : u)
+			units.add(un.cloneUnit(un));
 		credits = c;
 	}
 	

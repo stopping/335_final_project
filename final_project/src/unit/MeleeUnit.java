@@ -18,6 +18,12 @@ public class MeleeUnit extends Unit {
 		speed = 1.5;
 		attackRange = 1.5;
 		itemList = new ArrayList<Item>();
+		unitClass = UnitClass.Melee;
+	}
+	
+	@Override
+	public String toString() {
+		return "Name: " + this.name + "(Melee)";
 	}
 	
 }

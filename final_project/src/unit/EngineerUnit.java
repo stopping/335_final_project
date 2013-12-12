@@ -25,6 +25,7 @@ public class EngineerUnit extends Unit {
 		abilityCoolDown = 4;
 		abilityCoolDownToGo = 0;
 		addItem(new HealthItem("Stimpack",5.0,1,this));
+		unitClass = UnitClass.Engineer;
 	}
 	
 	@Override
@@ -44,6 +45,11 @@ public class EngineerUnit extends Unit {
 			return true;
 		}
 		return false;
+	}
+	
+	@Override
+	public String toString() {
+		return "Name: " + this.name + "(Engineer)";
 	}
 
 }

@@ -1,6 +1,8 @@
 package client_commands;
 
 import server.Server;
+import server.UserAccount;
+import server_commands.SendingUserInfo;
 import unit.Unit.UnitClass;
 
 @SuppressWarnings("serial")
@@ -16,7 +18,12 @@ public class NewUnit extends ClientCommand {
 	
 	@Override
 	public boolean executeOn(Server s) {
-		return s.newUnit(source, name, type);
+		if (s.newUnit(source, name, type)) {
+			UserAccount account = s.getUserInfo(source);
+			ch.sendCommand(new SendingUserInfo( account.getUnits(), account.getNumCredits() ));
+			return true;
+		}
+		return false;
 	}
 
 }
