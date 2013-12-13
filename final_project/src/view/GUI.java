@@ -991,14 +991,14 @@ public class GUI extends HumanPlayer {
 					
 					if( selected && srcSquare.getOccupant() instanceof Unit) {
 						Unit u = (Unit) srcSquare.getOccupant();
-						if( u.canAttack(r,c)) {
-							g2.setColor( Color.red );
+						if( u.canUseAbility(r,c)) {
+							g2.setColor( Color.blue );
 							square = new Rectangle2D.Double( left+6, upper+6, size-13, size-13 );
 							g2.draw(square);
 							g2.fill(square);
 						}
-						if( u.canUseAbility(r,c)) {
-							g2.setColor( Color.blue );
+						if( u.canAttack(r,c)) {
+							g2.setColor( Color.red );
 							square = new Rectangle2D.Double( left+6, upper+6, size-13, size-13 );
 							g2.draw(square);
 							g2.fill(square);

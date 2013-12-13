@@ -7,7 +7,6 @@ import shared.Item;
 import shared.Item.ItemType;
 import shared.MineItem;
 import shared.MineObstacle;
-import shared.Obstacle;
 import shared.Occupant;
 
 @SuppressWarnings("serial")
@@ -23,9 +22,9 @@ public class ExplosivesUnit extends Unit {
 		actionPoints = maxActionPoints;
 		speed = 1.0;
 		attackRange = 1.0;
-		abilityRange = 3;
+		abilityRange = 2;
 		itemList = new ArrayList<Item>();
-		abilityCoolDown = 4;
+		abilityCoolDown = 2;
 		abilityCoolDownToGo = 0;
 		addItem(new MineItem("Mine", 1, this));
 		unitClass = UnitClass.Explosives;
@@ -36,6 +35,7 @@ public class ExplosivesUnit extends Unit {
 		if (canUseAbility(row, col)) 
 			if (mineSense(row, col)) {
 				addItem(new MineItem("Mine", 1, this));
+				abilityCoolDownToGo = abilityCoolDown;
 				return true;
 			}
 		return false;
@@ -84,8 +84,7 @@ public class ExplosivesUnit extends Unit {
 		
 	public boolean canPlaceMine( int row, int col ) {
 		GameSquare gs = game.getGameSquareAt(row, col);
-		if (gs != null && !gs.hasOccupant()
-				&& abilityCoolDownToGo == 0 && isInRange( row, col, abilityRange )
+		if (gs != null && !gs.hasOccupant() && isInRange( row, col, 1 )
 					&& hasAMine()) {
 			return true;
 		}
