@@ -10,6 +10,7 @@ import shared.GameSquare;
 import shared.HealthItem;
 import shared.Item;
 import shared.MineItem;
+import shared.MineObstacle;
 import shared.Occupant;
 
 @SuppressWarnings("serial")
@@ -190,10 +191,14 @@ public class Unit extends Occupant {
 			int destCol = destSquare.getCol();
 			double apCost = Math.sqrt(Math.pow(srcRow-destRow, 2)+Math.pow(srcCol-destCol, 2));
 		
+			if (destSquare.hasOccupant() && destSquare.getOccupant() instanceof MineObstacle)
+				takeDamage(7);
+			
 			location.setOccupant(null);
 			destSquare.setOccupant(this);
 			location = destSquare;
 			consumeActionPoints(apCost/speed);
+
 			return true;
 		}
 		else {
@@ -211,7 +216,18 @@ public class Unit extends Occupant {
 		
 		double apCost = Math.sqrt(Math.pow(srcRow-destRow, 2)+Math.pow(srcCol-destCol, 2));
 
-		return !destSquare.hasOccupant() && apCost/speed <= actionPoints && lineOfSightExists( row, col );
+		return  checkMineOccupant(destSquare) && apCost/speed <= actionPoints && lineOfSightExists( row, col );
+	}
+	
+	private boolean checkMineOccupant(GameSquare gs) {
+		Occupant o = null;
+		if (gs.hasOccupant()) {
+			o = gs.getOccupant();
+			if (o instanceof MineObstacle)
+				return true;
+			return false;
+		}
+		return true;
 	}
 	
 	/** 
