@@ -29,21 +29,15 @@ public class Game implements Serializable {
 	
 	public Game(ArrayList<Unit> redUnits, ArrayList<Unit> blueUnits, WinCondition condition, MapBehavior map) {
 		
-		char[][] fieldArray = map.getMap();
-		
-		int rows = fieldArray.length;
-		int cols = fieldArray[0].length;
-		
-		board = new GameSquare[rows][cols];
-		
-		int redCount = 0;
-		int blueCount = 0;
-		
+
 		for(Unit u : redUnits) 
 			unitListRed.add(u.cloneUnit(u));
 		
 		for(Unit u : blueUnits) 
 			unitListBlue.add(u.cloneUnit(u));
+		
+		map.setMap((ArrayList<Unit>)unitListRed, (ArrayList<Unit>)unitListBlue);
+		board = map.getMap();
 		
 		for(Unit u : unitListRed) {
 			u.setGame(this);
@@ -55,15 +49,7 @@ public class Game implements Serializable {
 			u.setBoard();
 		}
 		
-		for(int r = 0; r < rows; r++) {
-			for(int c = 0; c < cols; c++) {
-				board[r][c] = new GameSquare( Terrain.Grass, r, c );
-				if(fieldArray[r][c] == 'X') board[r][c].setOccupant(new WallObstacle());
-				if(fieldArray[r][c] == 'R') board[r][c].setOccupant(unitListRed.get(redCount++));
-				if(fieldArray[r][c] == 'B') board[r][c].setOccupant(unitListBlue.get(blueCount++));
-			}
-		}
-		
+
 		currentPlayer = 0;
 		victoryCondition = condition;
 		
@@ -392,4 +378,3 @@ public class Game implements Serializable {
 		return false;
 	}
 }
-
