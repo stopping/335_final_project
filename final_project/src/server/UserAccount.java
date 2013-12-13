@@ -35,6 +35,9 @@ public class UserAccount {
 		case Soldier:
 			units.add(new SoldierUnit(name));
 			break;
+		case Explosives:
+			units.add(new ExplosivesUnit(name));
+			break;
 		}
 		System.out.println("added new unit: " + name);
 		return true;

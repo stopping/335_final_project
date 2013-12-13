@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import shared.GameSquare.Terrain;
+import unit.ExplosivesUnit;
 import unit.Unit;
 
 
@@ -322,5 +323,30 @@ public class Game implements Serializable {
 	
 	public boolean isWon() {
 		return winner >= 0;
+	}
+	
+	public boolean placeMine(int[] source, int[] dest) {
+		System.out.println("executing plae mine command");
+		GameSquare srcSquare = board[source[0]][source[1]];
+		Unit performer = (Unit) srcSquare.getOccupant();
+		
+		//If it's not your turn you can't do anything
+		if(!isTurn(performer)) {
+			System.out.println("not your turn");
+			return false;
+		}
+		
+		if (performer instanceof ExplosivesUnit) {
+			ExplosivesUnit ex = (ExplosivesUnit)performer;
+			if (ex.canPlaceMine(dest[0], dest[1])) {
+				System.out.println("can place mine");
+				//board[dest[0]][dest[1]].setOccupant(new MineObstacle());
+				return ex.attack(dest[0], dest[1]);
+			}
+			System.out.println("cant place mine");
+			return false;
+		}
+		System.out.println("false");
+		return false;
 	}
 }
