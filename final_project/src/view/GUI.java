@@ -55,7 +55,8 @@ import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 
 import shared.Command;
-import shared.Game.WinCondition;
+import shared.DeathmatchCondition;
+import shared.EscortCondition;
 import shared.GameSquare;
 import shared.Item;
 import shared.MapBehavior;
@@ -65,6 +66,7 @@ import shared.ObstacleMap;
 import shared.Occupant;
 import shared.StandardMap;
 import shared.WallObstacle;
+import shared.WinCondition;
 import unit.DemolitionUnit;
 import unit.EngineerUnit;
 import unit.ExplosivesUnit;
@@ -125,7 +127,7 @@ public class GUI extends HumanPlayer {
 	JButton accountInfoButton = new JButton("Account Info");
 	JButton logoutButton = new JButton("Logout");
 	JPanel loadoutPanel = new JPanel();
-	String gameTypes[] = new String[] { "Deathmatch", "Demolition", "CTF"};
+	String gameTypes[] = new String[] { "Deathmatch", "Escort"};
 	JComboBox<String> gameTypeComboBox = new JComboBox<String>(gameTypes);
 	JPanel startGameButs = new JPanel();
 	
@@ -476,8 +478,15 @@ public class GUI extends HumanPlayer {
 		
 		startGameButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-					String gameType = (String) gameTypeComboBox.getSelectedItem();
-					WinCondition cond = WinCondition.valueOf(gameType);
+					WinCondition cond = null;
+					switch (gameTypeComboBox.getSelectedIndex()) {
+					case 0:
+						cond = new DeathmatchCondition();
+						break;
+					case 1:
+						cond = new EscortCondition();
+						break;
+					}
 					MapBehavior map = null;
 					switch (mapTypeComboBox.getSelectedIndex()) {
 					case 0:

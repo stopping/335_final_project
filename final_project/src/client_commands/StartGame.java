@@ -1,7 +1,7 @@
 package client_commands;
 
 import server.Server;
-import shared.Game.WinCondition;
+import shared.WinCondition;
 import shared.MapBehavior;
 
 @SuppressWarnings("serial")

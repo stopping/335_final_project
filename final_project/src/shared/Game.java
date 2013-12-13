@@ -79,41 +79,17 @@ public class Game implements Serializable {
 	}
 
 	public boolean checkWinCondition() {
-		switch(victoryCondition) {
-		case Deathmatch:
-			
-			boolean allDead = true;
-			for(Unit u : unitListRed) {
-				if(!u.isDead()) allDead = false;
-			}
-			if(allDead) {
-				winner = 1;
-				return true;
-			}
-			
-			allDead = true;
-			for(Unit u : unitListBlue) {
-				if(!u.isDead()) allDead = false;
-			}
-			if(allDead) {
-				winner = 0;
-				return true;
-			}
-			
-			return false;
-			
-		case CTF:
-			
-			return false;
-			
-		case Demolition:
-			
-			return false;
-			
-		default:
-			return false;
+		if (victoryCondition.checkWinCondition((ArrayList<Unit>)unitListRed)) {
+			winner = 1;
+			return true;
 		}
 		
+		if (victoryCondition.checkWinCondition((ArrayList<Unit>)unitListBlue)) {
+			winner = 0;
+			return true;
+		}
+		
+		return false;
 	}
 
 	public boolean isCurrentPlayer(int player) {
@@ -226,11 +202,7 @@ public class Game implements Serializable {
 	    return result;
 	}
 	
-	public enum WinCondition {
-		Deathmatch,
-		CTF,
-		Demolition;
-	}
+
 	
 	public List<Unit> getRedUnitList() {
 		return unitListRed;

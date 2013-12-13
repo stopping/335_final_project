@@ -10,7 +10,7 @@ import java.util.Scanner;
 
 import client_commands.*;
 
-import shared.Game.WinCondition;
+import shared.WinCondition;
 import unit.Unit;
 
 public class PlayConsoleGame {
@@ -34,7 +34,7 @@ public class PlayConsoleGame {
 		list2.add(new Unit("Will"));
 		list2.add(new Unit("Van"));
 		
-		Game game = new Game(list1,list2,WinCondition.Deathmatch, new ObstacleMap());
+		Game game = new Game(list1,list2, new DeathmatchCondition(), new ObstacleMap());
 		
 		Scanner input = new Scanner( System.in );
 		int[] src = new int[2];

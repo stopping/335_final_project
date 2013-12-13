@@ -9,7 +9,7 @@ import game_commands.GameCommand;
 import server_commands.*;
 import shared.Attribute;
 import shared.Game;
-import shared.Game.WinCondition;
+import shared.WinCondition;
 import unit.DemolitionUnit;
 import unit.EngineerUnit;
 import unit.ExplosivesUnit;
