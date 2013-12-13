@@ -4,6 +4,7 @@ import game_commands.AttackCommand;
 import game_commands.EndTurnCommand;
 import game_commands.GiveItemCommand;
 import game_commands.MoveCommand;
+import game_commands.PlaceMineCommand;
 import game_commands.UseAbilityCommand;
 import game_commands.UseItemCommand;
 
@@ -27,6 +28,7 @@ import java.awt.event.WindowEvent;
 import java.awt.geom.Rectangle2D;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
@@ -58,7 +60,9 @@ import shared.Command;
 import shared.Game.WinCondition;
 import shared.GameSquare;
 import shared.Item;
+import shared.Item.ItemType;
 import shared.MapBehavior;
+import shared.MineItem;
 import shared.MineObstacle;
 import shared.Obstacle;
 import shared.ObstacleMap;
@@ -136,6 +140,7 @@ public class GUI extends HumanPlayer {
 	JMenuItem cancelItem = new JMenuItem("Cancel");
 	JMenu giveItemMenu = new JMenu("Give Item");
 	JMenu useItemMenu = new JMenu("Use Item");
+	JMenuItem placeMineItem = new JMenuItem("Place Mine");
 
 	JPanel lobbyPanel = new JPanel();
 	JPanel failedLoginPanel = new JPanel();
@@ -355,10 +360,25 @@ public class GUI extends HumanPlayer {
 					UseItemCommand c = new UseItemCommand(src,src,index);
 					sendCommand(c);
 					itemListModel.removeElementAt(index);
+					selected = false;
+					actionMenu.setVisible(false);
 				}
 			}
 			
 		});
+		
+		placeMineItem.addActionListener(new AbstractAction() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				int[] src = {leftClickRow,leftClickCol};
+				int[] dest = {rightClickRow,rightClickCol};
+				sendCommand(new PlaceMineCommand(src, dest));
+				selected = false;
+				actionMenu.setVisible(false);
+			}
+		});
+		
 		
 		surrenderButton.addActionListener(new ActionListener() {
 
@@ -715,11 +735,25 @@ public class GUI extends HumanPlayer {
 					
 					actionMenu.removeAll();
 					
-					if(performer.canAttack(rightClickRow, rightClickCol)) actionMenu.add(attackItem);
+					
+					if (performer instanceof ExplosivesUnit) {
+						if(performer.canAttack(rightClickRow, rightClickCol))
+							actionMenu.add(placeMineItem);
+					}
+					else {
+						if(performer.canAttack(rightClickRow, rightClickCol)) actionMenu.add(attackItem);
+					}
 					if(performer.canMoveTo(rightClickRow, rightClickCol)) actionMenu.add(moveItem);
 					if(performer.canUseAbility(rightClickRow, rightClickCol)) actionMenu.add(specialItem);
 					if (((Unit)performer).getItemList().size() > 0) {
-						for (int i =0 ; i< itemListModel.getSize() ; i++) {
+						
+						List<Item> items = ((Unit)performer).getItemList();
+						int size = items.size();
+						for (Item item : ((Unit)performer).getItemList())
+							if (item instanceof MineItem)
+								size = size -1;
+						
+						for (int i =0 ; i< size ; i++) {
 							JMenuItem item = new JMenuItem(itemListModel.get(i).getName());
 							useItemMenu.removeAll();
 							useItemMenu.add(item);
@@ -737,7 +771,6 @@ public class GUI extends HumanPlayer {
 								}
 							});
 						}
-						actionMenu.add(useItemMenu);
 						
 						if (performer.canGiveItem(rightClickRow, rightClickCol, performer.getItemList().get(0))) {
 							giveItemMenu.removeAll();
@@ -760,8 +793,10 @@ public class GUI extends HumanPlayer {
 								});
 							}
 						}
-						
+					if (size > 0)
+						actionMenu.add(useItemMenu);
 					}
+					
 					actionMenu.add(cancelItem);
 					
 					actionMenu.show(arg0.getComponent(), rightClickCol*32+16, rightClickRow*32+16);
@@ -784,12 +819,15 @@ public class GUI extends HumanPlayer {
 
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
-			char[] temp = password.getPassword();
-			String password = "";
-			for (char c : temp) {
-				password += c;
+			String name = username.getText();
+			if (name.length() > 0) {
+				char[] temp = password.getPassword();
+				String password = "";
+				for (char c : temp) {
+					password += c;
+				}
+				sendCommand(new NewUser(name, password));
 			}
-			sendCommand(new NewUser(username.getText(), password));
 		}
 	}
 
@@ -927,13 +965,19 @@ public class GUI extends HumanPlayer {
 					Rectangle2D square = new Rectangle2D.Double( left, upper, size, size );
 					g2.draw(square);
 					g2.setColor( map[r][c].getOccupant() instanceof WallObstacle ? Color.black : Color.gray );
-					if(leftClickRow == r && leftClickCol == c && selected ) g2.setColor(Color.yellow);
-					if ( map[r][c].getOccupant() instanceof MineObstacle) {
-						g2.setColor(Color.red);
-						g2.draw(new Rectangle2D.Double( left/2, upper/2, size/2, size/2 ));
-					}
 					g2.fill(square);
 					
+					if ( map[r][c].getOccupant() instanceof MineObstacle) {
+						MineObstacle mo = (MineObstacle)map[r][c].getOccupant();
+						if (mo.isVisible(units)) {
+							g2.setColor(Color.magenta);
+							Rectangle2D mine =  new Rectangle2D.Double( left+6, upper+6, size-13, size-13 );;
+							g2.fill(mine);
+						}
+					}
+					
+					if(leftClickRow == r && leftClickCol == c && selected ) g2.setColor(Color.yellow);
+
 					GameSquare srcSquare = game.getGameSquareAt(leftClickRow,leftClickCol);
 					
 					if( selected && srcSquare.getOccupant() instanceof Unit) {
@@ -970,6 +1014,7 @@ public class GUI extends HumanPlayer {
 				if(u instanceof DemolitionUnit) imagey = size*2;
 				if(u instanceof RocketUnit) imagey = size*3;
 				if(u instanceof MeleeUnit) imagey = size*4;
+				if(u instanceof ExplosivesUnit) imagey = size*0;;
 				g2.drawImage(sprites, left, upper, left+size, upper+size, 0, imagey, size, imagey+size, null);
 			}
 			
@@ -983,6 +1028,7 @@ public class GUI extends HumanPlayer {
 				if(u instanceof DemolitionUnit) imagey = size*2;
 				if(u instanceof RocketUnit) imagey = size*3;
 				if(u instanceof MeleeUnit) imagey = size*4;
+				if(u instanceof ExplosivesUnit) imagey = size*0;
 				g2.drawImage(sprites, left, upper, left+size, upper+size, size, imagey, size+size, imagey+size, null);
 			}
 		}

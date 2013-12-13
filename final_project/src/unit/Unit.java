@@ -9,6 +9,7 @@ import shared.Game;
 import shared.GameSquare;
 import shared.HealthItem;
 import shared.Item;
+import shared.MineItem;
 import shared.Occupant;
 
 @SuppressWarnings("serial")
@@ -41,7 +42,7 @@ public class Unit extends Occupant {
 		itemList = new ArrayList<Item>();
 		abilityCoolDown = 2;
 		abilityCoolDownToGo = 0;
-		addItem(new HealthItem("Stimpack",5.0,1,this));
+		//addItem(new HealthItem("Stimpack",5.0,1,this));
 	}
 	
 	public void setGame(Game g) {
@@ -303,6 +304,9 @@ public class Unit extends Occupant {
 		case Rocket:
 			clone = new RocketUnit(u.getName());
 			break;
+		case Explosives:
+			clone = new ExplosivesUnit(u.getName());
+			break;
 		}
 		
 		clone.strength = u.strength;
@@ -315,7 +319,17 @@ public class Unit extends Occupant {
 		clone.itemList = new ArrayList<Item>();
 		clone.abilityCoolDown = u.abilityCoolDown;
 		clone.abilityCoolDownToGo = 0;
-		clone.addItem(new HealthItem("Stimpack", 5.0, 1, this));
+		for (Item i : u.itemList) {
+			switch (i.getType()) {
+			case HealthItem:
+				clone.addItem(new HealthItem("Stimpack",5.0,1,clone));
+				break;
+			case MineItem:
+				clone.addItem(new MineItem("Mine",1,clone));
+				break;
+			}
+		}
+			
 		return clone;
 	}
 	

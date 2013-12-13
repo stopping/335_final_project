@@ -1,0 +1,26 @@
+- added mine obstacle, and made obstacle abstract
+- added mine item, started impleneting explosives unit
+# Please enter the commit message for your changes. Lines starting
+# with '#' will be ignored, and an empty message aborts the commit.
+#
+# Committer: Kyle James Criddle <criddlek@bulldog.cs.arizona.edu>
+#
+# On branch master
+# Your branch is behind 'origin/master' by 1 commit, and can be fast-forwarded.
+#
+# Changes to be committed:
+#   (use "git reset HEAD <file>..." to unstage)
+#
+#	modified:   final_project/src/server/Server.java
+#	modified:   final_project/src/shared/Game.java
+#	modified:   final_project/src/shared/GameSquare.java
+#	modified:   final_project/src/shared/Item.java
+#	new file:   final_project/src/shared/MineItem.java
+#	new file:   final_project/src/shared/MineObstacle.java
+#	modified:   final_project/src/shared/Obstacle.java
+#	new file:   final_project/src/shared/WallObstacle.java
+#	modified:   final_project/src/unit/EngineerUnit.java
+#	new file:   final_project/src/unit/ExplosivesUnit.java
+#	modified:   final_project/src/unit/Unit.java
+#	modified:   final_project/src/view/GUI.java
+#
