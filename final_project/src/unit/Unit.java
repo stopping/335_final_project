@@ -191,14 +191,18 @@ public class Unit extends Occupant {
 			int destCol = destSquare.getCol();
 			double apCost = Math.sqrt(Math.pow(srcRow-destRow, 2)+Math.pow(srcCol-destCol, 2));
 		
-			if (destSquare.hasOccupant() && destSquare.getOccupant() instanceof MineObstacle)
+			if (destSquare.hasOccupant() && destSquare.getOccupant() instanceof MineObstacle) 
 				takeDamage(7);
 			
-			location.setOccupant(null);
-			destSquare.setOccupant(this);
-			location = destSquare;
-			consumeActionPoints(apCost/speed);
-
+			if (!isDead()) {
+				location.setOccupant(null);
+				destSquare.setOccupant(this);
+				location = destSquare;
+				consumeActionPoints(apCost/speed);
+			}
+			else
+				destSquare.setOccupant(null);
+				
 			return true;
 		}
 		else {

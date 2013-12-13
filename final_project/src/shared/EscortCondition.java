@@ -1,10 +1,12 @@
 package shared;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
 import unit.Unit;
 
-public class EscortCondition implements WinCondition {
+@SuppressWarnings("serial")
+public class EscortCondition implements WinCondition, Serializable {
 
 	public EscortCondition() {
 		

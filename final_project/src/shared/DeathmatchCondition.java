@@ -1,11 +1,13 @@
 package shared;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
 import unit.Unit;
 
 
-public class DeathmatchCondition implements WinCondition {
+@SuppressWarnings("serial")
+public class DeathmatchCondition implements WinCondition, Serializable {
 
 	
 	
