@@ -429,6 +429,9 @@ public class GUI extends HumanPlayer {
 		mapTypeComboBox.setEnabled(true);
 		AILabel.setEnabled(true);
 		AILevelComboBox.setEnabled(true);
+		AILevelComboBox.setSelectedIndex(0);
+		gameTypeComboBox.setSelectedIndex(0);
+		mapTypeComboBox.setSelectedIndex(0);
 	}
 	
 	private void showPanel(JPanel p) {
@@ -866,7 +869,7 @@ public class GUI extends HumanPlayer {
 					}
 					if(performer.canMoveTo(rightClickRow, rightClickCol)) actionMenu.add(moveItem);
 					if(performer.canUseAbility(rightClickRow, rightClickCol)) actionMenu.add(specialItem);
-					if (((Unit)performer).getItemList().size() > 0) {
+					if (((Unit)performer).getItemList().size() > 0 && performer.canUseItem(rightClickRow, rightClickCol)) {
 						
 						List<Item> items = ((Unit)performer).getItemList();
 						int size = items.size();

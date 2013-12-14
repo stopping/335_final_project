@@ -134,8 +134,7 @@ public class Unit extends Occupant {
 	}
 	
 	public void restoreActionPoints(double amount) {
-		actionPoints += amount;
-	}
+		actionPoints = actionPoints + amount > maxActionPoints ? maxActionPoints : actionPoints + amount ;	}
 	
 	public boolean addItem(Item i) {
 		if(inventoryHasRoom()) {
@@ -273,6 +272,14 @@ public class Unit extends Occupant {
 		if(!(o instanceof Unit)) return false;
 		Unit receiver = (Unit) o;
 		return hasItem(i) && receiver.inventoryHasRoom() && lineOfSightExists( row, col ) && isInRange( row, col, 1.5 );
+	}
+	
+	public boolean canUseItem(int row, int col) {
+		GameSquare gs = game.getGameSquareAt(row, col);
+		if(!gs.hasOccupant()) return false;
+		Occupant o = gs.getOccupant();
+		if(!(o instanceof Unit)) return false;
+		return row == location.getRow() && col == location.getCol();
 	}
 
 	private boolean inventoryHasRoom() {

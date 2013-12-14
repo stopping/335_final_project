@@ -19,7 +19,6 @@ import unit.RocketUnit;
 import unit.SoldierUnit;
 import server_commands.CanStartGame;
 import server_commands.SendingGame;
-import server_commands.SendingUserInfo;
 import server_commands.ValidLogin;
 import unit.Unit;
 import unit.Unit.UnitClass;
