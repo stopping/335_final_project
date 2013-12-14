@@ -1,5 +1,6 @@
 package win_condition;
 
+import game.Game;
 import game.GameSquare;
 
 import java.io.Serializable;
@@ -10,8 +11,10 @@ import unit.Unit;
 @SuppressWarnings("serial")
 public class EscortCondition implements WinCondition, Serializable {
 
+	Game game;
+	
 	public EscortCondition() {
-		
+		game = null;
 	}
 	
 	
@@ -20,10 +23,17 @@ public class EscortCondition implements WinCondition, Serializable {
 		return null;
 	}
 
-	
-	public boolean checkWinCondition(ArrayList<Unit> units) {
+	@Override
+	public int checkWinCondition() {
 		// TODO Auto-generated method stub
-		return false;
+		return -1;
 	}
+	
+	public void setGame(Game g) {
+		game = g;
+	}
+
+
+
 
 }

@@ -1,5 +1,6 @@
 package win_condition;
 
+import game.Game;
 import game.GameSquare;
 
 import java.io.Serializable;
@@ -11,9 +12,10 @@ import unit.Unit;
 @SuppressWarnings("serial")
 public class DeathmatchCondition implements WinCondition, Serializable {
 
-	
+	Game game;
 	
 	public DeathmatchCondition() {
+		game = null;
 	}
 	
 	
@@ -23,14 +25,34 @@ public class DeathmatchCondition implements WinCondition, Serializable {
 	}
 
 	
-	public boolean checkWinCondition(ArrayList<Unit> units) {
-		for (Unit u : units) {
+	public int checkWinCondition() {
+		ArrayList<Unit> redUnits = (ArrayList<Unit>) game.getRedUnitList();
+		ArrayList<Unit> blueUnits = (ArrayList<Unit>) game.getBlueUnitList();
+		
+		boolean redLost = true;
+		boolean blueLost = true;
+		
+		for (Unit u : redUnits) {
 			if (!u.isDead()) {
-				return false;
+				redLost = false;
 			}
 		}
 		
-		return true;
+		for (Unit u : blueUnits) {
+			if (!u.isDead()) {
+				blueLost = false;
+			}
+		}
+		
+		if (redLost)
+			return 0;
+		if (blueLost)
+			return 1;
+		return -1;
+	}
+	
+	public void setGame(Game g) {
+		game = g;
 	}
 
 }

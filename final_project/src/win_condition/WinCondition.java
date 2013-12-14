@@ -1,11 +1,11 @@
 package win_condition;
 
-import java.util.ArrayList;
-
-import unit.Unit;
+import game.Game;
 
 public interface WinCondition {
 	
 	
-	public boolean checkWinCondition(ArrayList<Unit> units);
+	public int checkWinCondition();
+	
+	public void setGame(Game g);
 }

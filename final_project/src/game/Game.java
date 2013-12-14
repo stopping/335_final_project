@@ -25,6 +25,7 @@ public class Game implements Serializable {
 	List<Unit> unitListRed = new ArrayList<Unit>();
 	List<Unit> unitListBlue = new ArrayList<Unit>();
 	WinCondition victoryCondition;
+	MapBehavior map;
 	
 	int winner = -1;
 	int currentPlayer;
@@ -52,10 +53,10 @@ public class Game implements Serializable {
 			u.setBoard();
 		}
 		
-
+		this.map = map;
 		currentPlayer = 0;
 		victoryCondition = condition;
-		
+		victoryCondition.setGame(this);
 	}
 	
 	public GameSquare[][] getBoard() {
@@ -82,20 +83,19 @@ public class Game implements Serializable {
 		return true;
 	}
 
+	/**
+	 * All the checking for the end of the game is now done inside of the WinCondition
+	 * 
+	 * @return checkWinCondition() method returns 1 if red wins, 0 if blue wins, and -1 if game is still in progress
+	 */
 	public boolean checkWinCondition() {
-		if (victoryCondition.checkWinCondition((ArrayList<Unit>)unitListRed)) {
-			winner = 1;
-			return true;
-		}
-		
-		if (victoryCondition.checkWinCondition((ArrayList<Unit>)unitListBlue)) {
-			winner = 0;
-			return true;
-		}
-		
-		return false;
+		winner = victoryCondition.checkWinCondition();
+		System.out.println("The current winner" + winner);
+		return victoryCondition.checkWinCondition() >= 0;
 	}
 
+
+	
 	public boolean isCurrentPlayer(int player) {
 		return currentPlayer == player ? true : false;
 	}
@@ -228,7 +228,7 @@ public class Game implements Serializable {
 		
 		if(!isTurn(performer))
 			return false;
-		
+		checkWinCondition();
 		// unit's move method now performs the requisite checks
 		return performer.moveTo(dest[0],dest[1]);
 
@@ -264,7 +264,7 @@ public class Game implements Serializable {
 			return false;
 		
 		if(!isTurn(performer)) { return false; }
-		
+		checkWinCondition();
 		// attack returns true if attack was successful false if otherwise
 		// important to note that the unit's attack method now perform the requisite checks
 		return performer.useSpecialAbility(dest[0],dest[1]);
@@ -286,6 +286,7 @@ public class Game implements Serializable {
 	}
 	
 	public boolean giveItem(int[] source, int[] dest, Item item) {
+		checkWinCondition();
 		GameSquare srcSquare = board[source[0]][source[1]];
 		
 		Unit performer;
@@ -305,6 +306,7 @@ public class Game implements Serializable {
 	}
 	
 	public boolean useItem(int[] source, int[] dest, int itemIndex) {
+		checkWinCondition();
 		GameSquare srcSquare = board[source[0]][source[1]];
 		Unit performer = (Unit) srcSquare.getOccupant();
 
@@ -329,7 +331,7 @@ public class Game implements Serializable {
 	}
 	
 	public boolean placeMine(int[] source, int[] dest) {
-		System.out.println("executing plae mine command");
+		checkWinCondition();
 		GameSquare srcSquare = board[source[0]][source[1]];
 		Unit performer = (Unit) srcSquare.getOccupant();
 		
@@ -346,10 +348,8 @@ public class Game implements Serializable {
 				//board[dest[0]][dest[1]].setOccupant(new MineObstacle());
 				return ex.attack(dest[0], dest[1]);
 			}
-			System.out.println("cant place mine");
 			return false;
 		}
-		System.out.println("false");
 		return false;
 	}
 }

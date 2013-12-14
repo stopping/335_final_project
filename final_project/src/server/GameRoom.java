@@ -117,6 +117,9 @@ public class GameRoom {
 				}
 			}
 		}
+		else {
+			
+		}
 	}
 	
 	private void updateOpponents() {	
