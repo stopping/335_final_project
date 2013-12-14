@@ -4,6 +4,7 @@ import java.awt.Point;
 import java.util.ArrayList;
 import java.util.List;
 
+import shared.ActionItem;
 import shared.Attribute;
 import shared.Game;
 import shared.GameSquare;
@@ -346,6 +347,9 @@ public class Unit extends Occupant {
 				break;
 			case MineItem:
 				clone.addItem(new MineItem("Mine",1,clone));
+				break;
+			case ActionItem:
+				clone.addItem(new ActionItem("AP Serum", 3.0, 1, clone));
 				break;
 			}
 		}

@@ -54,7 +54,7 @@ public class RocketUnit extends Unit {
 	
 	@Override
 	public String toString() {
-		return "Name: " + this.name + "(Rocket)";
+		return "Name: " + this.name + " (Rocket)";
 	}
 
 }

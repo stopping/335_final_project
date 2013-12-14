@@ -100,7 +100,7 @@ public class ExplosivesUnit extends Unit {
 	
 	@Override
 	public String toString() {
-		return "Name: " + this.name + "(Explosives)";
+		return "Name: " + this.name + " (Explosives)";
 	}
 
 }

@@ -2,6 +2,7 @@ package unit;
 
 import java.util.ArrayList;
 
+import shared.ActionItem;
 import shared.HealthItem;
 import shared.Item;
 
@@ -21,12 +22,13 @@ public class SoldierUnit extends Unit {
 		abilityRange = 5.0;
 		itemList = new ArrayList<Item>();
 		addItem(new HealthItem("Stimpack",5.0,1,this));
+		addItem(new ActionItem("AP Serum",3.0,1,this));
 		unitClass = UnitClass.Soldier;
 	}
 	
 	@Override
 	public String toString() {
-		return "Name: " + this.name + "(Soldier)";
+		return "Name: " + this.name + " (Soldier)";
 	}
 
 }

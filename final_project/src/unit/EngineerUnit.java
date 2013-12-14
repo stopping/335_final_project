@@ -50,7 +50,7 @@ public class EngineerUnit extends Unit {
 	
 	@Override
 	public String toString() {
-		return "Name: " + this.name + "(Engineer)";
+		return "Name: " + this.name + " (Engineer)";
 	}
 
 }

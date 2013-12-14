@@ -5,5 +5,6 @@ public enum Attribute {
 	Defense,
 	HitPoints,
 	MaxHitPoints,
-	MaxActionPoints;
+	MaxActionPoints,
+	ActionPoints;
 }

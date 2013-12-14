@@ -61,7 +61,6 @@ import shared.DeathmatchCondition;
 import shared.EscortCondition;
 import shared.GameSquare;
 import shared.Item;
-import shared.Item.ItemType;
 import shared.MapBehavior;
 import shared.MineItem;
 import shared.MineObstacle;
@@ -1006,12 +1005,13 @@ public class GUI extends HumanPlayer {
 				for(int c = 0; c < map[0].length; c++) {
 					int upper = r*size;
 					int left = c*size;
+					
 					Rectangle2D square = new Rectangle2D.Double( left, upper, size, size );
-					g2.draw(square);
-					g2.setColor( map[r][c].getOccupant() instanceof WallObstacle ? Color.black : Color.gray );
-					g2.fill(square);
-										
+					//g2.draw(square);
+					
+					g2.setColor( map[r][c].getOccupant() instanceof WallObstacle ? Color.black : Color.gray );			
 					if(leftClickRow == r && leftClickCol == c && selected ) g2.setColor(Color.yellow);
+					g2.fill(square);
 
 					GameSquare srcSquare = game.getGameSquareAt(leftClickRow,leftClickCol);
 					
