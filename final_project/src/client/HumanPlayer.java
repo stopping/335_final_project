@@ -18,6 +18,7 @@ public abstract class HumanPlayer {
 	protected Client client;
 	protected Game game;
 	protected List<Unit> units;
+	protected String name;
 	
 	public HumanPlayer() {
 		units = new ArrayList<Unit>();
@@ -69,5 +70,11 @@ public abstract class HumanPlayer {
 	}
 	
 	public abstract void playerSurrendered(String name);
+	
+	public void setName(String name) {
+		this.name = name;
+	}
+	
+	public abstract void updateUserInfo();
 
 }

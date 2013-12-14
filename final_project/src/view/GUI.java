@@ -82,6 +82,7 @@ import unit.Unit.UnitClass;
 import client.HumanPlayer;
 import client_commands.ComputerDifficultySet;
 import client_commands.JoinGame;
+import client_commands.LeaveGameRoom;
 import client_commands.Login;
 import client_commands.Logout;
 import client_commands.NewComputerPlayer;
@@ -159,6 +160,9 @@ public class GUI extends HumanPlayer {
 	JPanel logisticsPanel = new JPanel();
 	JPanel loginButtonPanel = new JPanel();
 	
+	JLabel playerCredits = new JLabel(String.valueOf(credits), SwingConstants.LEFT);
+	JLabel playerName = new JLabel(name, SwingConstants.LEFT);
+	
 	JButton gameRoomLobbyButton = new JButton("Go To Lobby");
 	JPanel gameRoomLobbyPanel = new JPanel();
 	JTable gameRoomsTable = new JTable();
@@ -169,6 +173,7 @@ public class GUI extends HumanPlayer {
 	JPanel startGameOptionsPanel = new JPanel();
 	JButton surrenderButton = new JButton("Surrender");
 	JButton returnToMenuButton = new JButton("Exit to Menu");
+	JButton backButton = new JButton(" <-- Main Menu");
 	
 	JLabel AILabel = new JLabel("AI level: ",  SwingConstants.RIGHT);
 	String AIDifficultyLevels[] = new String[] { "Friendly", "Normal", "Destructive", "Insane"};
@@ -176,10 +181,6 @@ public class GUI extends HumanPlayer {
 	
 	String maps[] = new String[] { "Standard", "Obstacle"};
 	final JComboBox<String> mapTypeComboBox = new JComboBox<String>(maps);
-	
-//	final String[] unitNames = new String[] { "Alice", "Bob", "Carrie", "Dick", "Elaine", "Farley", "Gavelle", 
-//		"Hellena", "Ivan", "Jaque", "Kio", "Leon", "Marge", "Noip", "Otus", "Pete", "Quixote", "Rob", "Stella",
-//		"Timmy", "Umpa", "Vanessa", "Winchester", "Xavier", "Yogi", "Zayn" };
 
 	JButton endTurnButton = new JButton("End Turn");
 	JButton useItemButton = new JButton("Use Item");
@@ -257,6 +258,7 @@ public class GUI extends HumanPlayer {
 		setuploadoutPanel();
 		setupGameRoomLobby();
 		setupMainOptionsPanel();
+		setUpUserInfoPanel();
 		
 		mainFrame.setResizable(false);
 		mainFrame.add(mainPanel);
@@ -402,11 +404,7 @@ public class GUI extends HumanPlayer {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				userUnitList.setEnabled(true);
-				gameTypeComboBox.setEnabled(true);
-				mapTypeComboBox.setEnabled(true);
-				AILabel.setEnabled(true);
-				AILevelComboBox.setEnabled(true);
+				resetButtons();
 				showPanel(mainOptionsPanel);
 				gamePanel.remove(returnToMenuButton);
 			}
@@ -419,6 +417,14 @@ public class GUI extends HumanPlayer {
 	
 	public void login() {
 		showPanel(mainOptionsPanel);
+	}
+	
+	private void resetButtons() {
+		userUnitList.setEnabled(true);
+		gameTypeComboBox.setEnabled(true);
+		mapTypeComboBox.setEnabled(true);
+		AILabel.setEnabled(true);
+		AILevelComboBox.setEnabled(true);
 	}
 	
 	private void showPanel(JPanel p) {
@@ -468,7 +474,9 @@ public class GUI extends HumanPlayer {
 		loadoutPanel.add(selectUnitsPanel, BorderLayout.CENTER);
 		JButton readyButton = new JButton("Ready");
 		
-		startGameOptionsPanel.setLayout(new GridLayout(4,2));
+		startGameOptionsPanel.setLayout(new GridLayout(5,2));
+		startGameOptionsPanel.add(backButton);
+		startGameOptionsPanel.add(new JLabel());
 		startGameOptionsPanel.add(AILabel);
 		startGameOptionsPanel.add(AILevelComboBox);
 		startGameOptionsPanel.add(new JLabel("Win Condition: ", SwingConstants.RIGHT));
@@ -478,7 +486,7 @@ public class GUI extends HumanPlayer {
 		startGameOptionsPanel.add(readyButton);
 		startGameButton.setEnabled(false);
 		startGameOptionsPanel.add(startGameButton);
-		loadoutPanel.setPreferredSize(new Dimension(500, 300));
+		loadoutPanel.setPreferredSize(new Dimension(500, 350));
 		loadoutPanel.add(startGameOptionsPanel, BorderLayout.SOUTH);
 		
 		readyButton.addActionListener(new ActionListener() {
@@ -519,7 +527,14 @@ public class GUI extends HumanPlayer {
 					sendCommand(new StartGame(cond, map));
 					startGameButton.setEnabled(false);
 				}
-			
+		});
+		
+		backButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				sendCommand(new LeaveGameRoom());
+				resetButtons();
+				showPanel(mainOptionsPanel);
+			}
 		});
 	}
 	
@@ -545,6 +560,29 @@ public class GUI extends HumanPlayer {
 				}
 			}
 		});
+	}
+	
+	private void setUpUserInfoPanel() {
+		JLabel nameLabel = new JLabel("User ID:   ", SwingConstants.RIGHT);
+		JLabel creditsLabel = new JLabel("Credits:   ", SwingConstants.RIGHT);
+		accountPanel.setLayout(new GridLayout(3, 2));
+		accountPanel.add(nameLabel);
+		accountPanel.add(playerName);
+		accountPanel.add(creditsLabel);
+		accountPanel.add(playerCredits);
+		JButton back =  new JButton("<-- Main Menu");
+		accountPanel.add(back);
+		back.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				showPanel(mainOptionsPanel);
+			}
+		});
+	}
+
+	@Override
+	public void updateUserInfo() {
+		playerCredits.setText(String.valueOf(credits));
+		playerName.setText(name);
 	}
 	
 	private void setupMainOptionsPanel() {
@@ -582,14 +620,11 @@ public class GUI extends HumanPlayer {
 			}
 		});*/
 		
-		 /* accountInfoButton.addActionListener(new ActionListener() {
+		accountInfoButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				mainPanel.removeAll();
-				mainPanel.add(accountInfoPanel);
-				mainFrame.repaint();
-				mainFrame.revalidate();
+				showPanel(accountPanel);
 			}
-		}); */
+		}); 
 		
 		logoutButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -975,16 +1010,7 @@ public class GUI extends HumanPlayer {
 					g2.draw(square);
 					g2.setColor( map[r][c].getOccupant() instanceof WallObstacle ? Color.black : Color.gray );
 					g2.fill(square);
-					
-					if ( map[r][c].getOccupant() instanceof MineObstacle) {
-						MineObstacle mo = (MineObstacle)map[r][c].getOccupant();
-						if (mo.isVisible(units)) {
-							g2.setColor(Color.magenta);
-							Rectangle2D mine =  new Rectangle2D.Double( left+6, upper+6, size-13, size-13 );;
-							g2.fill(mine);
-						}
-					}
-					
+										
 					if(leftClickRow == r && leftClickCol == c && selected ) g2.setColor(Color.yellow);
 
 					GameSquare srcSquare = game.getGameSquareAt(leftClickRow,leftClickCol);
@@ -1008,6 +1034,14 @@ public class GUI extends HumanPlayer {
 							square = new Rectangle2D.Double( left+10, upper+10, size-21, size-21 );
 							g2.draw(square);
 							g2.fill(square);
+						}
+					}	
+					if ( map[r][c].getOccupant() instanceof MineObstacle) {
+						MineObstacle mo = (MineObstacle)map[r][c].getOccupant();
+						if (mo.isVisible(units)) {
+							g2.setColor(Color.magenta);
+							Rectangle2D mine =  new Rectangle2D.Double( left+6, upper+6, size-13, size-13 );;
+							g2.fill(mine);
 						}
 					}
 				}

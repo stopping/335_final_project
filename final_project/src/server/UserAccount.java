@@ -11,11 +11,13 @@ public class UserAccount {
 	private boolean isLoggedOn;
 	private boolean isReady;
 	private int credits;
+	private String name;
 	
-	public UserAccount() {
+	public UserAccount(String name) {
 		this.units = new ArrayList<Unit>();
 		this.credits = 1000;		// new user starting credits
 		this.isReady = false;
+		this.name = name;
 	}
 	
 	public boolean addUnit(String name, UnitClass type) {
@@ -72,5 +74,9 @@ public class UserAccount {
 	
 	public int getNumCredits() {
 		return this.credits;
+	}
+	
+	public String getName() {
+		return this.name;
 	}
 }

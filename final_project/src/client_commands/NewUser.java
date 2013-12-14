@@ -19,7 +19,7 @@ public class NewUser extends ClientCommand {
 	public boolean executeOn(Server s) {
 		if(s.setupNewUser(name, password, ch)) {
 			UserAccount account = s.getUserInfo(name);
-			ch.sendCommand(new SendingUserInfo( account.getUnits(), account.getNumCredits() ));
+			ch.sendCommand(new SendingUserInfo( account.getUnits(), account.getNumCredits(), account.getName()));
 			return true;
 		}
 		return false;

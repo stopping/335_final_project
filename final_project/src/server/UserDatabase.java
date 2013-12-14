@@ -29,7 +29,7 @@ public class UserDatabase {
 			return false;
 		if (!startsAlpha(name.substring(0, 1)))
 			return false;
-		database.put(name, new UserAccount());
+		database.put(name, new UserAccount(name));
 		loginAndPassword.put(name, password);
 		return true;
 	}

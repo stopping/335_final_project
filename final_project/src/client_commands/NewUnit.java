@@ -20,7 +20,7 @@ public class NewUnit extends ClientCommand {
 	public boolean executeOn(Server s) {
 		if (s.newUnit(source, name, type)) {
 			UserAccount account = s.getUserInfo(source);
-			ch.sendCommand(new SendingUserInfo( account.getUnits(), account.getNumCredits() ));
+			ch.sendCommand(new SendingUserInfo( account.getUnits(), account.getNumCredits(), account.getName() ));
 			return true;
 		}
 		return false;

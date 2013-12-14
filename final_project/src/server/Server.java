@@ -101,6 +101,8 @@ public class Server implements Runnable {
 		if (database.getUser(source).isLoggedOn()) {
 			database.getUser(source).setLoggedOn(false);
 			database.getUser(source).setIsReady(false);
+			ch.setPlayerName(null);
+			ch.setGameRoom(-1);
 		}
 		return true;
 	}
@@ -279,5 +281,13 @@ public class Server implements Runnable {
 			return ret;
 		}
 		return false;
+	}
+	
+	public boolean playerLeaveGameRoom(String source, int gr, ClientHandler ch) {
+		if (gamerooms.containsKey(gr)) {
+			gamerooms.remove(gr);
+			ch.setGameRoom(-1);
+		}
+		return true;
 	}
 }
