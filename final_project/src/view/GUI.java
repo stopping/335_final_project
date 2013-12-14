@@ -760,15 +760,6 @@ public class GUI extends HumanPlayer {
 		possibleUnitList.revalidate();
 	}
 	
-	public class PossibleUnitListener implements ActionListener {
-
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			//possibleUnitList.get
-		}
-		
-		
-	}
 
 	public class AddUnitListener implements ActionListener {
 		public void actionPerformed(ActionEvent arg0) {
@@ -839,25 +830,6 @@ public class GUI extends HumanPlayer {
 		gameRoomLobbyPanel.updateUI();
 		System.out.println("received open gamerooms");
 	}
-	
-//	@Override
-//	public void updateAvailGameRooms(HashMap<Integer, String> rooms) {
-//		gameRoomLobbyPanel.remove(gameRoomsTable);
-//		String[] columnnames = new String[] { "Room", "Player", "Game Mode" };
-//		Object[][] data = new Object[rooms.size()][3];
-//		for (int i= 0 ; i < rooms.size() ; i++) {
-//			data[i][0] = new Integer(i);
-//			data[i][1] = rooms.get(i);
-//			data[i][2] = 
-//			System.out.println("gameroom: " + i + "player: " + "[" + rooms.get(i) + "]"); 
-//		}
-//		gameRoomsTable = new JTable(data, columnnames);
-//		gameRoomLobbyPanel.add(gameRoomsTable);
-//		gameRoomLobbyPanel.repaint();
-//		gameRoomLobbyPanel.revalidate();
-//		gameRoomLobbyPanel.updateUI();
-//		System.out.println("received open gamerooms");
-//	}
 	
 	@Override
 	public void canStartGame() {

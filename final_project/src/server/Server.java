@@ -165,11 +165,12 @@ public class Server implements Runnable {
 		return true;
 	}
 	
-	public boolean setReady(String source, ClientHandler ch, int gr, WinCondition wc) {
+	public boolean setReady(String source, ClientHandler ch, int gr, WinCondition wc, MapBehavior mb) {
 		if (database.hasUser(source)) {
 			database.getUser(source).setIsReady(true);
 			ch.sendCommand(new CanStartGame());
 			gamerooms.get(gr).wc = wc;
+			gamerooms.get(gr).mb = mb;
 			updateOpenGameRooms();
 			return true;
 		}

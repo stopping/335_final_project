@@ -27,7 +27,7 @@ public class PlayerReady extends ClientCommand {
 	
 	@Override
 	public boolean executeOn(Server s) {
-		if (s.setReady(source, ch, gameRoom, wc)) {
+		if (s.setReady(source, ch, gameRoom, wc, mb)) {
 			s.updateOpenGameRooms();
 			return true;
 		}
