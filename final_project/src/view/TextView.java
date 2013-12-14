@@ -1,3 +1,4 @@
+package view;
 //package client;
 //
 //import game_commands.AttackCommand;

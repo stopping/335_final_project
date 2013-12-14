@@ -1,5 +1,6 @@
 package server;
 
+import game.Game;
 import game_commands.EndTurnCommand;
 import game_commands.GameCommand;
 
@@ -12,7 +13,6 @@ import server_commands.ComputerTurn;
 import server_commands.IllegalOption;
 import server_commands.SendingGame;
 import server_commands.Surrender;
-import shared.Game;
 
 /**
  * Class: GameRoom

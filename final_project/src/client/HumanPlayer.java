@@ -1,14 +1,13 @@
 package client;
 
+import game.Game;
 import game_commands.GameCommand;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import shared.Command;
-import shared.Game;
-import shared.Player;
+import server.Command;
 import unit.Unit;
 
 public abstract class HumanPlayer {

@@ -5,11 +5,11 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import map.MapBehavior;
+import game.Game;
 import game_commands.GameCommand;
 import server_commands.*;
-import shared.Attribute;
-import shared.Game;
-import shared.WinCondition;
+import unit.Attribute;
 import unit.DemolitionUnit;
 import unit.EngineerUnit;
 import unit.ExplosivesUnit;
@@ -20,9 +20,9 @@ import server_commands.CanStartGame;
 import server_commands.SendingGame;
 import server_commands.SendingUserInfo;
 import server_commands.ValidLogin;
-import shared.MapBehavior;
 import unit.Unit;
 import unit.Unit.UnitClass;
+import win_condition.WinCondition;
 
 public class Server implements Runnable {
 	

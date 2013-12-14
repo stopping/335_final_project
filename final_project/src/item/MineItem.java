@@ -1,4 +1,4 @@
-package shared;
+package item;
 
 import unit.Unit;
 

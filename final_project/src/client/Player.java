@@ -1,4 +1,6 @@
-package shared;
+package client;
+
+import game.Game;
 
 import java.io.Serializable;
 import java.util.List;

@@ -1,10 +1,10 @@
 package unit;
 
-import java.util.ArrayList;
+import item.ActionItem;
+import item.HealthItem;
+import item.Item;
 
-import shared.ActionItem;
-import shared.HealthItem;
-import shared.Item;
+import java.util.ArrayList;
 
 @SuppressWarnings("serial")
 public class MeleeUnit extends Unit {

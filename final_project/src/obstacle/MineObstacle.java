@@ -1,4 +1,4 @@
-package shared;
+package obstacle;
 
 import java.util.List;
 

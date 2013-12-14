@@ -3,8 +3,8 @@ package client_commands;
 
 
 import server.ClientHandler;
+import server.Command;
 import server.Server;
-import shared.Command;
 
 /**
  * ClientCommand is sent from the client to the server, 

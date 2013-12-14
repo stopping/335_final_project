@@ -1,12 +1,13 @@
 package unit;
 
+import game.GameSquare;
+import item.HealthItem;
+import item.Item;
+
 import java.util.ArrayList;
 
-import shared.GameSquare;
-import shared.HealthItem;
-import shared.Item;
-import shared.Obstacle;
-import shared.WallObstacle;
+import obstacle.Obstacle;
+import obstacle.WallObstacle;
 
 @SuppressWarnings("serial")
 public class EngineerUnit extends Unit {

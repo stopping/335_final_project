@@ -1,7 +1,7 @@
 package game_commands;
 
-import shared.Game;
-import shared.Item;
+import game.Game;
+import item.Item;
 
 @SuppressWarnings("serial")
 public class GiveItemCommand extends GameCommand {

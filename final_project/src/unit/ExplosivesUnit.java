@@ -1,13 +1,14 @@
 package unit;
 
+import game.GameSquare;
+import game.Occupant;
+import item.Item;
+import item.MineItem;
+import item.Item.ItemType;
+
 import java.util.ArrayList;
 
-import shared.GameSquare;
-import shared.Item;
-import shared.Item.ItemType;
-import shared.MineItem;
-import shared.MineObstacle;
-import shared.Occupant;
+import obstacle.MineObstacle;
 
 @SuppressWarnings("serial")
 public class ExplosivesUnit extends Unit {

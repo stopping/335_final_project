@@ -1,8 +1,11 @@
-package shared;
+package map;
+
+import game.GameSquare;
+import game.GameSquare.Terrain;
 
 import java.util.ArrayList;
 
-import shared.GameSquare.Terrain;
+import obstacle.WallObstacle;
 import unit.Unit;
 
 @SuppressWarnings("serial")

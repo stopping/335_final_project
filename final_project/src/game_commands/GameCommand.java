@@ -1,7 +1,7 @@
 package game_commands;
 
-import shared.Command;
-import shared.Game;
+import game.Game;
+import server.Command;
 
 @SuppressWarnings("serial")
 public abstract class GameCommand extends Command { 

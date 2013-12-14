@@ -1,5 +1,6 @@
-package shared;
+package item;
 
+import unit.Attribute;
 import unit.Unit;
 
 @SuppressWarnings("serial")

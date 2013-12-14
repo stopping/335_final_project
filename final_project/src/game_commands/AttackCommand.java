@@ -1,6 +1,6 @@
 package game_commands;
 
-import shared.Game;
+import game.Game;
 
 @SuppressWarnings("serial")
 public class AttackCommand extends GameCommand {

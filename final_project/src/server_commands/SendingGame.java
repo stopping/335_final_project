@@ -1,6 +1,6 @@
 package server_commands;
 
-import shared.Game;
+import game.Game;
 import unit.Unit;
 import client.HumanPlayer;
 

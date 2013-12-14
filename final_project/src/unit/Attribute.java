@@ -1,4 +1,4 @@
-package shared;
+package unit;
 
 public enum Attribute {
 	Strength,

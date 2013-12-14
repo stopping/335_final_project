@@ -1,12 +1,11 @@
 package unit;
 
-import java.util.ArrayList;
+import game.GameSquare;
+import game.Occupant;
+import item.HealthItem;
+import item.Item;
 
-import shared.Attribute;
-import shared.GameSquare;
-import shared.HealthItem;
-import shared.Item;
-import shared.Occupant;
+import java.util.ArrayList;
 
 @SuppressWarnings("serial")
 public class RocketUnit extends Unit {

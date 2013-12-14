@@ -8,7 +8,6 @@ import java.net.Socket;
 import client_commands.ClientCommand;
 import game_commands.GameCommand;
 import server_commands.ServerCommand;
-import shared.Command;
 
 public class ClientHandler implements Runnable {
 

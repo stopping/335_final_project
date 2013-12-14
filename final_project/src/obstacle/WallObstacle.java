@@ -1,4 +1,4 @@
-package shared;
+package obstacle;
 
 @SuppressWarnings("serial")
 public class WallObstacle extends Obstacle {

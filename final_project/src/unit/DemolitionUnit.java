@@ -1,11 +1,12 @@
 package unit;
 
+import game.GameSquare;
+import item.HealthItem;
+import item.Item;
+
 import java.util.ArrayList;
 
-import shared.GameSquare;
-import shared.HealthItem;
-import shared.Item;
-import shared.Obstacle;
+import obstacle.Obstacle;
 
 @SuppressWarnings("serial")
 public class DemolitionUnit extends Unit {

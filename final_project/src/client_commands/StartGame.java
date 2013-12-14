@@ -1,8 +1,8 @@
 package client_commands;
 
+import map.MapBehavior;
 import server.Server;
-import shared.WinCondition;
-import shared.MapBehavior;
+import win_condition.WinCondition;
 
 @SuppressWarnings("serial")
 public class StartGame extends ClientCommand {

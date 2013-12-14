@@ -1,7 +1,8 @@
-package shared;
+package item;
 
 import java.io.Serializable;
 
+import unit.Attribute;
 import unit.Unit;
 
 @SuppressWarnings("serial")

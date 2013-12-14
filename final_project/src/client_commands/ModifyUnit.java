@@ -1,7 +1,7 @@
 package client_commands;
 
 import server.Server;
-import shared.Attribute;
+import unit.Attribute;
 
 @SuppressWarnings("serial")
 public class ModifyUnit extends ClientCommand {

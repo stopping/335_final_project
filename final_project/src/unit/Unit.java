@@ -1,18 +1,18 @@
 package unit;
 
+import game.Game;
+import game.GameSquare;
+import game.Occupant;
+import item.ActionItem;
+import item.HealthItem;
+import item.Item;
+import item.MineItem;
+
 import java.awt.Point;
 import java.util.ArrayList;
 import java.util.List;
 
-import shared.ActionItem;
-import shared.Attribute;
-import shared.Game;
-import shared.GameSquare;
-import shared.HealthItem;
-import shared.Item;
-import shared.MineItem;
-import shared.MineObstacle;
-import shared.Occupant;
+import obstacle.MineObstacle;
 
 @SuppressWarnings("serial")
 public class Unit extends Occupant {

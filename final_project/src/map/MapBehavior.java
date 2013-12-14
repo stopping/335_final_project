@@ -1,4 +1,6 @@
-package shared;
+package map;
+
+import game.GameSquare;
 
 import java.io.Serializable;
 import java.util.ArrayList;

@@ -1,5 +1,8 @@
 package server;
 
+import game.Game;
+import game.GameSquare;
+import game.Occupant;
 import game_commands.AttackCommand;
 import game_commands.EndTurnCommand;
 import game_commands.GameCommand;
@@ -11,18 +14,14 @@ import java.net.Socket;
 import java.util.List;
 import java.util.Random;
 
-import shared.Command;
+import client.Player;
 import client_commands.*;
 import server_commands.ComputerTurn;
 import server_commands.ComputerDifficultySet;
 import server_commands.IllegalOption;
 import server_commands.SendingGame;
 import server_commands.ServerCommand;
-import shared.Game;
-import shared.Occupant;
-import shared.Player;
 import unit.*;
-import shared.GameSquare;
 
 public class ComputerPlayer implements Runnable {
 

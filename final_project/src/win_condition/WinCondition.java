@@ -1,4 +1,4 @@
-package shared;
+package win_condition;
 
 import java.util.ArrayList;
 

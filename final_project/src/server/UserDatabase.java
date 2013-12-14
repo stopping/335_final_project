@@ -1,9 +1,10 @@
 package server;
 
+import game.Game;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import shared.Game;
 import unit.Unit;
 
 public class UserDatabase {

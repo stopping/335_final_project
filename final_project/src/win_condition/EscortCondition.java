@@ -1,17 +1,17 @@
-package shared;
+package win_condition;
+
+import game.GameSquare;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 
 import unit.Unit;
 
-
 @SuppressWarnings("serial")
-public class DeathmatchCondition implements WinCondition, Serializable {
+public class EscortCondition implements WinCondition, Serializable {
 
-	
-	
-	public DeathmatchCondition() {
+	public EscortCondition() {
+		
 	}
 	
 	
@@ -22,13 +22,8 @@ public class DeathmatchCondition implements WinCondition, Serializable {
 
 	
 	public boolean checkWinCondition(ArrayList<Unit> units) {
-		for (Unit u : units) {
-			if (!u.isDead()) {
-				return false;
-			}
-		}
-		
-		return true;
+		// TODO Auto-generated method stub
+		return false;
 	}
 
 }

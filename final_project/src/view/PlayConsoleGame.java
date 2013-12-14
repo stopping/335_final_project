@@ -1,5 +1,6 @@
-package shared;
+package view;
 
+import game.Game;
 import game_commands.AttackCommand;
 import game_commands.EndTurnCommand;
 import game_commands.GameCommand;
@@ -8,10 +9,11 @@ import game_commands.MoveCommand;
 import java.util.ArrayList;
 import java.util.Scanner;
 
+import map.ObstacleMap;
 import client_commands.*;
-
-import shared.WinCondition;
 import unit.Unit;
+import win_condition.DeathmatchCondition;
+import win_condition.WinCondition;
 
 public class PlayConsoleGame {
 

@@ -1,6 +1,6 @@
 package server_commands;
 
-import shared.Command;
+import server.Command;
 import client.HumanPlayer;
 
 /**

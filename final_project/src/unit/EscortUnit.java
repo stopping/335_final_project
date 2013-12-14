@@ -1,7 +1,7 @@
 package unit;
 
-import shared.BombObstacle;
-import shared.Occupant;
+import game.Occupant;
+import obstacle.BombObstacle;
 
 /**
  * 

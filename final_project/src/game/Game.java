@@ -1,15 +1,18 @@
-package shared;
+package game;
 
+import game.GameSquare.Terrain;
 import game_commands.GameCommand;
+import item.Item;
 
 import java.awt.Point;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import shared.GameSquare.Terrain;
+import map.MapBehavior;
 import unit.ExplosivesUnit;
 import unit.Unit;
+import win_condition.WinCondition;
 
 
 public class Game implements Serializable {

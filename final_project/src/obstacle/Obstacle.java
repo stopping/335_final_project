@@ -1,4 +1,6 @@
-package shared;
+package obstacle;
+
+import game.Occupant;
 
 @SuppressWarnings("serial")
 public abstract class Obstacle extends Occupant {
