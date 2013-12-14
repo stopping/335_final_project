@@ -134,8 +134,7 @@ public class Unit extends Occupant {
 	}
 	
 	public void restoreActionPoints(double amount) {
-		actionPoints += amount;
-	}
+		actionPoints = actionPoints + amount > maxActionPoints ? maxActionPoints : actionPoints + amount ;	}
 	
 	public boolean addItem(Item i) {
 		if(inventoryHasRoom()) {
@@ -274,6 +273,14 @@ public class Unit extends Occupant {
 		Unit receiver = (Unit) o;
 		return hasItem(i) && receiver.inventoryHasRoom() && lineOfSightExists( row, col ) && isInRange( row, col, 1.5 );
 	}
+	
+	public boolean canUseItem(int row, int col) {
+		GameSquare gs = game.getGameSquareAt(row, col);
+		if(!gs.hasOccupant()) return false;
+		Occupant o = gs.getOccupant();
+		if(!(o instanceof Unit)) return false;
+		return row == location.getRow() && col == location.getCol();
+	}
 
 	private boolean inventoryHasRoom() {
 		return itemList.size() < 3;
@@ -289,7 +296,8 @@ public class Unit extends Occupant {
 		Rocket,
 		Engineer,
 		Demolition,
-		Explosives
+		Explosives,
+		Escort
 	}
 	
 	public double getModifier(Attribute a) {
@@ -327,6 +335,9 @@ public class Unit extends Occupant {
 			break;
 		case Explosives:
 			clone = new ExplosivesUnit(u.getName());
+			break;
+		case Escort:
+			clone = new EscortUnit(u.getName());
 			break;
 		}
 		

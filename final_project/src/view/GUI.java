@@ -69,6 +69,7 @@ import map.StandardMap;
 import server.Command;
 import unit.DemolitionUnit;
 import unit.EngineerUnit;
+import unit.EscortUnit;
 import unit.ExplosivesUnit;
 import unit.MeleeUnit;
 import unit.RocketUnit;
@@ -173,6 +174,10 @@ public class GUI extends HumanPlayer {
 	JButton surrenderButton = new JButton("Surrender");
 	JButton returnToMenuButton = new JButton("Exit to Menu");
 	JButton backButton = new JButton(" <-- Main Menu");
+	
+	JTextArea AIDescArea = new JTextArea();
+	JTextArea WinDescArea = new JTextArea();
+	JTextArea MapDescArea = new JTextArea();
 	
 	JLabel AILabel = new JLabel("AI level: ",  SwingConstants.RIGHT);
 	String AIDifficultyLevels[] = new String[] { "Friendly", "Normal", "Destructive", "Insane"};
@@ -424,6 +429,9 @@ public class GUI extends HumanPlayer {
 		mapTypeComboBox.setEnabled(true);
 		AILabel.setEnabled(true);
 		AILevelComboBox.setEnabled(true);
+		AILevelComboBox.setSelectedIndex(0);
+		gameTypeComboBox.setSelectedIndex(0);
+		mapTypeComboBox.setSelectedIndex(0);
 	}
 	
 	private void showPanel(JPanel p) {
@@ -472,26 +480,83 @@ public class GUI extends HumanPlayer {
 		setUpUnitLists();
 		loadoutPanel.add(selectUnitsPanel, BorderLayout.CENTER);
 		JButton readyButton = new JButton("Ready");
-		
-		startGameOptionsPanel.setLayout(new GridLayout(5,2));
-		startGameOptionsPanel.add(backButton);
-		startGameOptionsPanel.add(new JLabel());
+
+		startGameOptionsPanel.setLayout(new GridLayout(4,3));
 		startGameOptionsPanel.add(AILabel);
 		startGameOptionsPanel.add(AILevelComboBox);
+		startGameOptionsPanel.add(AIDescArea);
 		startGameOptionsPanel.add(new JLabel("Win Condition: ", SwingConstants.RIGHT));
 		startGameOptionsPanel.add(gameTypeComboBox);
+		startGameOptionsPanel.add(WinDescArea);
 		startGameOptionsPanel.add(new JLabel("Map: ", SwingConstants.RIGHT));
 		startGameOptionsPanel.add(mapTypeComboBox);
+		startGameOptionsPanel.add(MapDescArea);
+		startGameOptionsPanel.add(backButton);
 		startGameOptionsPanel.add(readyButton);
 		startGameButton.setEnabled(false);
 		startGameOptionsPanel.add(startGameButton);
+		
+		WinDescArea.setEditable(false);
+		AIDescArea.setEditable(false);
+		MapDescArea.setEditable(false);
+		WinDescArea.setText("Kill all opponents to win.");
+		AIDescArea.setText("They probably wont attack.");
+		MapDescArea.setText("Balance of open fields and obstacles");
+		
+		AILevelComboBox.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				switch (AILevelComboBox.getSelectedIndex()) {
+				case 0:
+					AIDescArea.setText("Will probably not attack.");
+					break;
+				case 1:
+					AIDescArea.setText("Will probably attack");
+					break;
+				case 2:
+					AIDescArea.setText("Will definitely attack.");
+					break;
+				case 3: 
+					AIDescArea.setText("Consider yourself warned.");
+					break;
+				}
+			}	
+		});
+		
+		mapTypeComboBox.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				switch (mapTypeComboBox.getSelectedIndex()) {
+				case 0:
+					MapDescArea.setText("Open battle fields.");
+					break;
+				case 1:
+					MapDescArea.setText("Obstacles galore.");
+					break;
+				}
+			}	
+		});
+		
+		gameTypeComboBox.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				switch (gameTypeComboBox.getSelectedIndex()) {
+				case 0:
+					WinDescArea.setText("Kill all opponents to win.");
+					setUpUnitLists();
+					break;
+				case 1:
+					WinDescArea.setText("Destroy the enemy nuke.");
+					setLoadOutForEscortGame();
+					break;
+				}
+			}	
+		});
+		
 		loadoutPanel.setPreferredSize(new Dimension(500, 350));
 		loadoutPanel.add(startGameOptionsPanel, BorderLayout.SOUTH);
 		
 		readyButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if (userUnitListModel.getSize() == 5) {
-					if (units.size() == 0) 
+					if (units.size() == 0 && gameTypeComboBox.getSelectedIndex() != 1 ) 
 						sendNewUnits();
 					sendCommand(new ComputerDifficultySet(AILevelComboBox.getSelectedIndex()));
 					sendCommand(new PlayerReady());
@@ -535,6 +600,20 @@ public class GUI extends HumanPlayer {
 				showPanel(mainOptionsPanel);
 			}
 		});
+	}
+	
+	private void setLoadOutForEscortGame() {
+		possibleUnitList.removeAll();
+		possibleUnitListModel.removeAllElements();
+		userUnitListModel.removeAllElements();
+		userUnitList.removeAll();
+		userUnitListModel.addElement(new SoldierUnit("Alice"));
+		userUnitListModel.addElement(new SoldierUnit("Bob"));
+		userUnitListModel.addElement(new SoldierUnit("Charlie"));
+		userUnitListModel.addElement(new SoldierUnit("Danielle"));
+		userUnitListModel.addElement(new EscortUnit("Eve"));
+		possibleUnitList.setEnabled(false);
+		userUnitList.setEnabled(false);
 	}
 	
 	private void setupGameRoomLobby() {
@@ -652,6 +731,8 @@ public class GUI extends HumanPlayer {
 			for (Unit u : units)
 				possibleUnitListModel.addElement(u);
 		}
+		possibleUnitList.setEnabled(true);
+		userUnitList.setEnabled(true);
 		possibleUnitList.repaint();
 		possibleUnitList.revalidate();
 	}
@@ -788,7 +869,7 @@ public class GUI extends HumanPlayer {
 					}
 					if(performer.canMoveTo(rightClickRow, rightClickCol)) actionMenu.add(moveItem);
 					if(performer.canUseAbility(rightClickRow, rightClickCol)) actionMenu.add(specialItem);
-					if (((Unit)performer).getItemList().size() > 0) {
+					if (((Unit)performer).getItemList().size() > 0 && performer.canUseItem(rightClickRow, rightClickCol)) {
 						
 						List<Item> items = ((Unit)performer).getItemList();
 						int size = items.size();

@@ -13,5 +13,6 @@ public class ActionItem extends Item {
 
 	public void use() {
 		owner.restoreActionPoints(modifier);
+		owner.removeItem(this);
 	}
 }
