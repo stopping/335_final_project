@@ -7,8 +7,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import map.MapBehavior;
 import server.Command;
 import unit.Unit;
+import win_condition.WinCondition;
 
 public abstract class HumanPlayer {
 	
@@ -62,7 +64,7 @@ public abstract class HumanPlayer {
 	
 	public abstract void receiveMessage(String source, String message);
 	
-	public abstract void updateAvailGameRooms(HashMap<Integer, String> rooms);
+	public abstract void updateAvailGameRooms(ArrayList<String> names, ArrayList<String> types);
 
 	public void showGamePanel() {		
 	
@@ -75,5 +77,7 @@ public abstract class HumanPlayer {
 	}
 	
 	public abstract void updateUserInfo();
+	
+	public abstract void updateGameType(WinCondition wc, MapBehavior mb);
 
 }

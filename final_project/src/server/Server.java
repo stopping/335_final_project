@@ -18,6 +18,7 @@ import unit.MeleeUnit;
 import unit.RocketUnit;
 import unit.SoldierUnit;
 import server_commands.CanStartGame;
+import server_commands.OpenGameRooms;
 import server_commands.SendingGame;
 import server_commands.ValidLogin;
 import unit.Unit;
@@ -93,8 +94,10 @@ public class Server implements Runnable {
 	}
 
 	public boolean userJoinGame(int gr, ClientHandler ch) {
-		if (gamerooms.containsKey(gr))
-			return gamerooms.get(gr).addPlayer(ch, gr);
+		if (gamerooms.containsKey(gr)) {
+			if (gamerooms.get(gr).addPlayer(ch, gr))
+					ch.sendCommand(new GameJoinedInfo(gamerooms.get(gr).wc, gamerooms.get(gr).mb));
+		}
 		return false;
 	}
 	
@@ -162,10 +165,12 @@ public class Server implements Runnable {
 		return true;
 	}
 	
-	public boolean setReady(String source, ClientHandler ch) {
+	public boolean setReady(String source, ClientHandler ch, int gr, WinCondition wc) {
 		if (database.hasUser(source)) {
 			database.getUser(source).setIsReady(true);
 			ch.sendCommand(new CanStartGame());
+			gamerooms.get(gr).wc = wc;
+			updateOpenGameRooms();
 			return true;
 		}
 		else return false;
@@ -174,17 +179,28 @@ public class Server implements Runnable {
 	public void updateOpenGameRooms() {
 		System.out.println("updating game rooms");
 		for (ClientHandler ch : playerMap.values()) {
-			ch.sendCommand(new OpenGameRooms(openGameRooms()));
+			ch.sendCommand(new OpenGameRooms(openGameNames(), openGameWC()));
 		}
 	}
 	
-	public HashMap<Integer, String> openGameRooms() {
-		HashMap<Integer, String> openGameRooms = new HashMap<Integer, String>();
+	public ArrayList<String> openGameNames() {
+		ArrayList<String> names = new ArrayList<String>();
 		for (int i=0 ; i <gamerooms.size() ; i++) {
-			if (gamerooms.containsKey(i) && gamerooms.get(i).waitingForOpponent())
-				openGameRooms.put(i, gamerooms.get(i).playerOne);	 
+			if (gamerooms.containsKey(i) && gamerooms.get(i).waitingForOpponent()
+					&& database.getUser(gamerooms.get(i).playerOne).isReady())
+				names.add(gamerooms.get(i).playerOne);	 
 		}
-		return openGameRooms;	
+		return names;	
+	}
+	
+	public ArrayList<String> openGameWC() {
+		ArrayList<String> wc = new ArrayList<String>();
+		for (int i=0 ; i <gamerooms.size() ; i++) {
+			if (gamerooms.containsKey(i) && gamerooms.get(i).waitingForOpponent()
+					&& database.getUser(gamerooms.get(i).playerOne).isReady())
+				wc.add(gamerooms.get(i).wc.toString());	 
+		}
+		return wc;	
 	}
 	
 	public boolean suspendSession(String source, int gr, ClientHandler ch) {

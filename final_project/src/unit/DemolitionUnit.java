@@ -50,6 +50,6 @@ public class DemolitionUnit extends Unit {
 	
 	@Override
 	public String toString() {
-		return "Name: " + this.name + "(Demolition)";
+		return "Name: " + this.name + " (Demolition)";
 	}
 }

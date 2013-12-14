@@ -32,7 +32,11 @@ public class EscortCondition implements WinCondition, Serializable {
 	public void setGame(Game g) {
 		game = g;
 	}
-
+	
+	@Override
+	public String toString() {
+		return "Escort";
+	}
 
 
 

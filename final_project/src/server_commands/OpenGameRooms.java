@@ -1,20 +1,25 @@
 package server_commands;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+
 import client.HumanPlayer;
 
 @SuppressWarnings("serial")
 public class OpenGameRooms extends ServerCommand {
 
-	private HashMap<Integer, String> opengames;
+	private ArrayList<String> names;
+	private ArrayList<String> types;
 	
-	public OpenGameRooms(HashMap<Integer, String> map) {
-		this.opengames = map;
+	
+	public OpenGameRooms(ArrayList<String> names, ArrayList<String> types) {
+		this.names = names;
+		this.types = types;
 	}
 	
 	@Override
 	public void executeOn(HumanPlayer p) {
-		p.updateAvailGameRooms(opengames);
+		p.updateAvailGameRooms(names, types);
 	}
 
 }

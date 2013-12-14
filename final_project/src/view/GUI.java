@@ -174,6 +174,7 @@ public class GUI extends HumanPlayer {
 	JButton surrenderButton = new JButton("Surrender");
 	JButton returnToMenuButton = new JButton("Exit to Menu");
 	JButton backButton = new JButton(" <-- Main Menu");
+	JButton readyButton = new JButton("Ready");
 	
 	JTextArea AIDescArea = new JTextArea();
 	JTextArea WinDescArea = new JTextArea();
@@ -443,6 +444,24 @@ public class GUI extends HumanPlayer {
 	}
 	
 	@Override
+	public void updateGameType(WinCondition wc, MapBehavior mb) {
+		gameTypeComboBox.setEnabled(false);
+		mapTypeComboBox.setEnabled(false);
+		AILevelComboBox.setEnabled(false);
+		if (wc instanceof EscortCondition) {
+			gameTypeComboBox.setSelectedIndex(1);
+			setLoadOutForEscortGame();
+		}
+		else {
+			gameTypeComboBox.setSelectedIndex(0);
+		}
+		if (mb instanceof StandardMap)
+			mapTypeComboBox.setSelectedIndex(0);
+		else 
+			mapTypeComboBox.setSelectedIndex(1);
+	}
+	
+	@Override
 	public void failLogin() {
 		tryNewUser.setText(("Invalid. New user? Make a new account"));
 	}
@@ -479,7 +498,6 @@ public class GUI extends HumanPlayer {
 
 		setUpUnitLists();
 		loadoutPanel.add(selectUnitsPanel, BorderLayout.CENTER);
-		JButton readyButton = new JButton("Ready");
 
 		startGameOptionsPanel.setLayout(new GridLayout(4,3));
 		startGameOptionsPanel.add(AILabel);
@@ -559,7 +577,7 @@ public class GUI extends HumanPlayer {
 					if (units.size() == 0 && gameTypeComboBox.getSelectedIndex() != 1 ) 
 						sendNewUnits();
 					sendCommand(new ComputerDifficultySet(AILevelComboBox.getSelectedIndex()));
-					sendCommand(new PlayerReady());
+					sendCommand(new PlayerReady(gameTypeComboBox.getSelectedIndex(), mapTypeComboBox.getSelectedIndex()));
 					AILevelComboBox.setEnabled(false);
 					userUnitList.setEnabled(false);
 					gameTypeComboBox.setEnabled(false);
@@ -614,6 +632,7 @@ public class GUI extends HumanPlayer {
 		userUnitListModel.addElement(new EscortUnit("Eve"));
 		possibleUnitList.setEnabled(false);
 		userUnitList.setEnabled(false);
+		readyButton.doClick();
 	}
 	
 	private void setupGameRoomLobby() {
@@ -633,6 +652,8 @@ public class GUI extends HumanPlayer {
 		joinGameRoomButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if (gameRoomsTable.getSelectedRow() >= 0) {
+					gameTypeComboBox.setEnabled(false);
+					mapTypeComboBox.setEnabled(false);
 					sendCommand(new JoinGame(gameRoomsTable.getSelectedRow()));
 					showPanel(loadoutPanel);
 				}
@@ -678,6 +699,7 @@ public class GUI extends HumanPlayer {
 			public void actionPerformed(ActionEvent e) {
 				sendCommand(new NewGame());
 				sendCommand(new NewComputerPlayer());
+				gameTypeComboBox.setEnabled(false);
 				showPanel(loadoutPanel);
 			}
 		});
@@ -707,6 +729,7 @@ public class GUI extends HumanPlayer {
 		logoutButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				sendCommand(new Logout());
+				resetButtons();
 				showPanel(logisticsPanel);
 				setUpUnitLists();
 			}
@@ -798,22 +821,43 @@ public class GUI extends HumanPlayer {
 	}
 	
 	@Override
-	public void updateAvailGameRooms(HashMap<Integer, String> rooms) {
+	public void updateAvailGameRooms(ArrayList<String> names, ArrayList<String> type) {
 		gameRoomLobbyPanel.remove(gameRoomsTable);
-		String[] columnnames = new String[] { "Room", "Player" };
-		Object[][] data = new Object[rooms.size()][2];
-		for (int i= 0 ; i < rooms.size() ; i++) {
-			data[i][0] = new Integer(i);
-			data[i][1] = rooms.get(i);
-			System.out.println("gameroom: " + i + "player: " + "[" + rooms.get(i) + "]"); 
+		String[] columnnames = new String[] { "Room", "Player", "Game Mode" };
+		Object[][] data = new Object[names.size()][3];
+		for (int i= 0 ; i < names.size() ; i++) {
+			data[i][0] = String.valueOf(i);
+			data[i][1] = names.get(i);
+			data[i][2] = type.get(i);
+			System.out.println("gameroom: " + i + "player: " + "[" + names.get(i) + "]"); 
 		}
 		gameRoomsTable = new JTable(data, columnnames);
+		//gameRoomsTable = new JTable(new GameRoomTableModel());
 		gameRoomLobbyPanel.add(gameRoomsTable);
 		gameRoomLobbyPanel.repaint();
 		gameRoomLobbyPanel.revalidate();
 		gameRoomLobbyPanel.updateUI();
 		System.out.println("received open gamerooms");
 	}
+	
+//	@Override
+//	public void updateAvailGameRooms(HashMap<Integer, String> rooms) {
+//		gameRoomLobbyPanel.remove(gameRoomsTable);
+//		String[] columnnames = new String[] { "Room", "Player", "Game Mode" };
+//		Object[][] data = new Object[rooms.size()][3];
+//		for (int i= 0 ; i < rooms.size() ; i++) {
+//			data[i][0] = new Integer(i);
+//			data[i][1] = rooms.get(i);
+//			data[i][2] = 
+//			System.out.println("gameroom: " + i + "player: " + "[" + rooms.get(i) + "]"); 
+//		}
+//		gameRoomsTable = new JTable(data, columnnames);
+//		gameRoomLobbyPanel.add(gameRoomsTable);
+//		gameRoomLobbyPanel.repaint();
+//		gameRoomLobbyPanel.revalidate();
+//		gameRoomLobbyPanel.updateUI();
+//		System.out.println("received open gamerooms");
+//	}
 	
 	@Override
 	public void canStartGame() {

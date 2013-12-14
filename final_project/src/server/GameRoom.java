@@ -8,11 +8,15 @@ import java.util.ArrayList;
 import java.util.Deque;
 import java.util.LinkedList;
 
+import map.MapBehavior;
+import map.StandardMap;
 import server_commands.ComputerDifficultySet;
 import server_commands.ComputerTurn;
 import server_commands.IllegalOption;
 import server_commands.SendingGame;
 import server_commands.Surrender;
+import win_condition.DeathmatchCondition;
+import win_condition.WinCondition;
 
 /**
  * Class: GameRoom
@@ -29,10 +33,14 @@ public class GameRoom {
 	private int whoseTurn;
 	protected int computerPlayerLevel;
 	protected boolean isComputerPlayerGame;
+	protected WinCondition wc;
+	protected MapBehavior mb;
 	
 	public GameRoom() {
 		players = new ArrayList<ClientHandler>();
 		playerCommands = new LinkedList<GameCommand>();
+		wc = new DeathmatchCondition();
+		mb = new StandardMap();
 	}
 	
 	public boolean addPlayer(ClientHandler p, int gameRoom) {
