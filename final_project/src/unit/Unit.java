@@ -289,7 +289,8 @@ public class Unit extends Occupant {
 		Rocket,
 		Engineer,
 		Demolition,
-		Explosives
+		Explosives,
+		Escort
 	}
 	
 	public double getModifier(Attribute a) {
@@ -327,6 +328,9 @@ public class Unit extends Occupant {
 			break;
 		case Explosives:
 			clone = new ExplosivesUnit(u.getName());
+			break;
+		case Escort:
+			clone = new EscortUnit(u.getName());
 			break;
 		}
 		

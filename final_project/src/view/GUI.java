@@ -69,6 +69,7 @@ import map.StandardMap;
 import server.Command;
 import unit.DemolitionUnit;
 import unit.EngineerUnit;
+import unit.EscortUnit;
 import unit.ExplosivesUnit;
 import unit.MeleeUnit;
 import unit.RocketUnit;
@@ -536,9 +537,11 @@ public class GUI extends HumanPlayer {
 				switch (gameTypeComboBox.getSelectedIndex()) {
 				case 0:
 					WinDescArea.setText("Kill all opponents to win.");
+					setUpUnitLists();
 					break;
 				case 1:
 					WinDescArea.setText("Destroy the enemy nuke.");
+					setLoadOutForEscortGame();
 					break;
 				}
 			}	
@@ -550,7 +553,7 @@ public class GUI extends HumanPlayer {
 		readyButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if (userUnitListModel.getSize() == 5) {
-					if (units.size() == 0) 
+					if (units.size() == 0 && gameTypeComboBox.getSelectedIndex() != 1 ) 
 						sendNewUnits();
 					sendCommand(new ComputerDifficultySet(AILevelComboBox.getSelectedIndex()));
 					sendCommand(new PlayerReady());
@@ -594,6 +597,20 @@ public class GUI extends HumanPlayer {
 				showPanel(mainOptionsPanel);
 			}
 		});
+	}
+	
+	private void setLoadOutForEscortGame() {
+		possibleUnitList.removeAll();
+		possibleUnitListModel.removeAllElements();
+		userUnitListModel.removeAllElements();
+		userUnitList.removeAll();
+		userUnitListModel.addElement(new SoldierUnit("Alice"));
+		userUnitListModel.addElement(new SoldierUnit("Bob"));
+		userUnitListModel.addElement(new SoldierUnit("Charlie"));
+		userUnitListModel.addElement(new SoldierUnit("Danielle"));
+		userUnitListModel.addElement(new EscortUnit("Eve"));
+		possibleUnitList.setEnabled(false);
+		userUnitList.setEnabled(false);
 	}
 	
 	private void setupGameRoomLobby() {
@@ -711,6 +728,8 @@ public class GUI extends HumanPlayer {
 			for (Unit u : units)
 				possibleUnitListModel.addElement(u);
 		}
+		possibleUnitList.setEnabled(true);
+		userUnitList.setEnabled(true);
 		possibleUnitList.repaint();
 		possibleUnitList.revalidate();
 	}

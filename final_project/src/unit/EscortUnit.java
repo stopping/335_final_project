@@ -2,6 +2,7 @@ package unit;
 
 import game.Occupant;
 import obstacle.BombObstacle;
+import unit.Unit.UnitClass;
 
 /**
  * 
@@ -27,6 +28,7 @@ public class EscortUnit extends Unit {
 		abilityRange = 5.0;
 		abilityCoolDown = 2;
 		abilityCoolDownToGo = 0;
+		unitClass = UnitClass.Escort;
 	}
 
 	/**

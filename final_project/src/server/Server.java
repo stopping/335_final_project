@@ -12,6 +12,7 @@ import server_commands.*;
 import unit.Attribute;
 import unit.DemolitionUnit;
 import unit.EngineerUnit;
+import unit.EscortUnit;
 import unit.ExplosivesUnit;
 import unit.MeleeUnit;
 import unit.RocketUnit;
@@ -22,6 +23,7 @@ import server_commands.SendingUserInfo;
 import server_commands.ValidLogin;
 import unit.Unit;
 import unit.Unit.UnitClass;
+import win_condition.EscortCondition;
 import win_condition.WinCondition;
 
 public class Server implements Runnable {
@@ -223,6 +225,25 @@ public class Server implements Runnable {
 		return units;
 	}
 	
+	public ArrayList<Unit> playerOneEscortUnits() {
+		ArrayList<Unit> units = new ArrayList<Unit>();
+		units.add(new SoldierUnit("Alice"));
+		units.add(new SoldierUnit("Bob"));
+		units.add(new SoldierUnit("Charlie"));
+		units.add(new SoldierUnit("Danielle"));
+		units.add(new EscortUnit("Eve"));
+		return units;
+	}
+	public ArrayList<Unit> playerTwoEscortUnits() {
+		ArrayList<Unit> units = new ArrayList<Unit>();
+		units.add(new SoldierUnit("Ursla"));
+		units.add(new SoldierUnit("Vinny"));
+		units.add(new SoldierUnit("Willow"));
+		units.add(new SoldierUnit("Yueh"));
+		units.add(new EscortUnit("Zander"));
+		return units;
+	}
+	
 	public boolean playersAreReady(String playerOne, String playerTwo) {
 		if (!(database.hasUser(playerOne) && database.hasUser(playerTwo)))
 			return false;
@@ -238,8 +259,15 @@ public class Server implements Runnable {
 		ArrayList<Unit> player2Units;
 		
 		if (gamerooms.get(gr).isComputerPlayerGame) {
-			player1Units = database.getUser(source).getUnits();
-			player2Units = generateComputerUnits(gamerooms.get(gr).computerPlayerLevel);
+			
+			if (wc instanceof EscortCondition) {
+				player1Units = playerOneEscortUnits();
+				player2Units = playerTwoEscortUnits();
+			}
+			else {
+				player1Units = database.getUser(source).getUnits();
+				player2Units = generateComputerUnits(gamerooms.get(gr).computerPlayerLevel);
+			}
 			
 			Game g = new Game(player1Units, player2Units, wc, map);
 			System.out.println("Sending game to gameRoom: " + gr);
@@ -252,9 +280,15 @@ public class Server implements Runnable {
 				System.out.println("both players must be ready!");
 				return false;
 			}
-			player1Units = database.getUnits(playerOne);
-			player2Units = database.getUnits(playerTwo);
 			
+			if (wc instanceof EscortCondition) {
+				player1Units = playerOneEscortUnits();
+				player2Units = playerTwoEscortUnits();
+			}
+			else {
+				player1Units = database.getUnits(playerOne);
+				player2Units = database.getUnits(playerTwo);
+			}
 			Game g = new Game(player1Units, player2Units, wc, map);
 			System.out.println("Sending game to gameRoom: " + gr);
 			return gamerooms.get(gr).sendNewGame(g);
