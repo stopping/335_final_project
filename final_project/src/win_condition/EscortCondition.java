@@ -18,8 +18,8 @@ public class EscortCondition implements WinCondition, Serializable {
 	
 	
 	public GameSquare[][] setWinCondition(GameSquare[][] modifyBoard) {
-		modifyBoard[1][1].setOccupant(new BombObstacle());
-		modifyBoard[10][10].setOccupant(new BombObstacle());
+		modifyBoard[1][1].setOccupant(new BombObstacle(0));
+		modifyBoard[10][10].setOccupant(new BombObstacle(1));
 		return modifyBoard;
 	}
 

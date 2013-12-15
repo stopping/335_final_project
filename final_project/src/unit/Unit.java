@@ -337,7 +337,8 @@ public class Unit extends Occupant {
 			clone = new ExplosivesUnit(u.getName());
 			break;
 		case Escort:
-			clone = new EscortUnit(u.getName());
+			EscortUnit es = (EscortUnit)u;
+			clone = new EscortUnit(u.getName(), es.team);
 			break;
 		}
 		

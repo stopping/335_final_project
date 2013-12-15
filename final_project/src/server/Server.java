@@ -247,7 +247,7 @@ public class Server implements Runnable {
 		units.add(new SoldierUnit("Bob"));
 		units.add(new SoldierUnit("Charlie"));
 		units.add(new SoldierUnit("Danielle"));
-		units.add(new EscortUnit("Eve"));
+		units.add(new EscortUnit("Eve", 0));
 		return units;
 	}
 	public ArrayList<Unit> playerTwoEscortUnits() {
@@ -256,7 +256,7 @@ public class Server implements Runnable {
 		units.add(new SoldierUnit("Vinny"));
 		units.add(new SoldierUnit("Willow"));
 		units.add(new SoldierUnit("Yueh"));
-		units.add(new EscortUnit("Zander"));
+		units.add(new EscortUnit("Zander", 1));
 		return units;
 	}
 	

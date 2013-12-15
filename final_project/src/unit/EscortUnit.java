@@ -15,7 +15,9 @@ import unit.Unit.UnitClass;
 @SuppressWarnings("serial")
 public class EscortUnit extends Unit {
 
-	public EscortUnit(String newName) {
+	protected int team;
+	
+	public EscortUnit(String newName, int team) {
 		super(newName);
 		strength = 0;
 		defense = 5;
@@ -25,10 +27,11 @@ public class EscortUnit extends Unit {
 		actionPoints = maxActionPoints;
 		speed = 1.0;
 		attackRange = 5.0;
-		abilityRange = 5.0;
+		abilityRange = 1;
 		abilityCoolDown = 2;
 		abilityCoolDownToGo = 0;
 		unitClass = UnitClass.Escort;
+		this.team = team;
 	}
 
 	/**
@@ -42,8 +45,13 @@ public class EscortUnit extends Unit {
 	public boolean useSpecialAbility(int row, int col) {
 		if (canUseAbility(row, col)) {
 			BombObstacle bomb = (BombObstacle)game.getGameSquareAt(row, col).getOccupant();
-			bomb.defuse();
-			return true;
+			if (bomb.getSource() == team) {
+				return false;
+			}
+			else {
+				bomb.defuse();
+				return true;
+			}
 		}
 		return false;
 		
@@ -56,7 +64,7 @@ public class EscortUnit extends Unit {
 	}
 	
 	public boolean canUseSpecialAbility(int row, int col) {
-		return isInRange(row, col, abilityRange) && lineOfSightExists(row, col) && abilityCoolDownToGo == 0;
-		
+		//return isInRange(row, col, abilityRange) && lineOfSightExists(row, col) && abilityCoolDownToGo == 0;
+		return true;
 	}
 }

@@ -626,7 +626,7 @@ public class GUI extends HumanPlayer {
 		userUnitListModel.addElement(new SoldierUnit("Bob"));
 		userUnitListModel.addElement(new SoldierUnit("Charlie"));
 		userUnitListModel.addElement(new SoldierUnit("Danielle"));
-		userUnitListModel.addElement(new EscortUnit("Eve"));
+		userUnitListModel.addElement(new EscortUnit("Eve", 0));
 		possibleUnitList.setEnabled(false);
 		userUnitList.setEnabled(false);
 		readyButton.doClick();

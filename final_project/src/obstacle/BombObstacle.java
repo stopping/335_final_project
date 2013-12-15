@@ -1,15 +1,18 @@
 package obstacle;
 
+import unit.Unit;
+
 @SuppressWarnings("serial")
 public class BombObstacle extends Obstacle {
 
+	private int source;
 	
-	
-	public BombObstacle() {
+	public BombObstacle(int team) {
 		super("Bomb");
 		maxHitPoints = 10000;
 		hitPoints = maxHitPoints;
 		defense = 10000;
+		this.source = team;
 	}
 	/**
 	 * This should only be called by EscortUnit's special ability 
@@ -19,6 +22,10 @@ public class BombObstacle extends Obstacle {
 	public void defuse() {
 		hitPoints = 0;
 		checkDeath();
+	}
+	
+	public int getSource() {
+		return this.source;
 	}
 
 }
