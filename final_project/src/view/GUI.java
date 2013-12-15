@@ -4,6 +4,7 @@ import game.GameSquare;
 import game.Occupant;
 import game_commands.AttackCommand;
 import game_commands.EndTurnCommand;
+import game_commands.GameCommand;
 import game_commands.GiveItemCommand;
 import game_commands.MoveCommand;
 import game_commands.PlaceMineCommand;
@@ -29,6 +30,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.awt.geom.Ellipse2D;
 import java.awt.geom.Rectangle2D;
 import java.io.File;
 import java.io.IOException;
@@ -57,6 +59,7 @@ import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
+import javax.swing.Timer;
 
 import map.MapBehavior;
 import map.ObstacleMap;
@@ -187,12 +190,24 @@ public class GUI extends HumanPlayer {
 	JButton endTurnButton = new JButton("End Turn");
 	JButton useItemButton = new JButton("Use Item");
 
-	int leftClickRow;
-	int leftClickCol;
-	int rightClickRow;
-	int rightClickCol;
-	int mouseOverRow;
-	int mouseOverCol;
+	int leftClickRow = 0;
+	int leftClickCol = 0;
+	int rightClickRow = 0;
+	int rightClickCol = 0;
+	int mouseOverRow = 0;
+	int mouseOverCol = 0;
+	
+	// Animation parameters
+	int fps = 50; // Frames per second for animation
+	double seconds = 0.25; // Frames for animation
+	Timer animationTimer = new Timer(1000/fps, new GameAnimationListener());
+	
+	GameCommand animationCommand;
+	AnimationType animType;
+	boolean isAnimating = false;
+	
+	int moverX;
+	int moverY;
 
 	Image sprites;
 
@@ -763,31 +778,32 @@ public class GUI extends HumanPlayer {
 			if (userUnitListModel.getSize() < 5 && possibleUnitList.getSelectedValue() != null) {
 				if (possibleUnitList.getSelectedValue().getName().equals("-----")) {
 					String name = "";
-			      while (name.equals("") || name.equals("-----")) {
-			      	name = (String)JOptionPane.showInputDialog(
-			                 mainFrame, "Name for this unit: ","", JOptionPane.PLAIN_MESSAGE,
-			                null, null, "");
-			      }
+					while (name.equals("") || name.equals("-----")) {
+						name = (String)JOptionPane.showInputDialog(
+								mainFrame, "Name for this unit: ","", JOptionPane.PLAIN_MESSAGE,
+								null, null, "");
+						if(name == null) return;
+					}
 					if (possibleUnitList.getSelectedValue() instanceof MeleeUnit) 
-	  					userUnitListModel.addElement(new MeleeUnit(name));
+						userUnitListModel.addElement(new MeleeUnit(name));
 					else if (possibleUnitList.getSelectedValue() instanceof RocketUnit) 
-	  					userUnitListModel.addElement(new RocketUnit(name));
+						userUnitListModel.addElement(new RocketUnit(name));
 					else if (possibleUnitList.getSelectedValue() instanceof SoldierUnit) 
-	  					userUnitListModel.addElement(new SoldierUnit(name));
+						userUnitListModel.addElement(new SoldierUnit(name));
 					else if (possibleUnitList.getSelectedValue() instanceof DemolitionUnit) 
-	  					userUnitListModel.addElement(new DemolitionUnit(name));
+						userUnitListModel.addElement(new DemolitionUnit(name));
 					else if (possibleUnitList.getSelectedValue() instanceof EngineerUnit) 
-	  					userUnitListModel.addElement(new EngineerUnit(name));
+						userUnitListModel.addElement(new EngineerUnit(name));
 					else if (possibleUnitList.getSelectedValue() instanceof ExplosivesUnit) 
-	  					userUnitListModel.addElement(new ExplosivesUnit(name));
+						userUnitListModel.addElement(new ExplosivesUnit(name));
 				}
 				else {
-					
+
 					if (!userUnitListModel.contains(possibleUnitList.getSelectedValue())) {
 						userUnitListModel.addElement(possibleUnitList.getSelectedValue());
 						possibleUnitListModel.removeElement(possibleUnitList.getSelectedValue());
 					}
-					
+
 				}
 			}
 		}
@@ -1050,6 +1066,34 @@ public class GUI extends HumanPlayer {
 		gameInfo.setText(name + " surrendered. You won!");
 		gamePanel.add(returnToMenuButton);
 	}
+	
+	@Override
+	public synchronized boolean executeGameCommand(GameCommand com) {
+		animationCommand = com;
+		animateGameCommand(com);
+		return game.executeCommand(com);
+	}
+
+	private synchronized void animateGameCommand(GameCommand com) {
+		if(com instanceof MoveCommand){
+			animType = AnimationType.MOVEMENT;
+			isAnimating = true;
+		}
+		else if(com instanceof AttackCommand) {
+			animType = AnimationType.ATTACK;
+			isAnimating = true;
+		}
+		
+		if(isAnimating) {
+			animationTimer.start();
+			while(animationTimer.isRunning());
+		}
+	}
+	
+	@Override
+	public boolean isExecuting() {
+		return isAnimating;
+	}
 
 	public void update() {
 		welcomeLabel.setText("Welcome! You have " + credits + " credits.");
@@ -1148,22 +1192,26 @@ public class GUI extends HumanPlayer {
 			
 			for(Unit u : game.getBlueUnitList()) {
 				if(u.isDead()) continue;
-				int upper = u.getLocation().getRow()*size;
-				int left = u.getLocation().getCol()*size;
+				int uRow = u.getLocation().getRow();
+				int uCol = u.getLocation().getCol();
+				int upper = uRow*size;
+				int left = uCol*size;
 				int imagey = 0;
 				if(u instanceof SoldierUnit) imagey = size*0;
 				if(u instanceof EngineerUnit) imagey = size*1;
 				if(u instanceof DemolitionUnit) imagey = size*2;
 				if(u instanceof RocketUnit) imagey = size*3;
 				if(u instanceof MeleeUnit) imagey = size*4;
-				if(u instanceof ExplosivesUnit) imagey = size*0;;
+				if(u instanceof ExplosivesUnit) imagey = size*0;
 				g2.drawImage(sprites, left, upper, left+size, upper+size, 0, imagey, size, imagey+size, null);
 			}
 			
 			for(Unit u : game.getRedUnitList()) {
 				if(u.isDead()) continue;
-				int upper = u.getLocation().getRow()*size;
-				int left = u.getLocation().getCol()*size;
+				int uRow = u.getLocation().getRow();
+				int uCol = u.getLocation().getCol();
+				int upper = uRow*size;
+				int left = uCol*size;
 				int imagey = 0;
 				if(u instanceof SoldierUnit) imagey = size*0;
 				if(u instanceof EngineerUnit) imagey = size*1;
@@ -1173,6 +1221,93 @@ public class GUI extends HumanPlayer {
 				if(u instanceof ExplosivesUnit) imagey = size*0;
 				g2.drawImage(sprites, left, upper, left+size, upper+size, size, imagey, size+size, imagey+size, null);
 			}
+			
+			if(isAnimating && animType == AnimationType.MOVEMENT) {
+				int r = animationCommand.getSource()[0];
+				int c = animationCommand.getSource()[1];
+				int upper = r*size;
+				int left = c*size;
+				
+				Rectangle2D square = new Rectangle2D.Double( left, upper, size, size );
+				g2.setColor( Color.gray );			
+				g2.fill(square);
+				
+				Unit u = (Unit) game.getGameSquareAt(r, c).getOccupant();
+				
+				int imagey = 0;
+				int imagex = game.getRedUnitList().contains(u) ? size : 0 ;
+				if(u instanceof SoldierUnit) imagey = size*0;
+				if(u instanceof EngineerUnit) imagey = size*1;
+				if(u instanceof DemolitionUnit) imagey = size*2;
+				if(u instanceof RocketUnit) imagey = size*3;
+				if(u instanceof MeleeUnit) imagey = size*4;
+				g2.drawImage(sprites, moverX, moverY, moverX+size, moverY+size, imagex, imagey, imagex+size, imagey+size, null);
+			} else if(isAnimating && animType == AnimationType.ATTACK) {
+				int r = animationCommand.getSource()[0];
+				int c = animationCommand.getSource()[1];
+				Unit u = (Unit) game.getGameSquareAt(r, c).getOccupant();
+				Ellipse2D circle = new Ellipse2D.Double(moverX+12, moverY+12, 8, 8);
+				g2.setColor(Color.orange);
+				
+				if(u instanceof SoldierUnit) {
+					circle = new Ellipse2D.Double(moverX+12, moverY+12, 8, 8);
+					g2.setColor(Color.green);
+				}
+				if(u instanceof EngineerUnit) {
+					circle = new Ellipse2D.Double(moverX+12, moverY+12, 8, 8);
+					g2.setColor(Color.green);
+				}
+				if(u instanceof DemolitionUnit) {
+					circle = new Ellipse2D.Double(moverX+10, moverY+10, 12, 12);
+					g2.setColor(Color.pink);
+				}
+				if(u instanceof RocketUnit) {
+					circle = new Ellipse2D.Double(moverX+8, moverY+8, 16, 16);
+					g2.setColor(Color.orange);
+				}
+				if(u instanceof MeleeUnit) {
+					circle = new Ellipse2D.Double(moverX+8, moverY+8, 16, 16);
+					g2.setColor(Color.orange);
+				}
+
+				g2.fill(circle);
+			}
+			
 		}
+	}
+	
+	private class GameAnimationListener implements ActionListener {
+		
+		int frameNumber = 1;
+
+		@Override
+		public synchronized void actionPerformed(ActionEvent arg0) {
+			
+			int moverXold = animationCommand.getSource()[1] * 32;
+			int moverYold = animationCommand.getSource()[0] * 32;
+			int moverXnew = animationCommand.getDest()[1] * 32;
+			int moverYnew = animationCommand.getDest()[0] * 32;
+
+			moverX = (int) (moverXold + 1.0*(moverXnew-moverXold)*frameNumber/(fps*seconds));
+			moverY = (int) (moverYold + 1.0*(moverYnew-moverYold)*frameNumber/(fps*seconds));
+
+			frameNumber++;
+			boardPanel.repaint();
+
+			if(frameNumber > fps*seconds) {
+				animationTimer.stop();
+				frameNumber = 1;
+				isAnimating = false;
+				boardPanel.repaint();
+			}
+			
+		}
+		
+		
+	}
+	
+	private enum AnimationType {
+		MOVEMENT,
+		ATTACK;
 	}
 }

@@ -96,7 +96,7 @@ public class Server implements Runnable {
 	public boolean userJoinGame(int gr, ClientHandler ch) {
 		if (gamerooms.containsKey(gr)) {
 			if (gamerooms.get(gr).addPlayer(ch, gr))
-					ch.sendCommand(new GameJoinedInfo(gamerooms.get(gr).wc, gamerooms.get(gr).mb));
+				ch.sendCommand(new GameJoinedInfo(gamerooms.get(gr).getGame().getWinCondition(), gamerooms.get(gr).getGame().getMapBehavior()));
 		}
 		return false;
 	}
@@ -169,8 +169,8 @@ public class Server implements Runnable {
 		if (database.hasUser(source)) {
 			database.getUser(source).setIsReady(true);
 			ch.sendCommand(new CanStartGame());
-			gamerooms.get(gr).wc = wc;
-			gamerooms.get(gr).mb = mb;
+			gamerooms.get(gr).setWinCondition(wc);
+			gamerooms.get(gr).setMap(mb);
 			updateOpenGameRooms();
 			return true;
 		}
@@ -199,7 +199,7 @@ public class Server implements Runnable {
 		for (int i=0 ; i <gamerooms.size() ; i++) {
 			if (gamerooms.containsKey(i) && gamerooms.get(i).waitingForOpponent()
 					&& database.getUser(gamerooms.get(i).playerOne).isReady())
-				wc.add(gamerooms.get(i).wc.toString());	 
+				wc.add(gamerooms.get(i).toString());	 
 		}
 		return wc;	
 	}

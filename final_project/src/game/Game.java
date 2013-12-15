@@ -327,6 +327,22 @@ public class Game implements Serializable {
 		return winner;
 	}
 	
+	public WinCondition getWinCondition() {
+		return victoryCondition;
+	}
+	
+	public MapBehavior getMapBehavior() {
+		return map;
+	}
+	
+	public void setWinCondition( WinCondition w ) {
+		victoryCondition = w;
+	}
+	
+	public void setMapBehavior( MapBehavior m ) {
+		map = m;
+	}
+	
 	public boolean isWon() {
 		return winner >= 0;
 	}

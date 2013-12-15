@@ -21,7 +21,7 @@ public class DeathmatchCondition implements WinCondition, Serializable {
 	
 	public GameSquare[][] setWinCondition(GameSquare[][] modifyBoard) {
 		// TODO Auto-generated method stub
-		return null;
+		return modifyBoard;
 	}
 
 	

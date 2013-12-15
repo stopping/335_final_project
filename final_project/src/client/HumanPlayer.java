@@ -80,4 +80,8 @@ public abstract class HumanPlayer {
 	
 	public abstract void updateGameType(WinCondition wc, MapBehavior mb);
 
+	public boolean isExecuting() {
+		return false;
+	}
+
 }

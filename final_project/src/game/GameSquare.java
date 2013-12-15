@@ -22,6 +22,7 @@ public class GameSquare implements Serializable {
 	}
 	
 	public void setOccupant(Occupant o) {
+		if(occupant != null) occupant.setLocation(null);
 		occupant = o;
 		if(o != null) o.setLocation(this);
 	}

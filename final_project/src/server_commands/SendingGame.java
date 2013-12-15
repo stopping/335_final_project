@@ -15,8 +15,8 @@ public class SendingGame extends ServerCommand {
 	
 	@Override
 	public void executeOn(HumanPlayer player) {
-		player.showGamePanel();
 		player.setGame(game);
+		player.showGamePanel();
 		player.update();
 		
 		System.out.println(game.getRedUnitList().size() + " " + game.getBlueUnitList().size());

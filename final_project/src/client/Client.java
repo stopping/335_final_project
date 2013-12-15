@@ -53,6 +53,7 @@ public class Client implements Runnable {
 				
 				else if (com instanceof GameCommand) {
 					player.executeGameCommand((GameCommand)com);
+					System.out.println("Executing game command");
 					player.update();
 				}
 			}

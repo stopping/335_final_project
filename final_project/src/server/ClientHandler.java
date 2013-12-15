@@ -16,7 +16,7 @@ public class ClientHandler implements Runnable {
 	private Server server;
 	private Socket sock;
 	protected String playerName;
-	protected int gameRoom;
+	protected int gameRoomNumber;
 
 	public ClientHandler(Socket clientSock, Server s) {
 			
@@ -42,12 +42,12 @@ public class ClientHandler implements Runnable {
 				if (com instanceof ClientCommand) {
 					System.out.println("received client command");
 					ClientCommand c = (ClientCommand)com;
-					c.setSources(playerName, gameRoom, this);
+					c.setSources(playerName, gameRoomNumber, this);
 					c.executeOn(server);
 				}
 				
 				else if (com instanceof GameCommand) {
-					server.executeGameCommand(gameRoom, this, (GameCommand)com);
+					server.executeGameCommand(gameRoomNumber, this, (GameCommand)com);
 				}
 			}	
 		} catch (ClassNotFoundException | IOException e) {
@@ -60,7 +60,7 @@ public class ClientHandler implements Runnable {
 	}
 	
 	public void setGameRoom(int gr) {
-		this.gameRoom = gr;
+		this.gameRoomNumber = gr;
 	}
 	
 	public void sendCommand(ServerCommand c) {

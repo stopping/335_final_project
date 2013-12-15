@@ -15,6 +15,7 @@ import server_commands.ComputerTurn;
 import server_commands.IllegalOption;
 import server_commands.SendingGame;
 import server_commands.Surrender;
+import unit.Unit;
 import win_condition.DeathmatchCondition;
 import win_condition.WinCondition;
 
@@ -33,14 +34,22 @@ public class GameRoom {
 	private int whoseTurn;
 	protected int computerPlayerLevel;
 	protected boolean isComputerPlayerGame;
-	protected WinCondition wc;
-	protected MapBehavior mb;
+	private WinCondition wc;
+	private MapBehavior mb;
+	private ArrayList<Unit> player1Units;
+	private ArrayList<Unit> player2Units;
 	
 	public GameRoom() {
 		players = new ArrayList<ClientHandler>();
 		playerCommands = new LinkedList<GameCommand>();
-		wc = new DeathmatchCondition();
-		mb = new StandardMap();
+	}
+	
+	public void setWinCondition(WinCondition w) {
+		wc = w;
+	}
+	
+	public void setMap(MapBehavior m) {
+		mb = m;
 	}
 	
 	public boolean addPlayer(ClientHandler p, int gameRoom) {
@@ -161,6 +170,14 @@ public class GameRoom {
 	public void cleanOutGameRoom() {
 		for (ClientHandler ch : players)
 			players.remove(ch);
+	}
+	
+	public String toString() {
+		return playerOne + ": " + wc.toString();
+	}
+	
+	public Game getGame() {
+		return game;
 	}
 
 }

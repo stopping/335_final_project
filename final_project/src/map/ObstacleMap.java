@@ -3,13 +3,14 @@ package map;
 import game.GameSquare;
 import game.GameSquare.Terrain;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
 import obstacle.WallObstacle;
 import unit.Unit;
 
 @SuppressWarnings("serial")
-public class ObstacleMap implements MapBehavior {
+public class ObstacleMap implements MapBehavior, Serializable {
 	
 	private char[][] charBoard = {
 			{'X','X','X','X','X',' ',' ',' ',' ',' ',' ',' '},

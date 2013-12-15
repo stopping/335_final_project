@@ -193,16 +193,13 @@ public class Unit extends Occupant {
 		
 			if (destSquare.hasOccupant() && destSquare.getOccupant() instanceof MineObstacle) 
 				takeDamage(7);
-			
-			if (!isDead()) {
-				location.setOccupant(null);
-				destSquare.setOccupant(this);
-				location = destSquare;
-				consumeActionPoints(apCost/speed);
-			}
-			else
-				destSquare.setOccupant(null);
-				
+
+			location.setOccupant(null);
+			destSquare.setOccupant(this);
+			location = destSquare;
+			consumeActionPoints(apCost/speed);
+			checkDeath();
+
 			return true;
 		}
 		else {
