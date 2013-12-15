@@ -39,9 +39,11 @@ public class Game implements Serializable {
 		
 		for(Unit u : blueUnits) 
 			unitListBlue.add(u.cloneUnit(u));
+		victoryCondition = condition;
+		victoryCondition.setGame(this);
 		
 		map.setMap((ArrayList<Unit>)unitListRed, (ArrayList<Unit>)unitListBlue);
-		board = map.getMap();
+		board = victoryCondition.setWinCondition(map.getMap());
 		
 		for(Unit u : unitListRed) {
 			u.setGame(this);
@@ -55,8 +57,7 @@ public class Game implements Serializable {
 		
 		this.map = map;
 		currentPlayer = 0;
-		victoryCondition = condition;
-		victoryCondition.setGame(this);
+		
 	}
 	
 	public GameSquare[][] getBoard() {

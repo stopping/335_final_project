@@ -4,9 +4,8 @@ import game.Game;
 import game.GameSquare;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 
-import unit.Unit;
+import obstacle.BombObstacle;
 
 @SuppressWarnings("serial")
 public class EscortCondition implements WinCondition, Serializable {
@@ -19,8 +18,9 @@ public class EscortCondition implements WinCondition, Serializable {
 	
 	
 	public GameSquare[][] setWinCondition(GameSquare[][] modifyBoard) {
-		// TODO Auto-generated method stub
-		return null;
+		modifyBoard[1][1].setOccupant(new BombObstacle());
+		modifyBoard[10][10].setOccupant(new BombObstacle());
+		return modifyBoard;
 	}
 
 	@Override

@@ -5,8 +5,8 @@ public class BombObstacle extends Obstacle {
 
 	
 	
-	public BombObstacle(String type) {
-		super(type);
+	public BombObstacle() {
+		super("Bomb");
 		maxHitPoints = 10000;
 		hitPoints = maxHitPoints;
 		defense = 10000;

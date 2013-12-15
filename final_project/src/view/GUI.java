@@ -33,9 +33,7 @@ import java.awt.geom.Rectangle2D;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Random;
 
 import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
@@ -60,12 +58,12 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 
-import obstacle.MineObstacle;
-import obstacle.Obstacle;
-import obstacle.WallObstacle;
 import map.MapBehavior;
 import map.ObstacleMap;
 import map.StandardMap;
+import obstacle.BombObstacle;
+import obstacle.MineObstacle;
+import obstacle.WallObstacle;
 import server.Command;
 import unit.DemolitionUnit;
 import unit.EngineerUnit;
@@ -75,7 +73,6 @@ import unit.MeleeUnit;
 import unit.RocketUnit;
 import unit.SoldierUnit;
 import unit.Unit;
-import unit.Unit.UnitClass;
 import win_condition.DeathmatchCondition;
 import win_condition.EscortCondition;
 import win_condition.WinCondition;
@@ -699,7 +696,7 @@ public class GUI extends HumanPlayer {
 			public void actionPerformed(ActionEvent e) {
 				sendCommand(new NewGame());
 				sendCommand(new NewComputerPlayer());
-				gameTypeComboBox.setEnabled(false);
+				//gameTypeComboBox.setEnabled(false);
 				showPanel(loadoutPanel);
 			}
 		});
@@ -1140,6 +1137,11 @@ public class GUI extends HumanPlayer {
 							Rectangle2D mine =  new Rectangle2D.Double( left+6, upper+6, size-13, size-13 );;
 							g2.fill(mine);
 						}
+					}
+					
+					if (map[r][c].getOccupant() instanceof BombObstacle) {
+						g2.setColor(Color.lightGray);
+						g2.fill(new Rectangle2D.Double(left + 6, upper + 6, size - 13, size -13));
 					}
 				}
 			}
