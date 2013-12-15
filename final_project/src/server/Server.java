@@ -96,7 +96,7 @@ public class Server implements Runnable {
 	public boolean userJoinGame(int gr, ClientHandler ch) {
 		if (gamerooms.containsKey(gr)) {
 			if (gamerooms.get(gr).addPlayer(ch, gr))
-				ch.sendCommand(new GameJoinedInfo(gamerooms.get(gr).getGame().getWinCondition(), gamerooms.get(gr).getGame().getMapBehavior()));
+				ch.sendCommand(new GameJoinedInfo(gamerooms.get(gr).getWinCondition(), gamerooms.get(gr).getMap()));
 		}
 		return false;
 	}

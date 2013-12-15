@@ -180,4 +180,12 @@ public class GameRoom {
 		return game;
 	}
 
+	public WinCondition getWinCondition() {
+		return wc;
+	}
+	
+	public MapBehavior getMap() {
+		return mb;
+	}
+
 }
