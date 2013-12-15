@@ -43,15 +43,10 @@ public class EscortUnit extends Unit {
 	}
 	
 	public boolean useSpecialAbility(int row, int col) {
-		if (canUseAbility(row, col)) {
+		if (canUseSpecialAbility(row, col)) {
 			BombObstacle bomb = (BombObstacle)game.getGameSquareAt(row, col).getOccupant();
-			if (bomb.getSource() == team) {
-				return false;
-			}
-			else {
-				bomb.defuse();
-				return true;
-			}
+			bomb.defuse();
+			return true;
 		}
 		return false;
 		
@@ -64,7 +59,17 @@ public class EscortUnit extends Unit {
 	}
 	
 	public boolean canUseSpecialAbility(int row, int col) {
-		//return isInRange(row, col, abilityRange) && lineOfSightExists(row, col) && abilityCoolDownToGo == 0;
-		return true;
+		if (game.getGameSquareAt(row, col) != null) {
+			if (game.getGameSquareAt(row, col).hasOccupant() 
+					&& game.getGameSquareAt(row, col).getOccupant() instanceof BombObstacle) {
+					BombObstacle bomb = (BombObstacle)game.getGameSquareAt(row, col).getOccupant();
+						if (bomb.getSource() == team) 
+							return false;
+						else 
+							return true;
+					}
+			return false;
+		}
+		return false;
 	}
 }
