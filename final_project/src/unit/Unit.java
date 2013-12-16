@@ -261,6 +261,11 @@ public class Unit extends Occupant {
 				return true;
 		return false;
 	}
+	
+	public Item getItem(int index) {
+		if(index < itemList.size() && index >= 0) return itemList.get(index);
+		return null;
+	}
 
 	public boolean canGiveItem(int row, int col, Item i) {
 		GameSquare gs = game.getGameSquareAt(row, col);
@@ -268,7 +273,7 @@ public class Unit extends Occupant {
 		Occupant o = gs.getOccupant();
 		if(!(o instanceof Unit)) return false;
 		Unit receiver = (Unit) o;
-		return hasItem(i) && receiver.inventoryHasRoom() && lineOfSightExists( row, col ) && isInRange( row, col, 1.5 );
+		return hasItem(i) && receiver.inventoryHasRoom() && isInRange( row, col, 1.5 );
 	}
 	
 	public boolean canUseItem(int row, int col) {
@@ -276,7 +281,7 @@ public class Unit extends Occupant {
 		if(!gs.hasOccupant()) return false;
 		Occupant o = gs.getOccupant();
 		if(!(o instanceof Unit)) return false;
-		return row == location.getRow() && col == location.getCol();
+		return row == location.getRow() && col == location.getCol() && itemList.size() > 0;
 	}
 
 	private boolean inventoryHasRoom() {

@@ -887,8 +887,8 @@ public class GUI extends HumanPlayer {
 					Unit performer = (Unit) gs.getOccupant();
 					
 					actionMenu.removeAll();
-					
-					
+
+
 					if (performer instanceof ExplosivesUnit) {
 						if(performer.canAttack(rightClickRow, rightClickCol))
 							actionMenu.add(placeMineItem);
@@ -898,14 +898,14 @@ public class GUI extends HumanPlayer {
 					}
 					if(performer.canMoveTo(rightClickRow, rightClickCol)) actionMenu.add(moveItem);
 					if(performer.canUseAbility(rightClickRow, rightClickCol)) actionMenu.add(specialItem);
-					if (((Unit)performer).getItemList().size() > 0 && performer.canUseItem(rightClickRow, rightClickCol)) {
-						
-						List<Item> items = ((Unit)performer).getItemList();
+					if (performer.canUseItem(rightClickRow, rightClickCol)) {
+
+						List<Item> items = performer.getItemList();
 						int size = items.size();
-						for (Item item : ((Unit)performer).getItemList())
+						for (Item item : performer.getItemList())
 							if (item instanceof MineItem)
 								size = size -1;
-						
+
 						for (int i =0 ; i< size ; i++) {
 							JMenuItem item = new JMenuItem(itemListModel.get(i).getName());
 							useItemMenu.removeAll();
@@ -924,34 +924,35 @@ public class GUI extends HumanPlayer {
 								}
 							});
 						}
-						
-						if (performer.canGiveItem(rightClickRow, rightClickCol, performer.getItemList().get(0))) {
-							giveItemMenu.removeAll();
-							actionMenu.add(giveItemMenu);
-							for (int i =0 ; i< itemListModel.getSize() ; i++) {
-								JMenuItem item = new JMenuItem(itemListModel.get(i).getName());
-								giveItemMenu.add(item);
-								final int j = i;
-								item.addActionListener(new ActionListener() {
-									@Override
-									public void actionPerformed(ActionEvent e) {
-										GiveItemCommand c = new GiveItemCommand(new int[] 
-												{leftClickRow, leftClickCol},new int[] {rightClickRow, rightClickCol}, itemListModel.get(j));
-										sendCommand(c);
-										itemListModel.removeElementAt(j);
-										selected = false;
-										actionMenu.setVisible(false);
-										update();
-									}
-								});
-							}
-						}
-					if (size > 0)
+
 						actionMenu.add(useItemMenu);
 					}
 					
+					if (performer.canGiveItem(rightClickRow, rightClickCol, performer.getItemList().get(0))) {
+						giveItemMenu.removeAll();
+						
+						for (int i =0 ; i< itemListModel.getSize() ; i++) {
+							JMenuItem item = new JMenuItem(itemListModel.get(i).getName());
+							giveItemMenu.add(item);
+							final int j = i;
+							item.addActionListener(new ActionListener() {
+								@Override
+								public void actionPerformed(ActionEvent e) {
+									GiveItemCommand c = new GiveItemCommand(new int[] 
+											{leftClickRow, leftClickCol},new int[] {rightClickRow, rightClickCol}, itemListModel.get(j));
+									sendCommand(c);
+									itemListModel.removeElementAt(j);
+									selected = false;
+									actionMenu.setVisible(false);
+									update();
+								}
+							});
+						}
+						actionMenu.add(giveItemMenu);
+					}
+
 					actionMenu.add(cancelItem);
-					
+
 					actionMenu.show(arg0.getComponent(), rightClickCol*32+16, rightClickRow*32+16);
 
 				}
@@ -1163,6 +1164,12 @@ public class GUI extends HumanPlayer {
 						}
 						if( u.canAttack(r,c)) {
 							g2.setColor( Color.red );
+							square = new Rectangle2D.Double( left+6, upper+6, size-13, size-13 );
+							g2.draw(square);
+							g2.fill(square);
+						}
+						if( u.getItemList().size() > 0 && u.canGiveItem(r,c,u.getItem(0))) {
+							g2.setColor( Color.green );
 							square = new Rectangle2D.Double( left+6, upper+6, size-13, size-13 );
 							g2.draw(square);
 							g2.fill(square);
