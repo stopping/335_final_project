@@ -45,9 +45,9 @@ public class DeathmatchCondition implements WinCondition, Serializable {
 		}
 		
 		if (redLost)
-			return 0;
-		if (blueLost)
 			return 1;
+		if (blueLost)
+			return 0;
 		return -1;
 	}
 	

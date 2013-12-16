@@ -16,6 +16,7 @@ import item.MineItem;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GridLayout;
@@ -1110,7 +1111,8 @@ public class GUI extends HumanPlayer {
 		if(game != null) {
 			GameSquare gs = game.getGameSquareAt(leftClickRow, leftClickCol);
 			if(game.getWinner() != -1) {
-				if(game.isCurrentPlayer(game.getWinner()))
+				gamePanel.add(returnToMenuButton);
+				if(hasWon)
 					gameInfo.setText("You won!");
 				else
 					gameInfo.setText("You lost.");
@@ -1289,6 +1291,18 @@ public class GUI extends HumanPlayer {
 				g2.fill(circle);
 			}
 			
+			if(game.isWon()) {
+				
+				g2.setFont(new Font("Courier",Font.BOLD,24));
+				if(hasWon) {
+					g2.setColor(Color.white);
+					g2.drawString("You are victorious!",60,192);
+				} else {
+					g2.setColor(Color.red);
+					g2.drawString("You have been defeated!",30,192);
+				}
+			}
+			
 		}
 	}
 	
@@ -1318,7 +1332,6 @@ public class GUI extends HumanPlayer {
 			}
 			
 		}
-		
 		
 	}
 	

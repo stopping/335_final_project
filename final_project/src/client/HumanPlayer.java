@@ -20,10 +20,12 @@ public abstract class HumanPlayer {
 	protected Game game;
 	protected List<Unit> units;
 	protected String name;
+	protected boolean hasWon;
 	
 	public HumanPlayer() {
 		units = new ArrayList<Unit>();
 		client = new Client("localhost", 4009, this);
+		hasWon = false;
 		Thread t = new Thread(client);
 		t.start();
 	}
@@ -94,6 +96,17 @@ public abstract class HumanPlayer {
 
 	public boolean isExecuting() {
 		return false;
+	}
+
+	public void setVictory(boolean condition) {
+		System.out.println(hasWon);
+		hasWon = condition;
+		System.out.println(hasWon);
+		update();
+	}
+
+	public boolean hasWon() {
+		return hasWon;
 	}
 
 }

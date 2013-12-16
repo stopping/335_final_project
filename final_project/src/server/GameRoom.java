@@ -12,6 +12,7 @@ import map.MapBehavior;
 import map.StandardMap;
 import server_commands.ComputerDifficultySet;
 import server_commands.ComputerTurn;
+import server_commands.DeclareVictory;
 import server_commands.IllegalOption;
 import server_commands.SendingGame;
 import server_commands.Surrender;
@@ -114,7 +115,7 @@ public class GameRoom {
 	public void executeCommand(ClientHandler ch, GameCommand gc) {
 		
 		if (!game.isWon() && ch.equals(players.get(whoseTurn))) {
-
+			System.out.println("Currently player " + whoseTurn + "\'s turn");
 			if (gc instanceof EndTurnCommand) {
 				gc.executeOn(game);
 				players.get(whoseTurn).sendCommand(gc);
@@ -126,12 +127,14 @@ public class GameRoom {
 				if (game.executeCommand(gc)) {
 					playerCommands.add(gc);
 					players.get(whoseTurn).sendCommand(gc);
-					if(game.isWon() && whoseTurn != game.getWinner()) {
+					if(game.isWon()) {
+						players.get(game.getWinner()).sendCommand(new DeclareVictory(true));
 						gc = new EndTurnCommand();
 						gc.executeOn(game);
 						players.get(whoseTurn).sendCommand(gc);
 						playerCommands.add(gc);
 						updateOpponents();
+						players.get((game.getWinner()+1) % 2).sendCommand(new DeclareVictory(false));
 					}
 				} else {
 					System.out.println("player gave illegal option");

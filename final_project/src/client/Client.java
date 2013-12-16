@@ -49,12 +49,12 @@ public class Client implements Runnable {
 					ServerCommand c = (ServerCommand)com;
 					System.out.println("executing command " + c.hashCode());
 					c.executeOn(player);	
-				}
-				
-				else if (com instanceof GameCommand) {
+				} else if (com instanceof GameCommand) {
 					player.executeGameCommand((GameCommand)com);
 					System.out.println("Executing game command");
 					player.update();
+				} else {
+					System.out.println("Command not recognized");
 				}
 			}
 		

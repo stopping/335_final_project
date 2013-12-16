@@ -95,7 +95,7 @@ public class Game implements Serializable {
 	 */
 	public boolean checkWinCondition() {
 		winner = victoryCondition.checkWinCondition();
-		System.out.println("The current winner" + winner);
+		System.out.println("The current winner " + winner);
 		return victoryCondition.checkWinCondition() >= 0;
 	}
 
@@ -233,9 +233,11 @@ public class Game implements Serializable {
 		
 		if(!isTurn(performer))
 			return false;
+		
+		boolean result = performer.moveTo(dest[0],dest[1]);
 		checkWinCondition();
 		// unit's move method now performs the requisite checks
-		return performer.moveTo(dest[0],dest[1]);
+		return result;
 
 	}
 
@@ -251,10 +253,12 @@ public class Game implements Serializable {
 		
 		if(!isTurn(performer)) { return false; }
 		
+		boolean result = performer.attack(dest[0],dest[1]);
+		
 		checkWinCondition();
 		// attack returns true if attack was successful false if otherwise
 		// important to note that the unit's attack method now perform the requisite checks
-		return performer.attack(dest[0],dest[1]);
+		return result;
 
 	}
 	
@@ -269,10 +273,11 @@ public class Game implements Serializable {
 			return false;
 		
 		if(!isTurn(performer)) { return false; }
+		boolean result = performer.useSpecialAbility(dest[0],dest[1]);
 		checkWinCondition();
 		// attack returns true if attack was successful false if otherwise
 		// important to note that the unit's attack method now perform the requisite checks
-		return performer.useSpecialAbility(dest[0],dest[1]);
+		return result;
 
 	}
 
