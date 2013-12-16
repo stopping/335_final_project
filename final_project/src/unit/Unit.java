@@ -352,6 +352,8 @@ public class Unit extends Occupant {
 		clone.strength = u.strength;
 		clone.defense = u.defense;
 		clone.maxHitPoints = u.maxHitPoints;
+		clone.hitPoints = u.hitPoints;
+		clone.maxActionPoints = u.maxActionPoints;
 		clone.actionPoints = u.actionPoints;
 		clone.speed = u.speed;
 		clone.attackRange = u.attackRange;
