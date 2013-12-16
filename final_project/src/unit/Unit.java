@@ -274,6 +274,7 @@ public class Unit extends Occupant {
 
 	public boolean canGiveItem(int row, int col, Item i) {
 		GameSquare gs = game.getGameSquareAt(row, col);
+		if(row == location.getRow() && col == location.getCol()) return false;
 		if(!gs.hasOccupant()) return false;
 		Occupant o = gs.getOccupant();
 		if(!(o instanceof Unit)) return false;

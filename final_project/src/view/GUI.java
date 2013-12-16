@@ -911,10 +911,10 @@ public class GUI extends HumanPlayer {
 						for (Item item : performer.getItemList())
 							if (item instanceof MineItem)
 								size = size -1;
-
+						
+						useItemMenu.removeAll();
 						for (int i =0 ; i< size ; i++) {
 							JMenuItem item = new JMenuItem(itemListModel.get(i).getName());
-							useItemMenu.removeAll();
 							useItemMenu.add(item);
 							final int j = i;
 
@@ -1173,6 +1173,12 @@ public class GUI extends HumanPlayer {
 						if( u.canAttack(r,c)) {
 							g2.setColor( Color.red );
 							square = new Rectangle2D.Double( left+6, upper+6, size-13, size-13 );
+							g2.draw(square);
+							g2.fill(square);
+						}
+						if( u.getItemList().size() > 0 && u.canGiveItem(r,c,u.getItem(0)) ) {
+							g2.setColor( Color.green );
+							square = new Rectangle2D.Double( left+8, upper+8, size-17, size-17 );
 							g2.draw(square);
 							g2.fill(square);
 						}
