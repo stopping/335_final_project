@@ -935,7 +935,7 @@ public class GUI extends HumanPlayer {
 						actionMenu.add(useItemMenu);
 					}
 
-					if (performer.canGiveItem(rightClickRow, rightClickCol, performer.getItemList().get(0))) {
+					if ( performer.getItemList().size() > 0 && performer.canGiveItem(rightClickRow, rightClickCol, performer.getItemList().get(0))) {
 						giveItemMenu.removeAll();
 
 						for (int i =0 ; i< itemListModel.getSize() ; i++) {
