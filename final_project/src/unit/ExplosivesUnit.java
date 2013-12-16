@@ -28,6 +28,7 @@ public class ExplosivesUnit extends Unit {
 		abilityCoolDown = 2;
 		abilityCoolDownToGo = 0;
 		addItem(new MineItem("Mine", 1, this));
+		addItem(new MineItem("Mine", 1, this));
 		unitClass = UnitClass.Explosives;
 	}
 	

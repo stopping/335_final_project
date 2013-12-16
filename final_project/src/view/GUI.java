@@ -92,6 +92,7 @@ import client_commands.NewUser;
 import client_commands.PlayerMessage;
 import client_commands.PlayerReady;
 import client_commands.RequestGameRooms;
+import client_commands.ResumeSession;
 import client_commands.StartGame;
 import client_commands.Surrender;
 import client_commands.SuspendSession;
@@ -279,7 +280,7 @@ public class GUI extends HumanPlayer {
 		
 		mainFrame.setResizable(false);
 		mainFrame.add(mainPanel);
-		mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		mainFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		mainFrame.setSize(800, 800);
 		mainFrame.setVisible(true);
 
@@ -429,7 +430,7 @@ public class GUI extends HumanPlayer {
 		
 		chatScrollPane.getVerticalScrollBar().addAdjustmentListener(new ScrollBarListener());
 		chatField.addKeyListener(new ChatFieldListener());
-		//mainFrame.addWindowListener(new WindowClosingListener());
+		mainFrame.addWindowListener(new WindowClosingListener());
 	}
 	
 	public void login() {
@@ -726,11 +727,11 @@ public class GUI extends HumanPlayer {
 			}
 		});
 		
-		/*resumeSessionButton.addActionListener(new ActionListener() {
+		resumeSessionButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				// send command to request resume session
+				sendCommand(new ResumeSession());
 			}
-		});*/
+		});
 		
 		accountInfoButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {

@@ -52,6 +52,7 @@ public abstract class HumanPlayer {
 			for (Unit unit : u)
 				units.add(unit);
 		}
+
 	}
 	
 	public void setUnits(ArrayList<Unit> u) {
