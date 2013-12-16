@@ -870,47 +870,54 @@ public class GUI extends HumanPlayer {
 		}
 
 		@Override
+
 		public void mousePressed(MouseEvent arg0) {
-			
+		
 			if(arg0.getButton() == MouseEvent.BUTTON1) {
+
 				leftClickRow = arg0.getPoint().y / 32;
 				leftClickCol = arg0.getPoint().x / 32;
 				selected = true;
+
 			} else if(arg0.getButton() == MouseEvent.BUTTON3) {
+
 				rightClickRow = arg0.getPoint().y / 32;
 				rightClickCol = arg0.getPoint().x / 32;
+
 				if(selected) {
 
 					GameSquare gs = game.getGameSquareAt(leftClickRow, leftClickCol);
-					if(!gs.hasOccupant() || !(gs.getOccupant() instanceof Unit)) return;
-					
+					if(!gs.hasOccupant() || !(gs.getOccupant() instanceof Unit)) return;			
+
 					Unit performer = (Unit) gs.getOccupant();
-					
 					actionMenu.removeAll();
-					
-					
+
 					if (performer instanceof ExplosivesUnit) {
 						if(performer.canAttack(rightClickRow, rightClickCol))
 							actionMenu.add(placeMineItem);
 					}
+
 					else {
 						if(performer.canAttack(rightClickRow, rightClickCol)) actionMenu.add(attackItem);
 					}
+
 					if(performer.canMoveTo(rightClickRow, rightClickCol)) actionMenu.add(moveItem);
 					if(performer.canUseAbility(rightClickRow, rightClickCol)) actionMenu.add(specialItem);
-					if (((Unit)performer).getItemList().size() > 0 && performer.canUseItem(rightClickRow, rightClickCol)) {
-						
-						List<Item> items = ((Unit)performer).getItemList();
+					if (performer.canUseItem(rightClickRow, rightClickCol)) {
+
+						List<Item> items = performer.getItemList();
 						int size = items.size();
-						for (Item item : ((Unit)performer).getItemList())
+
+						for (Item item : performer.getItemList())
 							if (item instanceof MineItem)
 								size = size -1;
-						
+
 						for (int i =0 ; i< size ; i++) {
 							JMenuItem item = new JMenuItem(itemListModel.get(i).getName());
 							useItemMenu.removeAll();
 							useItemMenu.add(item);
 							final int j = i;
+
 							item.addActionListener(new ActionListener() {
 								@Override
 								public void actionPerformed(ActionEvent e) {
@@ -924,42 +931,44 @@ public class GUI extends HumanPlayer {
 								}
 							});
 						}
-						
-						if (performer.canGiveItem(rightClickRow, rightClickCol, performer.getItemList().get(0))) {
-							giveItemMenu.removeAll();
-							actionMenu.add(giveItemMenu);
-							for (int i =0 ; i< itemListModel.getSize() ; i++) {
-								JMenuItem item = new JMenuItem(itemListModel.get(i).getName());
-								giveItemMenu.add(item);
-								final int j = i;
-								item.addActionListener(new ActionListener() {
-									@Override
-									public void actionPerformed(ActionEvent e) {
-										GiveItemCommand c = new GiveItemCommand(new int[] 
-												{leftClickRow, leftClickCol},new int[] {rightClickRow, rightClickCol}, itemListModel.get(j));
-										sendCommand(c);
-										itemListModel.removeElementAt(j);
-										selected = false;
-										actionMenu.setVisible(false);
-										update();
-									}
-								});
-							}
-						}
-					if (size > 0)
 						actionMenu.add(useItemMenu);
 					}
-					
+
+					if (performer.canGiveItem(rightClickRow, rightClickCol, performer.getItemList().get(0))) {
+						giveItemMenu.removeAll();
+
+						for (int i =0 ; i< itemListModel.getSize() ; i++) {
+							JMenuItem item = new JMenuItem(itemListModel.get(i).getName());
+							giveItemMenu.add(item);
+							final int j = i;
+
+							item.addActionListener(new ActionListener() {
+								@Override
+								public void actionPerformed(ActionEvent e) {
+									GiveItemCommand c = new GiveItemCommand(new int[] 
+											{leftClickRow, leftClickCol},new int[] {rightClickRow, rightClickCol}, itemListModel.get(j));
+
+									sendCommand(c);
+									itemListModel.removeElementAt(j);
+									selected = false;
+									actionMenu.setVisible(false);
+									update();
+
+								}
+							});
+						}
+						actionMenu.add(giveItemMenu);
+
+					}
+
 					actionMenu.add(cancelItem);
-					
 					actionMenu.show(arg0.getComponent(), rightClickCol*32+16, rightClickRow*32+16);
 
 				}
 			}
-			
 			update();
-
 		}
+
 
 		@Override
 		public void mouseReleased(MouseEvent arg0) {
