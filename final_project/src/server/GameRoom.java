@@ -42,6 +42,8 @@ public class GameRoom {
 	public GameRoom() {
 		players = new ArrayList<ClientHandler>();
 		playerCommands = new LinkedList<GameCommand>();
+		wc = new DeathmatchCondition();
+		mb = new StandardMap();
 	}
 	
 	public void setWinCondition(WinCondition w) {
@@ -101,8 +103,11 @@ public class GameRoom {
 	
 	public boolean sendNewGame(Game g) {
 		this.game = g;	
-		for (ClientHandler ch : players )
-			ch.sendCommand(new SendingGame(g));
+		int player = 0;
+		for (ClientHandler ch : players ) {
+			ch.sendCommand(new SendingGame(g, player));
+			player++;
+		}
 		return true;
 	}
 	

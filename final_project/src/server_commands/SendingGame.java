@@ -8,14 +8,16 @@ import client.HumanPlayer;
 public class SendingGame extends ServerCommand {
 	
 	private Game game;
+	private int playerNum;
 	
-	public SendingGame( Game g ) {
+	public SendingGame( Game g , int playerNum) {
 		game = g;
+		this.playerNum = playerNum;
 	}
 	
 	@Override
 	public void executeOn(HumanPlayer player) {
-		player.setGame(game);
+		player.setGame(game, playerNum);
 		player.showGamePanel();
 		player.update();
 		

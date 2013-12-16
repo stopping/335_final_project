@@ -38,14 +38,26 @@ public abstract class HumanPlayer {
 		System.out.println(game.toString());
 	}
 
-	public void setGame(Game g) {
+	public void setGame(Game g, int playerNum) {
 		this.game = g;
+		units.clear();
+
+		if (playerNum == 0) {
+			List<Unit> u = g.getRedUnitList();
+			for (Unit unit : u)
+				units.add(unit);
+		}
+		else if (playerNum == 1) {
+			List<Unit> u = g.getBlueUnitList();
+			for (Unit unit : u)
+				units.add(unit);
+		}
 	}
 	
 	public void setUnits(ArrayList<Unit> u) {
 		units.clear();
 		for (Unit unit : u)
-			units.add(unit.cloneUnit(unit));
+			units.add(unit);
 	}
 
 	public void setCredits(int c) {

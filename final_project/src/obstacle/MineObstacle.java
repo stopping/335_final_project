@@ -18,9 +18,11 @@ public class MineObstacle extends Obstacle {
 	}
 	
 	public boolean isVisible(List<Unit> units) {
-		for (Unit u : units)
+		for (Unit u : units) {
 			if (u.equals(placer))
 				return true;
+			
+		}
 		return false;
 	}
 }
