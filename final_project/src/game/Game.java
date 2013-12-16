@@ -34,11 +34,15 @@ public class Game implements Serializable {
 	public Game(ArrayList<Unit> redUnits, ArrayList<Unit> blueUnits, WinCondition condition, MapBehavior map) {
 		
 
-		for(Unit u : redUnits) 
+/*		for(Unit u : redUnits) 
 			unitListRed.add(u.cloneUnit(u));
 		
 		for(Unit u : blueUnits) 
-			unitListBlue.add(u.cloneUnit(u));
+			unitListBlue.add(u.cloneUnit(u));*/
+		
+		unitListRed = redUnits;
+		unitListBlue = blueUnits;
+		
 		victoryCondition = condition;
 		victoryCondition.setGame(this);
 		
