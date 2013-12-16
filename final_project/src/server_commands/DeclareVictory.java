@@ -15,6 +15,7 @@ public class DeclareVictory extends ServerCommand {
 		System.out.println(p.hasWon());
 		p.setVictory(condition);
 		System.out.println(p.hasWon());
+		p.update();
 	}
 	
 }

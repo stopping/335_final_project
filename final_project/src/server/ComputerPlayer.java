@@ -37,7 +37,7 @@ public class ComputerPlayer implements Runnable {
 		difficulty = 0;
 
 		try {
-			sock = new Socket("localhost", 4009);		
+			sock = new Socket("localhost", 4008);		
 			//sock.setSoTimeout(4000);
 			this.output = new ObjectOutputStream(sock.getOutputStream());
 			this.input = new ObjectInputStream(sock.getInputStream());

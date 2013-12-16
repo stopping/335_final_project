@@ -168,9 +168,19 @@ public class GameRoom {
 	}
 	
 	public boolean playerSurrender(String playerSurrendering, ClientHandler ch) {
+		game.surrender();
+		players.get(game.getWinner()).sendCommand(new DeclareVictory(true));
+		GameCommand gc = new EndTurnCommand();
+		gc.executeOn(game);
+		players.get(whoseTurn).sendCommand(gc);
+		playerCommands.add(gc);
+		updateOpponents();
+		players.get((game.getWinner()+1) % 2).sendCommand(new DeclareVictory(false));
+		System.out.println("GAME IS WON " + game.isWon());
 		for (ClientHandler c : players)
-			if (!c.equals(ch))
+			if (!c.equals(ch)) {
 				c.sendCommand(new Surrender(playerSurrendering));
+			}
 		cleanOutGameRoom();		
 		return true;
 	}

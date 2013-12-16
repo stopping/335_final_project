@@ -24,7 +24,7 @@ public abstract class HumanPlayer {
 	
 	public HumanPlayer() {
 		units = new ArrayList<Unit>();
-		client = new Client("localhost", 4009, this);
+		client = new Client("localhost", 4008, this);
 		hasWon = false;
 		Thread t = new Thread(client);
 		t.start();

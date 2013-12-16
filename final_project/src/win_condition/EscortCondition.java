@@ -25,7 +25,9 @@ public class EscortCondition implements WinCondition, Serializable {
 
 	@Override
 	public int checkWinCondition() {
-		// TODO Auto-generated method stub
+		if (game.isWon()) 
+			return game.getWinner();
+		
 		return -1;
 	}
 	

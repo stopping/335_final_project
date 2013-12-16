@@ -410,8 +410,11 @@ public class GUI extends HumanPlayer {
 				switch (JOptionPane.showConfirmDialog(null, "Surrender to your opponent?")) {
 				case JOptionPane.YES_OPTION:
 					sendCommand(new Surrender());
-					gameInfo.setText("you lost.");
+					gameInfo.setText("You lost.");
+					game.surrender();
+					setVictory(false);
 					gamePanel.add(returnToMenuButton);
+					update();
 					break;
 				default:
 					break;
@@ -587,8 +590,11 @@ public class GUI extends HumanPlayer {
 		
 		readyButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				System.out.println("Size of unit list: " + userUnitListModel.size());
 				if (userUnitListModel.getSize() == 5) {
-					if (units.size() == 0 && gameTypeComboBox.getSelectedIndex() != 1 ) 
+					System.out.println("Size of Units" + units.size());
+					System.out.println(gameTypeComboBox.getSelectedIndex());
+					if (units.size() == 0) 
 						sendNewUnits();
 					sendCommand(new ComputerDifficultySet(AILevelComboBox.getSelectedIndex()));
 					sendCommand(new PlayerReady(gameTypeComboBox.getSelectedIndex(), mapTypeComboBox.getSelectedIndex()));
@@ -818,11 +824,13 @@ public class GUI extends HumanPlayer {
 		}
 	}
 	
-	private void sendNewUnits() {
+	private synchronized void sendNewUnits() {
+		System.out.println("User unit list model: " + userUnitListModel.getSize());
 		for (int i = 0; i < userUnitListModel.getSize(); i++) {
 			Unit u = userUnitListModel.get(i);
 			System.out.println(u.toString());
 			sendCommand(new NewUnit(u.getName(), u.getUnitClass()));
+			System.out.println(i);
 		}
 	}
 	
@@ -1075,7 +1083,10 @@ public class GUI extends HumanPlayer {
 	@Override
 	public void playerSurrendered(String name) {
 		gameInfo.setText(name + " surrendered. You won!");
+		game.surrender();
+		setVictory(true);
 		gamePanel.add(returnToMenuButton);
+		update();
 	}
 	
 	@Override

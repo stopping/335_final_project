@@ -1,14 +1,21 @@
 package server;
 
+import game.Game;
+import game_commands.GameCommand;
+
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.HashMap;
 
 import map.MapBehavior;
-import game.Game;
-import game_commands.GameCommand;
-import server_commands.*;
+import server_commands.CanStartGame;
+import server_commands.DeclareVictory;
+import server_commands.GameJoinedInfo;
+import server_commands.OpenGameRooms;
+import server_commands.PlayerMessage;
+import server_commands.SendingGame;
+import server_commands.ValidLogin;
 import unit.Attribute;
 import unit.DemolitionUnit;
 import unit.EngineerUnit;
@@ -17,10 +24,6 @@ import unit.ExplosivesUnit;
 import unit.MeleeUnit;
 import unit.RocketUnit;
 import unit.SoldierUnit;
-import server_commands.CanStartGame;
-import server_commands.OpenGameRooms;
-import server_commands.SendingGame;
-import server_commands.ValidLogin;
 import unit.Unit;
 import unit.Unit.UnitClass;
 import win_condition.EscortCondition;
@@ -28,7 +31,7 @@ import win_condition.WinCondition;
 
 public class Server implements Runnable {
 	
-	public static final int PORT_NUMBER = 4009;
+	public static final int PORT_NUMBER = 4008;
 	public static final int MAX_PLAYERS = 2;
 	private UserDatabase database;
 	private HashMap<String, ClientHandler> playerMap;
@@ -155,6 +158,8 @@ public class Server implements Runnable {
 			return database.getUser(source).addUnit(new SoldierUnit(name));
 		else if (type == UnitClass.Explosives)
 			return database.getUser(source).addUnit(new ExplosivesUnit(name));
+		else if (type == UnitClass.Escort)
+			return database.getUser(source).addUnit(new EscortUnit(name, 2));
 		else
 			return false;
 		}
@@ -326,6 +331,7 @@ public class Server implements Runnable {
 	
 	public boolean playerSurrender(String source, int gr, ClientHandler ch) {
 		if (gamerooms.containsKey(gr)) {
+			ch.sendCommand(new DeclareVictory(false));
 			boolean ret = gamerooms.get(gr).playerSurrender(source, ch);
 			gamerooms.remove(gr);
 			return ret;

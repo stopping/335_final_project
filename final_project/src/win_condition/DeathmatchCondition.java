@@ -26,6 +26,9 @@ public class DeathmatchCondition implements WinCondition, Serializable {
 
 	
 	public int checkWinCondition() {
+		if (!game.isWon()) 
+			return game.getWinner();
+		
 		ArrayList<Unit> redUnits = (ArrayList<Unit>) game.getRedUnitList();
 		ArrayList<Unit> blueUnits = (ArrayList<Unit>) game.getBlueUnitList();
 		
@@ -48,6 +51,7 @@ public class DeathmatchCondition implements WinCondition, Serializable {
 			return 1;
 		if (blueLost)
 			return 0;
+		
 		return -1;
 	}
 	

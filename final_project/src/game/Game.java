@@ -68,6 +68,13 @@ public class Game implements Serializable {
 		return board;
 	}
 	
+	public void surrender() {
+		if (currentPlayer == 0)
+			winner = 1;
+		else 
+			winner = 0;
+	}
+	
 	public boolean executeCommand( GameCommand com ) {
 		
 		if(com == null) return false;
